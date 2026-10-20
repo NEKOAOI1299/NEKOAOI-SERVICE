@@ -1,0 +1,2766 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEKOAOI - Plataforma & Comunidad Otaku</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f1015',
+                        cardbg: '#181a20',
+                        accent: '#13C8D6',
+                        accenthover: '#0fa3af',
+                        danger: '#ef4444',
+                        gemini: '#8b5cf6',
+                        geminihover: '#7c3aed'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1015; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(19, 200, 214, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(19, 200, 214, 0.6); }
+        }
+        .ai-glow { animation: pulseGlow 3s infinite; }
+    </style>
+</head>
+<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col selection:bg-accent selection:text-white">
+
+    <header class="sticky top-0 z-40 bg-darkbg/90 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-6 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+
+            <!-- Logo con el gatito -->
+            <div class="flex items-center gap-3 flex-shrink-0 group cursor-pointer" onclick="switchTab('inicio')">
+                <div class="w-14 h-14 rounded-xl bg-gray-950 border border-blue-500/50 flex items-center justify-center shadow-lg overflow-hidden group-hover:border-blue-500 transition duration-300">
+                    <span class="text-5xl leading-none">🐱</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wider text-white leading-tight">NEKOAOI</h1>
+                    <span class="text-[11px] font-extrabold text-[#0066FF] tracking-widest block -mt-0.5">青い猫</span>
+                </div>
+            </div>
+
+            <!-- Botones de Pestañas (Nav) -->
+            <nav class="hidden xl:flex items-center bg-cardbg border border-gray-800 rounded-2xl p-1 gap-1 shadow-inner">
+                <button onclick="switchTab('inicio')" id="tab-inicio" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-accent text-white shadow-md whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-house"></i> Inicio
+                </button>
+                <button onclick="switchTab('directorio')" id="tab-directorio" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-folder-open"></i> Directorio
+                </button>
+                <button onclick="switchTab('temporadas')" id="tab-temporadas" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-calendar-days"></i> Temporadas
+                </button>
+                <button onclick="switchTab('milista')" id="tab-milista" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-star"></i> Mi Lista
+                </button>
+                <button onclick="switchTab('serieson')" id="tab-serieson" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-circle-question"></i> SeriesOn
+                </button>
+                <button onclick="switchTab('foro')" id="tab-foro" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap overflow-visible cursor-pointer">
+                    <i class="fa-solid fa-comments"></i> Foro
+                </button>
+                <button onclick="switchTab('ajustes')" id="tab-ajustes" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i class="fa-solid fa-gear"></i> Ajustes
+                </button>
+            </nav>
+
+            <!-- Acciones, Nivel y Login / Sesión -->
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+                <div id="userLevelWidget" onclick="openLevelsModal()" class="hidden sm:flex items-center gap-2.5 bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-xl shadow-inner cursor-pointer hover:border-gray-700 transition">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center font-extrabold text-white text-[11px]" id="userLevelBadge">
+                        Lvl 1
+                    </div>
+                    <div class="flex flex-col text-left">
+                        <span class="text-[9px] font-bold text-gray-400 tracking-wider whitespace-nowrap" id="userRankTitle">Novato del Anime</span>
+                        <div class="w-20 bg-gray-800 h-1 rounded-full overflow-hidden mt-0.5">
+                            <div id="userXpBar" class="bg-cyan-400 h-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="addAnimeBtn" onclick="openModal()" class="hidden bg-accent hover:bg-accenthover text-white px-3.5 py-1.5 rounded-xl font-semibold shadow-lg shadow-accent/20 transition flex items-center gap-1.5 text-xs cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Añadir Anime
+                </button>
+
+                <div id="userNavArea" class="flex items-center gap-3">
+                    <button onclick="toggleAuthModal(true)" id="loginBtn" class="bg-accent hover:bg-accent/80 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                        Iniciar Sesión
+                    </button>
+
+                    <div id="userProfileMenu" class="hidden relative group">
+                        <button type="button" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-1.5 transition cursor-pointer">
+                            <img id="navUserAvatar" src="https://ui-avatars.com/api/?name=User&background=13C8D6&color=fff" class="w-7 h-7 rounded-lg object-cover border border-accent" alt="Avatar">
+                            <span id="navUsername" class="text-white text-xs font-semibold max-w-[100px] truncate">Usuario</span>
+                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="absolute right-0 top-full pt-1 w-48 hidden group-hover:block transition-all">
+                            <div class="bg-cardbg border border-white/10 rounded-2xl shadow-2xl py-2">
+                                <div class="px-4 py-2 border-b border-white/10">
+                                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Conectado como</p>
+                                    <p id="dropdownEmail" class="text-xs font-semibold text-white truncate">Correo@ejemplo.com</p>
+                                </div>
+                                <button type="button" onclick="handleLogout()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-accent hover:bg-white/5 flex items-center gap-2 cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                    Cerrar Sesión
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 lg:px-8 py-8">
+        <!-- PESTAÑA: AJUSTES Y PERFIL -->
+        <section id="section-ajustes" class="tab-section hidden space-y-8 max-w-4xl mx-auto">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-accent"></i> Ajustes y Configuración
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div id="settingsProfileCard" class="md:col-span-1 bg-cardbg border border-white/10 rounded-2xl p-6 text-center shadow-xl">
+                    <div id="settingsLoggedOut" class="py-8 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-gray-500 mb-4 border border-white/10">
+                            <i class="fa-solid fa-user-slash text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-300">No has iniciado sesión</h3>
+                        <p class="text-xs text-gray-400 mt-1 mb-6">Inicia sesión para personalizar tu perfil y sincronizar tus listas.</p>
+                        <button onclick="toggleAuthModal(true)" class="bg-accent hover:bg-accent/80 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition shadow-lg cursor-pointer">
+                            Iniciar Sesión / Registrarse
+                        </button>
+                        <a href="http://localhost:5000/auth/google" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold text-center block mt-3 transition">Iniciar sesión con Google</a>
+                    </div>
+
+                    <div id="settingsLoggedIn" class="hidden flex-col items-center text-center">
+                        <div class="relative mb-3 group cursor-pointer" onclick="document.getElementById('avatarFileInput').click()">
+                            <img id="settingsAvatar" src="https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff" class="w-24 h-24 rounded-full border-4 border-accent shadow-lg object-cover transition group-hover:opacity-80">
+                            <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white text-xs font-bold gap-1">
+                                <i class="fa-solid fa-camera text-sm"></i> Cambiar
+                            </div>
+                            <span class="absolute bottom-0 right-0 bg-green-500 border-2 border-cardbg w-5 h-5 rounded-full" title="Conectado"></span>
+                        </div>
+
+                        <input type="file" id="avatarFileInput" accept="image/png, image/jpeg, image/jpg, image/webp" class="hidden" onchange="handleAvatarUpload(event)">
+                        
+                        <p class="text-[10px] text-gray-400 max-w-[220px] leading-tight mb-4">
+                            Formatos: JPG o PNG (máx. 5 MB). La plataforma analiza y rechaza automáticamente contenido explícito.
+                        </p>
+
+                        <h2 id="settingsUsername" class="text-xl font-bold text-white">Cargando...</h2>
+                        <p id="settingsEmail" class="text-xs text-gray-400 mb-4">correo@ejemplo.com</p>
+
+                        <div class="w-full bg-white/5 border border-white/10 rounded-xl p-3 mb-6">
+                            <div class="flex justify-between items-center text-xs font-bold mb-1">
+                                <span class="text-accent flex items-center gap-1">
+                                    <i class="fa-solid fa-trophy"></i> Rango
+                                </span>
+                                <span id="settingsLevelBadge" class="bg-accent/20 text-accent px-2 py-0.5 rounded-md border border-accent/30">
+                                    Lvl 1 - Novato del Anime
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 text-left">Gana XP añadiendo animes a tu lista.</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 w-full mb-6">
+                            <div class="bg-white/5 border border-white/5 rounded-xl p-3 text-center">
+                                <span id="settingsAnimeCount" class="block text-xl font-black text-white">0</span>
+                                <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Animes en Lista</span>
+                            </div>
+                            <div class="bg-white/5 border border-white/5 rounded-xl p-3 text-center">
+                                <span id="settingsForumPostsCount" class="block text-xl font-black text-accent">0</span>
+                                <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Posts en Foro</span>
+                            </div>
+                        </div>
+
+                        <button onclick="handleLogout()" class="w-full bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión de la Cuenta
+                        </button>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 space-y-6">
+                    <div class="bg-cardbg border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
+                        <div class="border-b border-white/10 pb-3">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-lock text-accent"></i> Cambiar Contraseña de la Cuenta
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Ingresa tu contraseña actual y la nueva contraseña que deseas usar.</p>
+                        </div>
+
+                        <form id="changePasswordForm" onsubmit="handleChangePassword(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1">Contraseña Actual</label>
+                                <input type="password" id="currentPassword" placeholder="••••••••" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-accent focus:outline-none transition">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1">Nueva Contraseña</label>
+                                    <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" required minlength="6" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-accent focus:outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1">Confirmar Nueva Contraseña</label>
+                                    <input type="password" id="confirmPassword" placeholder="Repite la nueva contraseña" required minlength="6" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-accent focus:outline-none transition">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="bg-accent hover:bg-accent/80 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-key"></i> Actualizar Contraseña
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-cardbg border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
+                        <div class="border-b border-white/10 pb-3">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-accent"></i> Preferencias de Perfil y Catálogo
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Personaliza la privacidad y visualización de tu cuenta.</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">Perfil Público</h4>
+                                    <p class="text-[11px] text-gray-400">Permitir que otros usuarios vean tus animes guardados y favoritos.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="publicProfileToggle" checked onchange="togglePublicProfilePrivacy()" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">Diseño de Tarjetas en Catálogo</h4>
+                                    <p class="text-[11px] text-gray-400">Selecciona cómo prefieres ver las tarjetas de animes.</p>
+                                </div>
+                                <select id="catalogViewSelect" class="bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                                    <option value="grid">Cuadrícula Normal</option>
+                                    <option value="compact">Modo Compacto</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 1: INICIO -->
+        <section id="section-inicio" class="tab-section hidden space-y-12">
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-accent/20 via-gray-900/80 to-cardbg border border-gray-800 p-6 sm:p-10 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="max-w-2xl relative z-10">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">Explora tus historias favoritas</h2>
+                    <p class="text-gray-400 text-sm sm:text-base leading-relaxed">Descubre recomendaciones personalizadas, sinopsis automáticas, comparte con tus amigos.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-accent"></i> Animes Más Populares
+                    </h3>
+                    <span class="text-xs text-gray-400">Mayor puntuación y favoritos</span>
+                </div>
+                <div id="popularesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-tv text-accent"></i> Animes en Emisión
+                    </h3>
+                    <span class="text-xs text-gray-400">En emisión semanal</span>
+                </div>
+                <div id="emisionGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </div>
+
+            <div class="space-y-4 pt-6 border-t border-gray-800/60">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-dice text-accent"></i> Animes Aleatorios
+                    </h3>
+                    <button onclick="renderRandomSection()" class="bg-gray-800 hover:bg-gray-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border border-gray-700 flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-rotate-right"></i> Otro Aleatorio
+                    </button>
+                </div>
+                <div id="aleatorioGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: DIRECTORIO -->
+        <section id="section-directorio" class="tab-section hidden space-y-6">
+            <div class="bg-cardbg border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-800">
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Directorio Completo de Anime</h3>
+                        <p class="text-xs text-gray-400">Filtra por géneros y ordena según tus preferencias</p>
+                    </div>
+                    <div class="text-xs text-gray-400 flex items-center gap-2 bg-darkbg px-3.5 py-2 rounded-xl border border-gray-800">
+                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span id="animeCount">Cargando animes...</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
+                        <input type="text" id="dirSearchInput" oninput="applyDirectoryFilters()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
+                        <select id="dirAnioFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los años</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género</label>
+                        <select id="dirGeneroFilter" onchange="applyDirectoryFilters()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los géneros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
+                        <select id="dirEstadoFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los estados</option>
+                            <option value="En emisión">En emisión</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Próximamente">Próximamente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
+                        <select id="dirTipoFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los tipos</option>
+                            <option value="Serie">Serie</option>
+                            <option value="Película">Película</option>
+                            <option value="OVA">OVA</option>
+                            <option value="Especial">Especial</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Ordenar por</label>
+                        <select id="dirSortOrder" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="popular_desc">🔥 Más populares</option>
+                            <option value="popular_asc">📉 Menos populares</option>
+                            <option value="recent">⏰ Recién agregados</option>
+                            <option value="az">🔤 Alfabético (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button onclick="resetDirectoryFilters()" class="bg-accent hover:bg-accenthover text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-lg shadow-accent/20 cursor-pointer">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <div id="directoryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- PESTAÑA 3: TEMPORADAS -->
+        <section id="section-temporadas" class="tab-section hidden space-y-6">
+            <div class="bg-cardbg border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-800">
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Explorar por Temporadas</h3>
+                        <p class="text-xs text-gray-400">Selecciona la estación del año y el año de estreno</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div id="seasonButtonsContainer" class="flex flex-wrap gap-2">
+                        <button onclick="filterSeasonTab('Invierno')" class="season-btn bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md cursor-pointer">❄️ Invierno</button>
+                        <button onclick="filterSeasonTab('Primavera')" class="season-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">🌸 Primavera</button>
+                        <button onclick="filterSeasonTab('Verano')" class="season-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">☀️ Verano</button>
+                        <button onclick="filterSeasonTab('Otoño')" class="season-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">🍁 Otoño</button>
+                    </div>
+                    <div class="w-full sm:w-48">
+                        <select id="seasonYearFilter" onchange="renderTemporadas()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="temporadasGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- PESTAÑA 4: MI LISTA & COMPARTIR -->
+        <section id="section-milista" class="tab-section hidden space-y-6">
+            <div class="bg-cardbg border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-800">
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Mi Lista Personal</h3>
+                        <p class="text-xs text-gray-400">Clasifica y comparte tus animes favoritos con amigos</p>
+                    </div>
+                    <button onclick="shareMyList()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-900/30 cursor-pointer">
+                        <i class="fa-solid fa-share-nodes"></i> Compartir mi Lista con Amigos
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-800 pb-4">
+                    <button onclick="switchListCategory('planeo')" id="subtab-planeo" class="list-subtab bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        <i class="fa-solid fa-clock mr-1"></i> Planeo Ver <span id="count-planeo" class="ml-1 px-2 py-0.5 bg-gray-700 rounded-full text-xs">0</span>
+                    </button>
+                    <button onclick="switchListCategory('sigo')" id="subtab-sigo" class="list-subtab bg-darkbg text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        <i class="fa-solid fa-play mr-1"></i> Sigo Viendo <span id="count-sigo" class="ml-1 px-2 py-0.5 bg-gray-700 rounded-full text-xs">0</span>
+                    </button>
+                    <button onclick="switchListCategory('vi')" id="subtab-vi" class="list-subtab bg-darkbg text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        <i class="fa-solid fa-check mr-1"></i> Ya Vi <span id="count-vi" class="ml-1 px-2 py-0.5 bg-gray-700 rounded-full text-xs">0</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
+                        <input type="text" id="listSearchInput" oninput="cargarMiListaPersonal()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
+                        <select id="listAnioFilter" onchange="cargarMiListaPersonal()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los años</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género / Demografía</label>
+                        <select id="listGeneroFilter" onchange="cargarMiListaPersonal()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los géneros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
+                        <select id="listEstadoFilter" onchange="cargarMiListaPersonal()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los estados</option>
+                            <option value="En emisión">En emisión</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
+                        <select id="listTipoFilter" onchange="cargarMiListaPersonal()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="">Todos los tipos</option>
+                            <option value="Serie">Serie</option>
+                            <option value="Película">Película</option>
+                            <option value="OVA">OVA</option>
+                            <option value="Especial">Especial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="miListaGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 5: SERIESON -->
+        <section id="section-serieson" class="tab-section hidden space-y-6">
+            <div class="bg-cardbg border border-accent/30 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center gap-2 bg-accent/20 text-accent border border-accent/30 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider mb-3">
+                            <i class="fa-solid fa-circle-question"></i> SERIESON QUIZ INTERACTIVO 🐱
+                        </div>
+                        <h3 class="text-3xl font-extrabold text-white mb-2">Encuentra tu próximo anime ideal</h3>
+                        <p class="text-gray-400 text-sm">Responde este test de 10 preguntas y Neko consultará para recomendarte una serie única.</p>
+                    </div>
+
+                    <div id="quizContainer" class="bg-darkbg border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                        
+                        <!-- Pantalla Inicial -->
+                        <div id="quizWelcomeView" class="text-center py-6 space-y-6">
+                            <div class="w-20 h-20 mx-auto rounded-2xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent text-3xl shadow-lg">
+                                <span class="text-4xl">🐱</span>
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="text-xl font-bold text-white">¿Listo para el test otaku?</h4>
+                                <p class="text-xs text-gray-400 max-w-md mx-auto">Te haremos 10 preguntas clave para dar en el blanco con tu siguiente gran maratón.</p>
+                            </div>
+                            <button onclick="startSeriesOnQuiz()" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:scale-105 text-white px-8 py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-pink-500/30 cursor-pointer">
+                                <i class="fa-solid fa-play mr-2"></i> Comenzar Quiz SeriesOn
+                            </button>
+                        </div>
+
+                        <!-- Pantalla de Preguntas -->
+                        <div id="quizQuestionsView" class="hidden space-y-6">
+                            <div class="flex items-center justify-between text-xs text-gray-400 border-b border-gray-800 pb-3">
+                                <span id="quizProgressText" class="font-bold text-accent">Pregunta 1 de 10</span>
+                                <span id="quizCategoryBadge" class="bg-gray-800 px-2.5 py-1 rounded-lg text-pink-400 font-bold">Preferencias</span>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <h4 id="quizQuestionTitle" class="text-lg sm:text-xl font-bold text-white"></h4>
+                                <div id="quizOptionsContainer" class="grid grid-cols-1 gap-3 pt-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Pantalla de Carga Animada con el Gato -->
+                        <div id="quizCargando" class="hidden text-center py-16 space-y-4">
+                            <div class="inline-block animate-bounce text-6xl">🐱💤</div>
+                            <h3 class="text-2xl font-bold text-pink-400">Neko está consultando el archivo otaku...</h3>
+                            <p class="text-gray-400 text-xs">Analizando tus respuestas para traerte una recomendación única y fresca (cero repetidos 🔮)...</p>
+                        </div>
+
+                        <!-- Pantalla de Resultado -->
+                        <div id="quizResultView" class="hidden space-y-6 text-center py-4">
+                            <div class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold mb-2">
+                                <i class="fa-solid fa-circle-check mr-1.5"></i> ¡Match Perfecto Encontrado!
+                            </div>
+                            <h4 class="text-2xl font-extrabold text-white">Tu anime recomendado por Neko es:</h4>
+                            
+                            <div id="quizResultContent" class="bg-cardbg border border-pink-500/40 rounded-2xl p-6 text-left max-w-xl mx-auto shadow-xl text-gray-200 space-y-3"></div>
+
+                            <div class="flex flex-wrap items-center justify-center gap-3 pt-4">
+                                <button onclick="startSeriesOnQuiz()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2.5 rounded-xl text-xs font-semibold transition border border-gray-700 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-right mr-1"></i> Repetir Quiz
+                                </button>
+                                <button onclick="switchTab('inicio')" class="bg-accent hover:bg-accenthover text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-accent/20 cursor-pointer">
+                                    Ver en la Plataforma
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 6: FORO COMUNITARIO NEKOAOI -->
+        <section id="section-foro" class="tab-section hidden space-y-6 max-w-7xl mx-auto">
+            <div class="bg-cardbg border border-accent/30 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-comments text-accent"></i> Comunidad & Foro Otaku
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-1">Debate, comparte tu lista, sube FanArts y pide recomendaciones a otros miembros.</p>
+                    </div>
+                    <div class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i> Moderación Inteligente Activa
+                    </div>
+                </div>
+
+                <!-- Pestañas de Categorías del Foro -->
+                <div class="flex flex-wrap gap-2 pt-4 border-b border-gray-800/80 pb-4">
+                    <button onclick="switchForumCategory('general')" id="forum-tab-general" class="forum-cat-btn bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        🌟 Discusión General
+                    </button>
+                    <button onclick="switchForumCategory('populares')" id="forum-tab-populares" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        🔥 Posts Más Populares
+                    </button>
+                    <button onclick="switchForumCategory('listas')" id="forum-tab-listas" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        ⭐ Comparte tu Lista
+                    </button>
+                    <button onclick="switchForumCategory('recomendaciones')" id="forum-tab-recomendaciones" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        🎯 Busco Anime
+                    </button>
+                    <button onclick="switchForumCategory('fanart')" id="forum-tab-fanart" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        🎨 FanArt & Creaciones
+                    </button>
+                </div>
+
+                <!-- Sub-Barra de Filtro Temporal -->
+                <div id="popularTimeFilterBar" class="hidden flex items-center justify-between bg-darkbg/60 border border-gray-800 p-3 rounded-2xl mt-3">
+                    <span class="text-xs font-semibold text-gray-300 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-amber-400"></i> Filtrar más destacados por:
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="setPopularTimeFilter('dia')" id="popular-filter-dia" class="popular-filter-btn bg-accent text-white px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                            Día
+                        </button>
+                        <button onclick="setPopularTimeFilter('semana')" id="popular-filter-semana" class="popular-filter-btn bg-cardbg border border-gray-800 text-gray-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                            Semana
+                        </button>
+                        <button onclick="setPopularTimeFilter('mes')" id="popular-filter-mes" class="popular-filter-btn bg-cardbg border border-gray-800 text-gray-400 hover:text-white px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                            Mes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Columna Principal: Formulario de Publicación y Feed -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Formulario de Publicación -->
+                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div class="flex items-center gap-3">
+                            <img id="forumPostAvatar" src="https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff" class="w-10 h-10 rounded-xl object-cover border border-accent">
+                            <span class="text-xs font-bold text-gray-300">¿Qué anime estás viendo hoy o de qué te gustaría hablar?</span>
+                        </div>
+
+                        <textarea id="forumPostText" rows="3" placeholder="Escribe tu opinión, teoría, reseña o duda... (Usa #hashtags)" class="w-full bg-darkbg border border-gray-800 rounded-xl p-3.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-accent transition resize-none"></textarea>
+
+                        <!-- Previsualización de Imagen/GIF -->
+                        <div id="forumMediaPreview" class="hidden relative rounded-xl overflow-hidden border border-gray-800 max-h-60 bg-black/40">
+                            <img id="forumPreviewImg" src="" class="w-full h-full object-contain">
+                            <button onclick="removeForumMedia()" class="absolute top-2 right-2 bg-black/70 hover:bg-black text-white w-7 h-7 rounded-full text-xs flex items-center justify-center cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-800">
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="document.getElementById('forumMediaInput').click()" class="bg-darkbg hover:bg-gray-800 border border-gray-800 text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-image text-emerald-400"></i> Foto / GIF
+                                </button>
+                                <input type="file" id="forumMediaInput" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden" onchange="handleForumMediaUpload(event)">
+                            </div>
+
+                            <button onclick="createForumPost()" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-5 py-2 rounded-xl transition shadow-lg shadow-accent/20 flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i> Publicar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feed de Publicaciones del Foro -->
+                    <div id="forumFeedContainer" class="space-y-6">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Columna Lateral: Tendencias y Panel Comunitario -->
+                <div class="space-y-6">
+                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-hashtag text-accent"></i> Tendencias Otaku
+                            </h3>
+                            <button id="clearHashtagFilterBtn" onclick="clearHashtagFilter()" class="hidden text-[10px] bg-accent/20 text-accent border border-accent/30 px-2 py-0.5 rounded-md hover:bg-accent/30 transition cursor-pointer">
+                                <i class="fa-solid fa-xmark mr-1"></i> Quitar filtro
+                            </button>
+                        </div>
+                        <div id="trendingHashtagsContainer" class="flex flex-wrap gap-2">
+                            <!-- Dinámico -->
+                        </div>
+                    </div>
+
+                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-3">
+                        <h3 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-info text-accent"></i> Reglas del Foro
+                        </h3>
+                        <ul class="text-[11px] text-gray-400 space-y-1.5 list-disc list-inside leading-relaxed">
+                            <li>Respeta las opiniones de los demás.</li>
+                            <li>Usa alertas si tu post contiene spoilers.</li>
+                            <li>Imágenes explícitas o inapropiadas se rechazan automáticamente.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Visor de Imagen Ampliada (Lightbox) -->
+    <div id="imageLightboxModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
+        <button onclick="closeImageLightbox()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center transition cursor-pointer text-lg">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <img id="lightboxImg" src="" class="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border border-white/10">
+    </div>
+
+    <!-- Modal Confirmación Personalizado para Eliminar Post del Foro -->
+    <div id="forumDeleteConfirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative text-center space-y-4">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-danger/20 text-danger border border-danger/30 flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-white mb-1">¿Eliminar publicación?</h3>
+                <p class="text-xs text-gray-400">Esta acción no se puede deshacer y se borrará de la comunidad.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="closeForumDeleteModal()" class="bg-gray-800 hover:bg-gray-700 text-white py-2.5 rounded-xl font-semibold text-xs transition cursor-pointer">
+                    Cancelar
+                </button>
+                <button id="confirmForumDeleteBtn" class="bg-danger hover:bg-red-600 text-white py-2.5 rounded-xl font-semibold text-xs transition shadow-lg shadow-danger/20 cursor-pointer">
+                    Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Perfil Público de Usuario -->
+    <div id="publicProfileModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+            <button onclick="closePublicProfileModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="publicProfileModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal Ficha Detallada Anime -->
+    <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="detailModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal Compartir Anime / Lista -->
+    <div id="shareModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-center">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-800 text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-2xl mb-4">
+                <i class="fa-solid fa-share-nodes"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2" id="shareModalTitle">Compartir con Amigos</h3>
+            <p class="text-xs text-gray-400 mb-6" id="shareModalDesc">Envía tu recomendación o lista personalizada a tus contactos</p>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="shareVia('whatsapp')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                </button>
+                <button onclick="shareVia('twitter')" class="bg-sky-600 hover:bg-sky-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i class="fa-brands fa-x-twitter text-lg"></i> Twitter / X
+                </button>
+            </div>
+
+            <div class="relative">
+                <input type="text" id="shareLinkInput" readonly class="w-full bg-darkbg border border-gray-800 rounded-xl pl-4 pr-24 py-2.5 text-xs text-gray-300 focus:outline-none">
+                <button onclick="copyShareLink()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-accent hover:bg-accenthover text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+                    Copiar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Añadir Anime -->
+    <div id="animeModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-800">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Nuevo Anime</h3>
+                    <p class="text-xs text-gray-400">Guarda un título en tu base de datos</p>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-gray-800/80 hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="animeForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título Principal *</label>
+                    <input type="text" id="titulo" required placeholder="Ej. Shingeki no Kyojin, Naruto, One Piece..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
+                        <select id="tipo" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="Serie">Serie</option>
+                            <option value="Película">Película</option>
+                            <option value="OVA">OVA</option>
+                            <option value="Especial">Especial</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año de Lanzamiento</label>
+                        <select id="anio" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
+                        <select id="estado" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="En emisión">En emisión</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Próximamente">Próximamente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Temporada</label>
+                        <select id="temporada" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="Invierno">Invierno</option>
+                            <option value="Primavera">Primavera</option>
+                            <option value="Verano">Verano</option>
+                            <option value="Otoño">Otoño</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Puntuación (1-10)</label>
+                        <input type="number" id="puntuacion" min="1" max="10" step="0.1" value="8.5" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Géneros / Demografía</label>
+                        <input type="text" id="generos" placeholder="Shounen, Acción, Fantasía" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Guía de Relleno (Ej: 10% Relleno / Eps. 50-65)</label>
+                    <input type="text" id="rellenoGuia" placeholder="Ej: 15% Relleno (Canon: 1-135, Relleno: 136-219)" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">URL de Imagen / Poster</label>
+                    <input type="url" id="imagenUrl" placeholder="https://..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Sinopsis</label>
+                    <textarea id="sinopsis" rows="2" placeholder="Descripción..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition cursor-pointer">Cancelar</button>
+                    <button type="submit" id="submitBtn" class="bg-accent hover:bg-accenthover text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-accent/20 transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Guardar Anime
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Autenticación -->
+    <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-cardbg border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+            <button onclick="toggleAuthModal(false)" class="absolute top-4 right-4 text-gray-400 hover:text-white transition cursor-pointer">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <h2 id="authTitle" class="text-2xl font-bold text-white mb-2 text-center">Iniciar Sesión</h2>
+            <p id="authSubtitle" class="text-gray-400 text-sm mb-6 text-center">Ingresa a tu cuenta de NEKOAOI</p>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="usernameGroup" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Nombre de Usuario</label>
+                    <input type="text" id="authUsername" placeholder="Ej. OtakuPro99" class="w-full bg-darkbg border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Correo Electrónico</label>
+                    <input type="email" id="authEmail" required placeholder="tu@email.com" class="w-full bg-darkbg border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Contraseña</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-darkbg border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent">
+                </div>
+
+                <div id="authMessage" class="hidden text-sm p-3 rounded-xl text-center"></div>
+
+                <div class="space-y-2 pt-2">
+                    <button type="submit" id="authSubmitBtn" class="w-full bg-accent hover:bg-accent/80 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-accent/25 cursor-pointer">
+                        Entrar
+                    </button>
+                    <a href="http://localhost:5000/auth/google" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl font-semibold text-center block transition flex items-center justify-center gap-2 mb-2">
+                        <i class="fa-brands fa-google"></i> Continuar con Google
+                    </a>
+                    <button type="button" onclick="toggleAuthModal(false)" class="w-full bg-darkbg hover:bg-white/5 text-gray-400 hover:text-white font-semibold py-2.5 rounded-xl transition border border-white/10 cursor-pointer">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-gray-400">
+                <span id="authToggleText">¿No tienes cuenta?</span>
+                <button type="button" onclick="switchAuthMode()" id="authToggleBtn" class="text-accent hover:underline font-semibold ml-1 cursor-pointer">
+                    Regístrate aquí
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Sistema de Niveles -->
+    <div id="levelsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-3xl p-6 shadow-2xl relative">
+            <button onclick="closeLevelsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-5">
+                <h3 class="text-xl font-bold text-white flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> Sistema de Rangos y Niveles
+                </h3>
+                <p class="text-xs text-gray-400 mt-1">Conoce cómo subir de rango en NEKOAOI.</p>
+            </div>
+
+            <div class="flex items-center justify-between bg-emerald-950/30 border border-emerald-500/40 p-3 rounded-xl mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-lg">EXP</span>
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">¿Cómo subir de nivel?</h4>
+                        <p class="text-xs text-gray-300">Ganas <strong class="text-emerald-400">+5 puntos</strong> cada vez que agregas un anime a tu sección <strong class="text-emerald-400">"Mi Lista"</strong>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[55vh] overflow-y-auto pr-1">
+                <div class="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/40 p-3 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-cyan-500 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 1</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white">Novato del Anime</h4>
+                            <p class="text-xs text-gray-400">0 - 50 Puntos</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20">Actual</span>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 2</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Aficionado</h4>
+                            <p class="text-xs text-gray-400">51 - 150 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-indigo-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 3</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Otaku en Progreso</h4>
+                            <p class="text-xs text-gray-400">151 - 300 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-purple-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 4</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Devorador de Series</h4>
+                            <p class="text-xs text-gray-400">301 - 500 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-fuchsia-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 5</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Maratonista experto</h4>
+                            <p class="text-xs text-gray-400">501 - 800 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-pink-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 6</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Coleccionista Pro</h4>
+                            <p class="text-xs text-gray-400">801 - 1200 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-rose-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 7</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Sabio del Anime</h4>
+                            <p class="text-xs text-gray-400">1201 - 1700 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-orange-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 8</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Maestro Senpai</h4>
+                            <p class="text-xs text-gray-400">1701 - 2300 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-amber-500 text-white font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 9</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Leyenda de NekoAoi</h4>
+                            <p class="text-xs text-gray-400">2301 - 3000 Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-800/40 border border-gray-700/50 p-3 rounded-xl opacity-80">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-yellow-400 text-gray-950 font-bold text-xs px-2.5 py-1 rounded-lg">Lvl 10</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-200">Dios del Anime</h4>
+                            <p class="text-xs text-gray-400">3001+ Puntos</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-gray-500 text-sm"></i>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-gray-800 text-center">
+                <button onclick="closeLevelsModal()" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-5 py-2 rounded-xl transition cursor-pointer">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-gray-800/80 py-6 text-center text-xs text-gray-500 mt-12">
+        <p>NEKOAOI &bull; Tu plataforma para descubrir, organizar y debatir sobre tus animes favoritos</p>
+    </footer>
+
+    <script>
+        let API_URL = "http://localhost:5000/api/animes";
+        let allAnimes = [];
+        let currentUser = localStorage.getItem('anibase_user') || null;
+        let miListaUsuario = [];
+        let animeReviews = JSON.parse(localStorage.getItem('anibase_reviews') || '{}');
+        let activeListCat = 'planeo';
+        let activeSeason = 'Invierno';
+        let currentShareData = { title: '', url: '' };
+        let isLoginMode = true;
+
+        let activeForumCategory = 'general';
+        let activePopularFilter = 'dia';
+        let activeHashtagFilter = null;
+        let forumPosts = JSON.parse(localStorage.getItem('nekoaoi_forum_posts') || '[]');
+        let currentForumMedia = null;
+
+        const animeFLVGenres = [
+            "Shounen", "Shoujo", "Seinen", "Josei", "Kodomo",
+            "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Ciencia Ficción",
+            "Isekai", "Romance", "Slice of Life", "Sobrenatural", "Misterio", "Psicológico",
+            "Terror", "Suspenso", "Mecha", "Deportes", "Escolar", "Musica", "Magia",
+            "Militar", "Histórico", "Demonios", "Vampiros", "Ecchi", "Harem", "Artes Marciales",
+            "Superpoderes", "Parodia", "Policial", "Juegos", "Espacial", "Cyberpunk"
+        ];
+
+        let quizCurrentStep = 0;
+        let quizAnswers = [];
+        const seriesOnQuestions = [
+            { texto: "¿Qué género principal te apetece más hoy?", opciones: ["Shounen de acción épica", "Seinen maduro y psicológico", "Romance / Shoujo o Josei", "Isekai / Fantasía con mundos nuevos", "Slice of Life / Comedia relajada"] },
+            { texto: "¿Cómo prefieres que sea el protagonista?", opciones: ["Un héroe optimista que nunca se rinde", "Un anti-héroe oscuro o misterioso", "Un genio calculador", "Un personaje ordinario atrapado en situaciones locas", "Una protagonista fuerte e independiente"] },
+            { texto: "¿Qué nivel de oscuridad o seriedad buscas?", opciones: ["Totalmente alegre y divertido", "Balanceado (acción con momentos ligeros)", "Oscuro, con giros trágicos y maduros", "Terror, misterio y thriller psicológico"] },
+            { texto: "¿Qué ritmo de historia prefieres?", opciones: ["Acción frenética desde el capítulo 1", "Construcción de mundo lenta y detallada (Slow burn)", "Misterios que se resuelven poco a poco", "Capítulos independientes y relajados"] },
+            { texto: "¿Qué época o ambientación te llama más la atención?", opciones: ["Japón feudal / Samuráis / Mitología", "Futuro cyberpunk / Ciencia ficción espacial", "Escuela preparatoria moderna de la vida real", "Mundo de fantasía medieval clásico con magia"] },
+            { texto: "¿Qué tan largo te gustaría que fuera?", opciones: ["Cortito (12 a 24 episodios, historia cerrada)", "Mediano (dos o tres temporadas, 50+ episodios)", "Largo / Legendario (más de 100 episodios)", "Una película anime de alta calidad"] },
+            { texto: "¿Qué tan importante es la animación y la banda sonora?", opciones: ["Vital: Exijo peleas fluidas y música épica", "Importante, pero me importa más la trama", "Me da igual, con que la historia sea buena basta"] },
+            { texto: "¿Buscas algún elemento en específico?", opciones: ["Magia y poderes rotos", "Estrategia mental y batallas de intelecto", "Comedia romántica con tensión", "Viajes en el tiempo o paradojas temporales"] },
+            { texto: "¿Prefieres animes populares o joyas ocultas?", opciones: ["Joyas ocultas poco conocidas que sorprendan", "Clásicos modernos imperdibles", "Me da igual, sorpréndeme con algo único"] },
+            { texto: "Para terminar: ¿Alguna condición extra que te encante?", opciones: ["Que tenga un plot-twist brutal al final", "Que los personajes secundarios tengan gran desarrollo", "Que trate sobre superación personal o arte", "Ninguna, confío plenamente en Neko"] }
+        ];
+
+        window.onload = function() {
+            populateYearSelectors();
+            populateGenreSelectors();
+            checkAuthUI();
+            checkUserSession();
+            initLevelSystem();
+            fetchAnimes();
+            initForumDefaultPosts();
+            initPrivacySettings();
+
+            const savedTab = localStorage.getItem('anibase_current_tab');
+            if (savedTab) {
+                switchTab(savedTab);
+            } else {
+                switchTab('inicio');
+            }
+        };
+
+        function initPrivacySettings() {
+            const savedPrivacy = localStorage.getItem('nekoaoi_public_profile');
+            const toggle = document.getElementById('publicProfileToggle');
+            if (toggle) {
+                toggle.checked = savedPrivacy !== 'false';
+            }
+        }
+
+        function togglePublicProfilePrivacy() {
+            const toggle = document.getElementById('publicProfileToggle');
+            const isPublic = toggle ? toggle.checked : true;
+            localStorage.setItem('nekoaoi_public_profile', isPublic ? 'true' : 'false');
+            showToast(isPublic ? "Perfil cambiado a Público 🌐" : "Perfil cambiado a Privado 🔒", "success");
+        }
+
+        function populateYearSelectors() {
+            const currentYear = new Date().getFullYear();
+            const yearSelects = ['dirAnioFilter', 'listAnioFilter', 'seasonYearFilter', 'anio'];
+            
+            yearSelects.forEach(selectId => {
+                const el = document.getElementById(selectId);
+                if (!el) return;
+                el.innerHTML = selectId.includes('Filter') ? '<option value="">Todos los años</option>' : '';
+                for (let y = currentYear; y >= 1980; y--) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = y;
+                    el.appendChild(opt);
+                }
+            });
+        }
+
+        function populateGenreSelectors() {
+            const genreSelects = document.querySelectorAll('.genre-select-options');
+            genreSelects.forEach(select => {
+                select.innerHTML = '<option value="">Todos los géneros</option>';
+                animeFLVGenres.forEach(genre => {
+                    const opt = document.createElement('option');
+                    opt.value = genre;
+                    opt.textContent = genre;
+                    select.appendChild(opt);
+                });
+            });
+        }
+
+        function toggleAuthModal(show = true) {
+            const modal = document.getElementById('authModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+                document.getElementById('authMessage').classList.add('hidden');
+            }
+        }
+
+        function switchAuthMode() {
+            isLoginMode = !isLoginMode;
+            const title = document.getElementById('authTitle');
+            const subtitle = document.getElementById('authSubtitle');
+            const usernameDiv = document.getElementById('usernameGroup');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const toggleText = document.getElementById('authToggleText');
+            const toggleBtn = document.getElementById('authToggleBtn');
+            const msg = document.getElementById('authMessage');
+
+            if (msg) msg.classList.add('hidden');
+
+            if (isLoginMode) {
+                title.innerText = "Iniciar Sesión";
+                subtitle.innerText = "Ingresa a tu cuenta de NEKOAOI";
+                usernameDiv.classList.add('hidden');
+                submitBtn.innerText = "Entrar";
+                toggleText.innerText = "¿No tienes cuenta?";
+                toggleBtn.innerText = "Regístrate aquí";
+            } else {
+                title.innerText = "Crear Cuenta";
+                subtitle.innerText = "Únete a la comunidad de NEKOAOI";
+                usernameDiv.classList.remove('hidden');
+                submitBtn.innerText = "Registrarse";
+                toggleText.innerText = "¿Ya tienes cuenta?";
+                toggleBtn.innerText = "Inicia sesión aquí";
+            }
+        }
+
+        async function handleAuthSubmit(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const usernameField = document.getElementById('authUsername');
+            const username = usernameField ? usernameField.value : '';
+            const msgBox = document.getElementById('authMessage');
+
+            if (msgBox) {
+                msgBox.classList.remove('hidden', 'bg-accent/20', 'text-accent', 'bg-green-500/20', 'text-green-400');
+                msgBox.classList.add('block');
+            }
+
+            const endpoint = isLoginMode ? 'http://localhost:5000/api/login' : 'http://localhost:5000/api/auth/register';
+            const bodyData = isLoginMode ? { email, password } : { username, email, password };
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (msgBox) {
+                        msgBox.classList.add('bg-green-500/20', 'text-green-400');
+                        msgBox.innerText = data.message || '¡Acceso exitoso!';
+                    }
+
+                    const previousUser = localStorage.getItem('anibase_user');
+                    let userData = data.user || { username: username || (email.split('@')[0]), email: email };
+
+                    if (previousUser) {
+                        try {
+                            const parsedOldUser = JSON.parse(previousUser);
+                            if (parsedOldUser.avatar) {
+                                userData.avatar = parsedOldUser.avatar;
+                            }
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+
+                    localStorage.setItem('anibase_user', JSON.stringify(userData));
+                    
+                    setTimeout(() => {
+                        toggleAuthModal(false);
+                        location.reload();
+                    }, 1000);
+                } else {
+                    if (msgBox) {
+                        msgBox.classList.add('bg-accent/20', 'text-accent');
+                        msgBox.innerText = data.error || data.message || 'Credenciales incorrectas.';
+                    }
+                }
+            } catch (error) {
+                if (msgBox) {
+                    msgBox.classList.add('bg-accent/20', 'text-accent');
+                    msgBox.innerText = 'Error: No se pudo conectar con el servidor backend (http://localhost:5000).';
+                }
+            }
+        }
+
+        function checkAuthUI() {
+            const savedUser = localStorage.getItem('anibase_user');
+            const loginBtn = document.getElementById('loginBtn');
+            const profileMenu = document.getElementById('userProfileMenu');
+            
+            const settingsLoggedOut = document.getElementById('settingsLoggedOut');
+            const settingsLoggedIn = document.getElementById('settingsLoggedIn');
+            const forumAvatar = document.getElementById('forumPostAvatar');
+
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (profileMenu) profileMenu.classList.remove('hidden');
+
+                const nameEl = document.getElementById('navUsername');
+                const emailEl = document.getElementById('dropdownEmail');
+                const avatarEl = document.getElementById('navUserAvatar');
+                const avatarSrc = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || 'U')}&background=13C8D6&color=fff`;
+                
+                if (nameEl) nameEl.textContent = user.username || 'Usuario';
+                if (emailEl) emailEl.textContent = user.email || 'correo@ejemplo.com';
+                if (avatarEl) avatarEl.src = avatarSrc;
+                if (forumAvatar) forumAvatar.src = avatarSrc;
+
+                if (settingsLoggedOut) settingsLoggedOut.classList.add('hidden');
+                if (settingsLoggedIn) {
+                    settingsLoggedIn.classList.remove('hidden');
+                    settingsLoggedIn.classList.add('flex');
+
+                    const sAvatar = document.getElementById('settingsAvatar');
+                    const sUser = document.getElementById('settingsUsername');
+                    const sEmail = document.getElementById('settingsEmail');
+                    if (sAvatar) sAvatar.src = avatarSrc;
+                    if (sUser) sUser.textContent = user.username || user.nombre || 'Usuario';
+                    if (sEmail) sEmail.textContent = user.email || 'correo@ejemplo.com';
+                }
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (profileMenu) profileMenu.classList.add('hidden');
+
+                if (settingsLoggedOut) settingsLoggedOut.classList.remove('hidden');
+                if (settingsLoggedIn) {
+                    settingsLoggedIn.classList.add('hidden');
+                    settingsLoggedIn.classList.remove('flex');
+                }
+            }
+            updateUserForumPostsCount();
+        }
+
+        function checkUserSession() {
+            const savedUser = localStorage.getItem('anibase_user');
+            const loginNavBtn = document.getElementById('loginBtn');
+            const userProfileMenu = document.getElementById('userProfileMenu');
+            const authModal = document.getElementById('authModal');
+
+            if (savedUser) {
+                if (authModal) authModal.classList.add('hidden');
+                if (loginNavBtn) loginNavBtn.classList.add('hidden');
+                if (userProfileMenu) {
+                    userProfileMenu.classList.remove('hidden');
+                    userProfileMenu.style.display = 'flex';
+                }
+
+                const userObj = JSON.parse(savedUser);
+                const addAnimeBtn = document.getElementById('addAnimeBtn');
+                if (addAnimeBtn) {
+                    if (userObj && (userObj.email === 'jose.ips@hotmail.com' || userObj.role === 'admin')) {
+                        addAnimeBtn.classList.remove('hidden');
+                    } else {
+                        addAnimeBtn.classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('anibase_user');
+            checkAuthUI();
+            location.reload();
+        }
+
+        function switchTab(tabId) {
+            localStorage.setItem('anibase_current_tab', tabId);
+
+            document.querySelectorAll('.tab-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-white', 'font-bold', 'shadow-md');
+                btn.classList.add('text-gray-400', 'hover:text-white', 'hover:bg-gray-800/50');
+            });
+
+            const targetSection = document.getElementById(`section-${tabId}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-gray-800/50');
+                activeBtn.classList.add('bg-accent', 'text-white', 'font-bold', 'shadow-md');
+            }
+
+            if (tabId === 'directorio') applyDirectoryFilters();
+            if (tabId === 'temporadas') renderTemporadas();
+            if (tabId === 'milista') cargarMiListaPersonal();
+            if (tabId === 'foro') {
+                renderForumFeed();
+            }
+            if (tabId === 'ajustes') {
+                updateUserForumPostsCount();
+            }
+        }
+
+        async function fetchAnimes() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Error en el servidor");
+                const data = await response.json();
+                allAnimes = Array.isArray(data) ? data : (data.animes || []);
+                
+                document.getElementById('animeCount').textContent = `${allAnimes.length} animes registrados`;
+                renderHomeSections();
+                cargarMiListaPersonal();
+            } catch (error) {
+                console.warn("Aviso de conexión con backend:", error);
+                document.getElementById('animeCount').textContent = "Modo local Activo";
+            }
+        }
+
+        function renderHomeSections() {
+            const populares = [...allAnimes].sort((a,b) => (b.puntuacion || 8) - (a.puntuacion || 8)).slice(0, 4);
+            renderAnimes(populares, 'popularesGrid');
+
+            const emision = allAnimes.filter(a => a.estado === 'En emisión');
+            renderAnimes(emision.length > 0 ? emision : allAnimes.slice(0, 4), 'emisionGrid');
+
+            renderRandomSection();
+        }
+
+        function renderRandomSection() {
+            if (allAnimes.length === 0) return;
+            const shuffled = [...allAnimes].sort(() => 0.5 - Math.random()).slice(0, 4);
+            renderAnimes(shuffled, 'aleatorioGrid');
+        }
+
+        function applyDirectoryFilters() {
+            const query = (document.getElementById('dirSearchInput').value || '').toLowerCase();
+            const anio = document.getElementById('dirAnioFilter').value;
+            const genero = document.getElementById('dirGeneroFilter').value;
+            const estado = document.getElementById('dirEstadoFilter').value;
+            const tipo = document.getElementById('dirTipoFilter').value;
+            const sortOrder = document.getElementById('dirSortOrder') ? document.getElementById('dirSortOrder').value : 'popular_desc';
+
+            const filtered = allAnimes.filter(a => {
+                const matchName = !query || (a.titulo && a.titulo.toLowerCase().includes(query));
+                const matchAnio = !anio || String(a.anio) === String(anio);
+                const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero.toLowerCase())));
+                const matchEstado = !estado || a.estado === estado;
+                const matchTipo = !tipo || a.tipo === tipo;
+                return matchName && matchAnio && matchGenero && matchEstado && matchTipo;
+            });
+
+            // Aplicar Ordenamiento
+            filtered.sort((a, b) => {
+                if (sortOrder === 'popular_desc') {
+                    return (b.puntuacion || 8) - (a.puntuacion || 8);
+                } else if (sortOrder === 'popular_asc') {
+                    return (a.puntuacion || 8) - (b.puntuacion || 8);
+                } else if (sortOrder === 'recent') {
+                    const timeA = a._id && a._id.startsWith('local-') ? parseInt(a._id.replace('local-', '')) : 0;
+                    const timeB = b._id && b._id.startsWith('local-') ? parseInt(b._id.replace('local-', '')) : 0;
+                    return timeB - timeA;
+                } else if (sortOrder === 'az') {
+                    return (a.titulo || '').localeCompare(b.titulo || '');
+                }
+                return 0;
+            });
+
+            const animeCountEl = document.getElementById('animeCount');
+            if (animeCountEl) {
+                animeCountEl.textContent = `${filtered.length} animes encontrados`;
+            }
+
+            renderAnimes(filtered, 'directoryGrid');
+        }
+
+        function resetDirectoryFilters() {
+            document.getElementById('dirSearchInput').value = '';
+            document.getElementById('dirAnioFilter').value = '';
+            document.getElementById('dirGeneroFilter').value = '';
+            document.getElementById('dirEstadoFilter').value = '';
+            document.getElementById('dirTipoFilter').value = '';
+            const sortEl = document.getElementById('dirSortOrder');
+            if (sortEl) sortEl.value = 'popular_desc';
+            applyDirectoryFilters();
+        }
+
+        function filterSeasonTab(season) {
+            document.querySelectorAll('.season-btn').forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-white', 'shadow-md');
+                btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+            });
+            event.target.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+            event.target.classList.add('bg-accent', 'text-white', 'shadow-md');
+            activeSeason = season;
+            renderTemporadas();
+        }
+
+        function renderTemporadas() {
+            const year = document.getElementById('seasonYearFilter').value;
+            const filtered = allAnimes.filter(a => {
+                const matchSeason = !activeSeason || a.temporada === activeSeason;
+                const matchYear = !year || String(a.anio) === String(year);
+                return matchSeason && matchYear;
+            });
+            renderAnimes(filtered.length > 0 ? filtered : allAnimes, 'temporadasGrid');
+        }
+
+        async function cargarMiListaPersonal() {
+            try {
+                const usuarioGuardado = localStorage.getItem('anibase_user');
+                if (!usuarioGuardado) return;
+
+                const usuarioLogueado = JSON.parse(usuarioGuardado);
+                const idUsuario = usuarioLogueado._id || usuarioLogueado.id;
+
+                if (!idUsuario) return;
+
+                const respuesta = await fetch('http://localhost:5000/api/mi-lista/' + idUsuario);
+                if (!respuesta.ok) return;
+
+                miListaUsuario = await respuesta.json();
+                actualizarContadoresYVista();
+            } catch (error) {
+                console.error("Error al cargar la lista personal:", error);
+            }
+        }
+
+        function switchListCategory(cat) {
+            document.querySelectorAll('.list-subtab').forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-white', 'shadow-md');
+                btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+            });
+            const btnActivo = document.getElementById(`subtab-${cat}`);
+            if (btnActivo) {
+                btnActivo.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+                btnActivo.classList.add('bg-accent', 'text-white', 'shadow-md');
+            }
+            activeListCat = cat;
+            renderMiListaUI();
+        }
+
+        function actualizarContadoresYVista() {
+            if (!Array.isArray(miListaUsuario)) return;
+
+            let totalPlaneo = 0;
+            let totalSigo = 0;
+            let totalVi = 0;
+
+            miListaUsuario.forEach(item => {
+                if (item.estadoLista === 'planeo_ver') totalPlaneo++;
+                if (item.estadoLista === 'sigo_viendo') totalSigo++;
+                if (item.estadoLista === 'ya_vi') totalVi++;
+            });
+
+            const elPlaneo = document.getElementById('count-planeo');
+            const elSigo = document.getElementById('count-sigo');
+            const elVi = document.getElementById('count-vi');
+
+            if (elPlaneo) elPlaneo.innerText = totalPlaneo;
+            if (elSigo) elSigo.innerText = totalSigo;
+            if (elVi) elVi.innerText = totalVi;
+
+            const settingsCount = document.getElementById('settingsAnimeCount');
+            if (settingsCount) settingsCount.innerText = miListaUsuario.length;
+
+            renderMiListaUI();
+            updateUserLevelUI();
+        }
+
+        function renderMiListaUI() {
+            const container = document.getElementById('miListaGrid');
+            if (!container) return;
+
+            let estadoBusqueda = 'planeo_ver';
+            if (activeListCat === 'sigo') estadoBusqueda = 'sigo_viendo';
+            if (activeListCat === 'vi') estadoBusqueda = 'ya_vi';
+
+            let animesFiltrados = miListaUsuario.filter(item => item.estadoLista === estadoBusqueda);
+
+            const searchInput = document.getElementById('listSearchInput');
+            const query = searchInput ? searchInput.value.toLowerCase() : '';
+            const anio = document.getElementById('listAnioFilter') ? document.getElementById('listAnioFilter').value : '';
+            const genero = document.getElementById('listGeneroFilter') ? document.getElementById('listGeneroFilter').value : '';
+            const estado = document.getElementById('listEstadoFilter') ? document.getElementById('listEstadoFilter').value : '';
+            const tipo = document.getElementById('listTipoFilter') ? document.getElementById('listTipoFilter').value : '';
+
+            animesFiltrados = animesFiltrados.filter(item => {
+                const a = item.anime;
+                if (!a) return false;
+                const matchName = !query || (a.titulo && a.titulo.toLowerCase().includes(query));
+                const matchAnio = !anio || String(a.anio) === String(anio);
+                const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero.toLowerCase())));
+                const matchEstado = !estado || a.estado === estado;
+                const matchTipo = !tipo || a.tipo === tipo;
+                return matchName && matchAnio && matchGenero && matchEstado && matchTipo;
+            });
+
+            container.innerHTML = '';
+
+            if (animesFiltrados.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500 text-sm">No se encontraron títulos en esta categoría.</div>`;
+                return;
+            }
+
+            const animesAmostrar = animesFiltrados.map(item => item.anime).filter(Boolean);
+            renderAnimes(animesAmostrar, 'miListaGrid', true);
+        }
+
+        async function toggleListStatus(id, category) {
+            try {
+                const usuarioGuardado = localStorage.getItem('anibase_user');
+                if (!usuarioGuardado) {
+                    showToast("Por favor, inicia sesión para guardar animes", "error");
+                    if (typeof toggleAuthModal === 'function') toggleAuthModal(true);
+                    return;
+                }
+
+                const usuarioLogueado = JSON.parse(usuarioGuardado);
+                const idUsuario = usuarioLogueado._id || usuarioLogueado.id || usuarioLogueado.email || usuarioLogueado.username;
+
+                if (!idUsuario) {
+                    showToast("Error al obtener la cuenta de usuario", "error");
+                    return;
+                }
+
+                let estadoBD = 'planeo_ver';
+                if (category === 'sigo') estadoBD = 'sigo_viendo';
+                if (category === 'vi') estadoBD = 'ya_vi';
+
+                let itemExistente = miListaUsuario.find(m => m.anime && (m.anime._id === id || m.anime === id));
+                const animeObj = allAnimes.find(a => a._id === id);
+
+                if (itemExistente) {
+                    itemExistente.estadoLista = estadoBD;
+                } else if (animeObj) {
+                    miListaUsuario.push({ anime: animeObj, estadoLista: estadoBD });
+                }
+
+                actualizarContadoresYVista();
+                if (typeof renderHomeSections === 'function') renderHomeSections();
+                if (typeof applyDirectoryFilters === 'function') applyDirectoryFilters();
+                if (typeof renderTemporadas === 'function') renderTemporadas();
+
+                const respuesta = await fetch('http://localhost:5000/api/mi-lista', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuarioId: idUsuario,
+                        animeId: id,
+                        estadoLista: estadoBD
+                    })
+                });
+
+                if (respuesta.ok) {
+                    showToast("¡Anime guardado en tu lista personal!", "success");
+                    await cargarMiListaPersonal();
+                } else {
+                    const errorData = await respuesta.json().catch(() => ({}));
+                    showToast(errorData.error || "Error al guardar en la base de datos", "error");
+                    await cargarMiListaPersonal();
+                }
+            } catch (error) {
+                console.error("Error al actualizar la lista:", error);
+                showToast("Error de conexión con el servidor", "error");
+                await cargarMiListaPersonal();
+            }
+        }
+
+        function renderAnimes(animes, containerId, isListTab = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (animes.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500 text-sm">No se encontraron títulos.</div>`;
+                return;
+            }
+
+            let canDelete = false;
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                try {
+                    const userObj = JSON.parse(savedUser);
+                    if (userObj && (userObj.email === 'jose.ips@hotmail.com' || userObj.role === 'admin' || userObj.role === 'moderador')) {
+                        canDelete = true;
+                    }
+                } catch(e) {}
+            }
+
+            animes.forEach(anime => {
+                const card = document.createElement('div');
+                card.className = "bg-cardbg border border-gray-800/80 rounded-2xl overflow-hidden shadow-lg hover:border-accent/50 transition-all duration-300 flex flex-col group cursor-pointer";
+                
+                const imageUrl = anime.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
+                
+                let generosHtml = '';
+                if (anime.generos && Array.isArray(anime.generos)) {
+                    generosHtml = anime.generos.slice(0, 3).map(g => `<span class="bg-darkbg text-gray-400 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-gray-800">${g}</span>`).join('');
+                }
+
+                const itemGuardado = miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id));
+                const estadoActual = itemGuardado ? itemGuardado.estadoLista : null;
+
+                const inPlaneo = estadoActual === 'planeo_ver';
+                const inSigo = estadoActual === 'sigo_viendo';
+                const inVi = estadoActual === 'ya_vi';
+
+                card.innerHTML = `
+                    <div class="relative aspect-[3/4] overflow-hidden bg-gray-900 flex items-center justify-center" onclick="openAnimeDetail('${anime._id}')">
+                        <img src="${imageUrl}" alt="${anime.titulo}" onerror="this.src='https://placehold.co/400x550/181a20/13C8D6?text=Anime'" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-cardbg via-transparent to-transparent opacity-80 pointer-events-none"></div>
+                        <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                            ${anime.tipo || 'Serie'} &bull; ${anime.anio || '2024'}
+                        </span>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow justify-between gap-4">
+                        <div onclick="openAnimeDetail('${anime._id}')">
+                            <h3 class="font-bold text-base text-white line-clamp-1 group-hover:text-accent transition mb-1">${anime.titulo}</h3>
+                            <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">${anime.sinopsis || 'Sin descripción.'}</p>
+                            <div class="flex flex-wrap gap-1.5 mb-2">
+                                ${generosHtml}
+                            </div>
+                        </div>
+                        <div class="space-y-2 pt-3 border-t border-gray-800/80">
+                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                <span class="text-amber-400 font-bold"><i class="fa-solid fa-star mr-1"></i> ${anime.puntuacion || '8.5'}</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="shareAnime('${anime._id}')" class="text-gray-400 hover:text-emerald-400 transition cursor-pointer" title="Compartir anime"><i class="fa-solid fa-share-nodes"></i></button>
+                                    ${canDelete ? `<button onclick="deleteAnime('${anime._id}')" class="text-gray-500 hover:text-danger transition cursor-pointer" title="Eliminar anime"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1 pt-1">
+                                <button onclick="toggleListStatus('${anime._id}', 'planeo')" class="text-[10px] py-1 px-1 rounded border ${inPlaneo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Planeo</button>
+                                <button onclick="toggleListStatus('${anime._id}', 'sigo')" class="text-[10px] py-1 px-1 rounded border ${inSigo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Sigo</button>
+                                <button onclick="toggleListStatus('${anime._id}', 'vi')" class="text-[10px] py-1 px-1 rounded border ${inVi ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Ya vi</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function shareAnime(id) {
+            const anime = allAnimes.find(a => a._id === id);
+            if (!anime) return;
+
+            const text = `🍿 Te recomiendo ver este anime en NEKOAOI: *${anime.titulo}* (${anime.puntuacion || '8.5'}★).\n${anime.sinopsis || ''}`;
+            const url = window.location.href.split('?')[0] + `?anime=${encodeURIComponent(anime.titulo)}`;
+            
+            openShareModal(`Compartir "${anime.titulo}"`, "¡Recomienda este anime a tus amigos!", text, url);
+        }
+
+        function shareMyList() {
+            if (miListaUsuario.length === 0) {
+                showToast("Añade animes a tu lista antes de compartirla", "error");
+                return;
+            }
+            const userName = currentUser ? (JSON.parse(currentUser).username || 'Mi') : "Mi";
+            const text = `🌟 ¡Echa un vistazo a la lista de animes de ${userName} en NEKOAOI! (${miListaUsuario.length} títulos guardados).`;
+            const url = window.location.href;
+
+            openShareModal(`Compartir Lista de ${userName}`, "Comparte tu colección completa de animes", text, url);
+        }
+
+        function openShareModal(title, desc, text, url) {
+            document.getElementById('shareModalTitle').textContent = title;
+            document.getElementById('shareModalDesc').textContent = desc;
+            document.getElementById('shareLinkInput').value = `${text}\n👉 ${url}`;
+            currentShareData = { text, url };
+
+            document.getElementById('shareModal').classList.remove('hidden');
+            document.getElementById('shareModal').classList.add('flex');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('flex');
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        function shareVia(platform) {
+            const message = encodeURIComponent(`${currentShareData.text}\n${currentShareData.url}`);
+            if (platform === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${message}`, '_blank');
+            } else if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=${message}`, '_blank');
+            }
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareLinkInput');
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            showToast("¡Enlace copiado al portapapeles!", "success");
+        }
+
+        function openAnimeDetail(id) {
+            const anime = allAnimes.find(a => a._id === id);
+            if (!anime) return;
+
+            const reviews = animeReviews[anime._id] || [];
+            const imageUrl = anime.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
+
+            let generosModalHtml = '';
+            if (anime.generos && Array.isArray(anime.generos)) {
+                generosModalHtml = anime.generos.map(g => `<span class="bg-darkbg text-accent text-xs font-bold px-2.5 py-1 rounded-md border border-accent/30">${g}</span>`).join('');
+            }
+
+            let reviewsHtml = reviews.length > 0 ? reviews.map(r => `
+                <div class="bg-darkbg p-3 rounded-xl border border-gray-800 text-xs space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-200">${escapeHtml(r.user)}</span>
+                        <span class="text-amber-400"><i class="fa-solid fa-star"></i> ${r.rating}/10</span>
+                    </div>
+                    ${r.hasSpoiler ? '<span class="inline-block bg-accent/20 text-accent border border-accent/30 px-2 py-0.5 rounded text-[10px] font-bold uppercase">⚠️ Contiene Spoilers</span>' : ''}
+                    <p class="text-gray-400 leading-relaxed">${escapeHtml(r.text)}</p>
+                </div>
+            `).join('') : '<p class="text-xs text-gray-500 italic">No hay reseñas aún. ¡Sé el primero en calificar!</p>';
+
+            document.getElementById('detailModalContent').innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Columna Izquierda: Póster + Datos Técnicos + Botón Compartir -->
+                    <div class="w-full md:w-5/12 flex-shrink-0 space-y-3">
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900 shadow-xl">
+                            <img src="${imageUrl}" class="w-full h-80 object-contain">
+                            <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                                ${anime.tipo || 'Serie'} &bull; ${anime.anio || '2024'}
+                            </span>
+                        </div>
+
+                        <!-- Ficha técnica rápida para rellenar el espacio -->
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                            <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800">
+                                <span class="block text-[10px] text-gray-400 uppercase font-bold">Estado</span>
+                                <span class="font-semibold text-emerald-400">${anime.estado || 'Finalizado'}</span>
+                            </div>
+                            <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800">
+                                <span class="block text-[10px] text-gray-400 uppercase font-bold">Temporada</span>
+                                <span class="font-semibold text-gray-200">${anime.temporada || 'Otoño'}</span>
+                            </div>
+                        </div>
+
+                        <button onclick="shareAnime('${anime._id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20 cursor-pointer">
+                            <i class="fa-solid fa-share-nodes"></i> Compartir Anime
+                        </button>
+                    </div>
+
+                    <!-- Columna Derecha: Sinopsis, Relleno, OST y Reseñas -->
+                    <div class="w-full md:w-7/12 space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="bg-accent/20 text-accent font-bold px-2.5 py-1 rounded-md text-xs border border-accent/30">${anime.tipo || 'Serie'}</span>
+                                <span class="text-amber-400 font-extrabold text-sm flex items-center gap-1"><i class="fa-solid fa-star"></i> ${anime.puntuacion || '8.5'} / 10</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-white mt-1">${anime.titulo}</h3>
+                            <div class="flex flex-wrap gap-1.5 mt-2 mb-2">
+                                ${generosModalHtml}
+                            </div>
+                            <p class="text-xs text-gray-300 leading-relaxed bg-darkbg/50 p-3 rounded-xl border border-gray-800/60">${anime.sinopsis || 'Sin sinopsis disponible.'}</p>
+                        </div>
+
+                        <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-1">
+                            <div class="flex items-center justify-between text-xs font-bold text-gray-300">
+                                <span><i class="fa-solid fa-filter text-accent mr-1.5"></i> Filtro de Relleno (Filler Guide)</span>
+                                <span class="text-emerald-400">Canon Detectado</span>
+                            </div>
+                            <p class="text-xs text-gray-400">${anime.rellenoGuia || 'Esta serie es 90% Canon oficial del Manga.'}</p>
+                        </div>
+
+                        <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-2">
+                            <span class="text-xs font-bold text-gray-300 block"><i class="fa-solid fa-music text-gemini mr-1.5"></i> Banda Sonora / Openings & Endings</span>
+                            <div class="flex gap-2">
+                                <a href="https://open.spotify.com/search/${encodeURIComponent(anime.titulo + ' ost')}" target="_blank" class="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition">
+                                    <i class="fa-brands fa-spotify text-emerald-400"></i> Spotify OST
+                                </a>
+                                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(anime.titulo + ' opening')}" target="_blank" class="bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition">
+                                    <i class="fa-brands fa-youtube text-accent"></i> YouTube Openings
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-2 border-t border-gray-800">
+                            <h4 class="text-xs font-bold text-white flex items-center justify-between">
+                                <span><i class="fa-solid fa-comments text-accent mr-1.5"></i> Reseñas de la Comunidad</span>
+                                <span class="text-xs font-normal text-amber-400">${anime.puntuacion || '8.5'} / 10 ★</span>
+                            </h4>
+
+                            <div class="space-y-2 max-h-36 overflow-y-auto pr-1">
+                                ${reviewsHtml}
+                            </div>
+
+                            <div class="bg-darkbg p-3 rounded-xl border border-gray-800 space-y-2 pt-2">
+                                <span class="text-xs font-bold text-gray-300">Escribir una Reseña</span>
+                                <div class="flex gap-2 items-center">
+                                    <input type="number" id="reviewRating" min="1" max="10" placeholder="Nota (1-10)" class="w-24 bg-cardbg border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                                    <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+                                        <input type="checkbox" id="reviewSpoiler" class="rounded bg-cardbg border-gray-800 text-accent"> Spoiler
+                                    </label>
+                                </div>
+                                <textarea id="reviewText" rows="2" placeholder="Tu opinión sin o con spoilers..." class="w-full bg-cardbg border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"></textarea>
+                                <button onclick="addReview('${anime._id}')" class="bg-accent hover:bg-accenthover text-white px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">Publicar Reseña</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.getElementById('detailModal').classList.add('flex');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('flex');
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function addReview(animeId) {
+            const rating = document.getElementById('reviewRating').value || '9';
+            const text = document.getElementById('reviewText').value.trim();
+            const hasSpoiler = document.getElementById('reviewSpoiler').checked;
+
+            if (!text) {
+                showToast("Escribe un comentario para la reseña", "error");
+                return;
+            }
+
+            if (!animeReviews[animeId]) animeReviews[animeId] = [];
+            
+            let authorName = "OtakuAnónimo";
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                try { authorName = JSON.parse(savedUser).username || authorName; } catch(e){}
+            }
+
+            animeReviews[animeId].unshift({
+                user: authorName,
+                rating: rating,
+                text: text,
+                hasSpoiler: hasSpoiler
+            });
+
+            localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+            showToast("¡Reseña publicada con éxito!", "success");
+            openAnimeDetail(animeId);
+        }
+
+        function startSeriesOnQuiz() {
+            quizCurrentStep = 0;
+            quizAnswers = [];
+            document.getElementById('quizWelcomeView').classList.add('hidden');
+            document.getElementById('quizResultView').classList.add('hidden');
+            document.getElementById('quizQuestionsView').classList.remove('hidden');
+            renderSeriesOnQuestion();
+        }
+
+        function renderSeriesOnQuestion() {
+            if (quizCurrentStep >= seriesOnQuestions.length) {
+                evaluarSeriesOnQuizLocal();
+                return;
+            }
+            const q = seriesOnQuestions[quizCurrentStep];
+            document.getElementById('quizProgressText').textContent = `Pregunta ${quizCurrentStep + 1} de 10`;
+            document.getElementById('quizQuestionTitle').textContent = q.texto;
+
+            const container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = '';
+
+            q.opciones.forEach((opcion) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-darkbg hover:bg-gray-800 border border-gray-800 hover:border-pink-500 text-gray-200 text-left p-4 rounded-xl text-sm font-medium transition flex items-center justify-between group shadow cursor-pointer";
+                btn.innerHTML = `<span>${opcion}</span><i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-pink-400"></i>`;
+                btn.onclick = () => seleccionarOpcionQuiz(opcion);
+                container.appendChild(btn);
+            });
+        }
+
+        function seleccionarOpcionQuiz(opcionElegida) {
+            quizAnswers.push(opcionElegida);
+            quizCurrentStep++;
+            renderSeriesOnQuestion();
+        }
+
+        function evaluarSeriesOnQuizLocal() {
+            document.getElementById('quizQuestionsView').classList.add('hidden');
+            document.getElementById('quizCargando').classList.remove('hidden');
+
+            setTimeout(() => {
+                let animeRecomendado = allAnimes[0] || {
+                    titulo: "Frieren: Beyond Journey's End",
+                    generos: ["Fantasía", "Aventura", "Drama"],
+                    sinopsis: "Una maga elfa tras derrotar al Rey Demonio se embarca en un viaje de descubrimiento emocional.",
+                    puntuacion: "9.3",
+                    tipo: "Serie"
+                };
+
+                if (allAnimes.length > 0) {
+                    const idx = Math.floor(Math.random() * allAnimes.length);
+                    animeRecomendado = allAnimes[idx];
+                }
+
+                document.getElementById('quizCargando').classList.add('hidden');
+                document.getElementById('quizResultView').classList.remove('hidden');
+                
+                const imageUrl = animeRecomendado.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(animeRecomendado.titulo || 'Anime')}`;
+
+                document.getElementById('quizResultContent').innerHTML = `
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <img src="${imageUrl}" class="w-28 h-36 rounded-xl object-contain border border-gray-800 bg-gray-900">
+                        <div class="space-y-1 text-left">
+                            <span class="bg-accent/20 text-accent font-bold px-2 py-0.5 rounded border border-accent/30 text-[10px]">${animeRecomendado.tipo || 'Serie'}</span>
+                            <h5 class="text-lg font-bold text-white">${animeRecomendado.titulo}</h5>
+                            <p class="text-xs text-gray-400 leading-relaxed">${animeRecomendado.sinopsis || 'Recomendación perfecta elegida según tus elecciones en el quiz.'}</p>
+                            <p class="text-[11px] text-emerald-400 font-bold pt-1"><i class="fa-solid fa-circle-check"></i> Coincide con tu búsqueda de hoy</p>
+                        </div>
+                    </div>
+                `;
+                showToast("¡Quiz completado con éxito!", "success");
+            }, 1200);
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `Guardando...`;
+
+            const generosRaw = document.getElementById('generos').value;
+            const generosArray = generosRaw ? generosRaw.split(',').map(g => g.trim()).filter(g => g.length > 0) : ["Shounen", "Acción"];
+
+            const nuevoAnime = {
+                _id: 'local-' + Date.now(),
+                titulo: document.getElementById('titulo').value.trim(),
+                tipo: document.getElementById('tipo').value,
+                anio: Number(document.getElementById('anio').value) || 2024,
+                estado: document.getElementById('estado').value,
+                temporada: document.getElementById('temporada').value,
+                puntuacion: Number(document.getElementById('puntuacion').value) || 8.5,
+                generos: generosArray,
+                rellenoGuia: document.getElementById('rellenoGuia').value.trim(),
+                sinopsis: document.getElementById('sinopsis').value.trim(),
+                imagenUrl: document.getElementById('imagenUrl').value.trim()
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoAnime)
+                });
+                if (response.ok) {
+                    showToast("¡Anime guardado en servidor con éxito! 🌟", "success");
+                } else {
+                    throw new Error();
+                }
+            } catch (error) {
+                allAnimes.unshift(nuevoAnime);
+                showToast("¡Anime guardado localmente con éxito! 🌟", "success");
+            } finally {
+                closeModal();
+                document.getElementById('animeForm').reset();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Guardar Anime`;
+                renderHomeSections();
+            }
+        }
+
+        async function deleteAnime(id) {
+            if (!confirm("¿Estás seguro de eliminar este anime?")) return;
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            } catch (error) {
+                allAnimes = allAnimes.filter(a => a._id !== id);
+            }
+            showToast("Anime eliminado", "success");
+            renderHomeSections();
+            applyDirectoryFilters();
+            cargarMiListaPersonal();
+        }
+
+        function openModal() {
+            document.getElementById('animeModal').classList.remove('hidden');
+            document.getElementById('animeModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('animeModal').classList.remove('flex');
+            document.getElementById('animeModal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-5 py-3 rounded-2xl border backdrop-blur-md shadow-xl text-sm font-medium transition-all duration-300 bg-gray-900/90 border-gemini/50 text-purple-200`;
+            toast.innerHTML = `<i class="fa-solid fa-sparkles text-accent text-lg"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return (text || '').replace(/[&<>"']/g, m => map[m]);
+        }
+
+        const RANKS_DATA = [
+            { level: 1, title: "Novato del Anime", minXp: 0 },
+            { level: 2, title: "Aficionado", minXp: 51 },
+            { level: 3, title: "Otaku en Progreso", minXp: 151 },
+            { level: 4, title: "Devorador de Series", minXp: 301 },
+            { level: 5, title: "Maratonista experto", minXp: 501 },
+            { level: 6, title: "Coleccionista Pro", minXp: 801 },
+            { level: 7, title: "Sabio del Anime", minXp: 1201 },
+            { level: 8, title: "Maestro del Anime", minXp: 1701 },
+            { level: 9, title: "Leyenda del Anime", minXp: 2301 },
+            { level: 10, title: "Dios del Anime", minXp: 3001 }
+        ];
+
+        function initLevelSystem() {
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                updateUserLevelUI();
+            }
+        }
+
+        function calculateUserXP() {
+            const savedUser = localStorage.getItem('anibase_user');
+            if (!savedUser) return 0;
+            return miListaUsuario.length * 5;
+        }
+
+        function updateUserLevelUI() {
+            const currentXp = calculateUserXP();
+            let currentRank = RANKS_DATA[0];
+            let nextRankXP = RANKS_DATA[1].minXp;
+
+            for (let i = RANKS_DATA.length - 1; i >= 0; i--) {
+                if (currentXp >= RANKS_DATA[i].minXp) {
+                    currentRank = RANKS_DATA[i];
+                    nextRankXP = RANKS_DATA[i + 1] ? RANKS_DATA[i + 1].minXp : RANKS_DATA[i].minXp * 1.5;
+                    break;
+                }
+            }
+
+            let prevXp = currentRank.minXp;
+            let progressPercent = Math.min(100, Math.max(0, ((currentXp - prevXp) / (nextRankXP - prevXp)) * 100));
+
+            const badge = document.getElementById('userLevelBadge');
+            const title = document.getElementById('userRankTitle');
+            const bar = document.getElementById('userXpBar');
+
+            if (badge) badge.innerText = `Lvl ${currentRank.level}`;
+            if (title) title.innerText = currentRank.title;
+            if (bar) bar.style.width = `${progressPercent}%`;
+
+            const settingsBadge = document.getElementById('settingsLevelBadge');
+            if (settingsBadge) {
+                settingsBadge.innerText = `Lvl ${currentRank.level} - ${currentRank.title}`;
+            }
+        }
+
+        function updateUserForumPostsCount() {
+            const settingsForumCount = document.getElementById('settingsForumPostsCount');
+            if (!settingsForumCount) return;
+
+            const savedUser = localStorage.getItem('anibase_user');
+            if (!savedUser) {
+                settingsForumCount.innerText = '0';
+                return;
+            }
+
+            let currentUserName = '';
+            try {
+                const u = JSON.parse(savedUser);
+                currentUserName = u.username || u.nombre || '';
+            } catch(e) {}
+
+            const totalUserPosts = forumPosts.filter(p => p.user === currentUserName).length;
+            settingsForumCount.innerText = totalUserPosts;
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("La imagen excede el tamaño máximo permitido de 5 MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageBase64 = e.target.result;
+
+                const sAvatar = document.getElementById('settingsAvatar');
+                const navAvatar = document.getElementById('navUserAvatar');
+                const forumAvatar = document.getElementById('forumPostAvatar');
+                if (sAvatar) sAvatar.src = imageBase64;
+                if (navAvatar) navAvatar.src = imageBase64;
+                if (forumAvatar) forumAvatar.src = imageBase64;
+
+                const savedUser = localStorage.getItem('anibase_user');
+                if (savedUser) {
+                    const user = JSON.parse(savedUser);
+                    user.avatar = imageBase64;
+                    localStorage.setItem('anibase_user', JSON.stringify(user));
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleChangePassword(event) {
+            event.preventDefault();
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (newPass !== confirmPass) {
+                alert("Las contraseñas nuevas no coinciden. Por favor, verifícalas.");
+                return;
+            }
+
+            alert("¡Contraseña actualizada con éxito!");
+            document.getElementById('changePasswordForm').reset();
+        }
+
+        function openLevelsModal() {
+            document.getElementById('levelsModal').classList.remove('hidden');
+        }
+
+        function closeLevelsModal() {
+            document.getElementById('levelsModal').classList.add('hidden');
+        }
+
+        function openUserProfile(username) {
+            const savedUser = localStorage.getItem('anibase_user');
+            let isOwnProfile = false;
+            let currentUserName = '';
+
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    currentUserName = u.username || u.nombre || '';
+                    if (currentUserName.toLowerCase() === username.toLowerCase()) {
+                        isOwnProfile = true;
+                    }
+                } catch(e) {}
+            }
+
+            const isPublicSetting = localStorage.getItem('nekoaoi_public_profile');
+            if (!isOwnProfile && isPublicSetting === 'false') {
+                showToast(`El perfil de "${username}" es privado 🔒`, "error");
+                return;
+            }
+
+            const userPosts = forumPosts.filter(p => p.user.toLowerCase() === username.toLowerCase());
+            const sampleUserPost = userPosts[0] || {};
+            const userAvatar = sampleUserPost.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=13C8D6&color=fff`;
+            const userRank = sampleUserPost.rank || "Novato del Anime";
+
+            let userListToDisplay = isOwnProfile ? miListaUsuario : miListaUsuario.slice(0, 6);
+
+            let animeCardsHtml = userListToDisplay.map(item => {
+                const a = item.anime || item;
+                if (!a) return '';
+                const img = a.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(a.titulo || 'Anime')}`;
+                return `
+                    <div class="bg-darkbg p-2 rounded-xl border border-gray-800 text-center">
+                        <img src="${img}" class="w-full h-24 object-contain rounded-lg mb-1 bg-gray-900">
+                        <span class="block text-[11px] font-bold text-white truncate">${escapeHtml(a.titulo || 'Anime')}</span>
+                        <span class="text-[9px] text-accent font-semibold">${item.estadoLista ? item.estadoLista.replace('_', ' ') : 'Guardado'}</span>
+                    </div>
+                `;
+            }).join('');
+
+            if (!animeCardsHtml) {
+                animeCardsHtml = `<p class="col-span-full text-xs text-gray-500 italic text-center py-4">No ha compartido animes públicos aún.</p>`;
+            }
+
+            const modalContent = document.getElementById('publicProfileModalContent');
+            modalContent.innerHTML = `
+                <div class="text-center space-y-4">
+                    <div class="relative inline-block">
+                        <img src="${userAvatar}" class="w-24 h-24 rounded-full border-4 border-accent shadow-xl mx-auto object-cover">
+                        <span class="absolute bottom-0 right-0 bg-emerald-500 border-2 border-cardbg w-5 h-5 rounded-full" title="Usuario de la comunidad"></span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-white flex items-center justify-center gap-2">
+                            ${escapeHtml(username)}
+                            ${isOwnProfile ? '<span class="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full border border-accent/30 font-bold">Tú</span>' : ''}
+                        </h3>
+                        <p class="text-xs text-accent font-semibold mt-0.5">${userRank}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 max-w-sm mx-auto my-4">
+                        <div class="bg-darkbg p-3 rounded-xl border border-gray-800">
+                            <span class="block text-lg font-black text-white">${userPosts.length}</span>
+                            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Posts en Foro</span>
+                        </div>
+                        <div class="bg-darkbg p-3 rounded-xl border border-gray-800">
+                            <span class="block text-lg font-black text-emerald-400">${userListToDisplay.length}</span>
+                            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Animes Guardados</span>
+                        </div>
+                    </div>
+
+                    <div class="text-left pt-2 border-t border-gray-800 space-y-2">
+                        <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-accent"></i> Colección de Animes Consultados
+                        </h4>
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                            ${animeCardsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('publicProfileModal').classList.remove('hidden');
+            document.getElementById('publicProfileModal').classList.add('flex');
+        }
+
+        function closePublicProfileModal() {
+            document.getElementById('publicProfileModal').classList.remove('flex');
+            document.getElementById('publicProfileModal').classList.add('hidden');
+        }
+
+        function initForumDefaultPosts() {
+            if (forumPosts.length === 0) {
+                forumPosts = [
+                    {
+                        id: 'post-' + (Date.now() - 3600000),
+                        user: 'OtakuSenpai',
+                        avatar: 'https://ui-avatars.com/api/?name=OtakuSenpai&background=13C8D6&color=fff',
+                        rank: 'Novato del Anime',
+                        category: 'general',
+                        content: '¿Alguien más considera que la dirección de fotografía y música en #Frieren es de lo mejor de la década? ¡Cada capítulo se siente como cine puro! #TemporadaOtoño',
+                        media: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=60',
+                        timestamp: 'Hace 2 horas',
+                        reactions: { love: 12, god: 25, cry: 2, filler: 0 },
+                        comments: [
+                            { user: 'KuroNeko', text: 'Totalmente de acuerdo, la escena del baile fue arte puro.', time: 'Hace 1 hora' }
+                        ]
+                    },
+                    {
+                        id: 'post-' + (Date.now() - 7200000),
+                        user: 'RinTohsaka',
+                        avatar: 'https://ui-avatars.com/api/?name=RinTohsaka&background=8b5cf6&color=fff',
+                        rank: 'Coleccionista Pro',
+                        category: 'listas',
+                        content: '¡Hola a todos! Acabo de actualizar mi #MiListaAnime con más de 40 animes Seinen. ¿Me recomiendan algo parecido a Monster o Psycho-Pass? #MejorWaifu',
+                        media: '',
+                        timestamp: 'Hace 5 horas',
+                        reactions: { love: 5, god: 8, cry: 0, filler: 0 },
+                        comments: []
+                    }
+                ];
+                localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+            }
+            updateForumSidebarDynamics();
+            updateUserForumPostsCount();
+        }
+
+        function switchForumCategory(cat) {
+            activeForumCategory = cat;
+            document.querySelectorAll('.forum-cat-btn').forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-white');
+                btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-400');
+            });
+            const activeBtn = document.getElementById(`forum-tab-${cat}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-400');
+                activeBtn.classList.add('bg-accent', 'text-white');
+            }
+
+            const popularBar = document.getElementById('popularTimeFilterBar');
+            if (popularBar) {
+                if (cat === 'populares') {
+                    popularBar.classList.remove('hidden');
+                } else {
+                    popularBar.classList.add('hidden');
+                }
+            }
+
+            renderForumFeed();
+        }
+
+        function setPopularTimeFilter(timeframe) {
+            activePopularFilter = timeframe;
+
+            document.querySelectorAll('.popular-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-white');
+                btn.classList.add('bg-cardbg', 'border', 'border-gray-800', 'text-gray-400');
+            });
+
+            const btnActivo = document.getElementById(`popular-filter-${timeframe}`);
+            if (btnActivo) {
+                btnActivo.classList.remove('bg-cardbg', 'border', 'border-gray-800', 'text-gray-400');
+                btnActivo.classList.add('bg-accent', 'text-white');
+            }
+
+            renderForumFeed();
+        }
+
+        function handleForumMediaUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 8 * 1024 * 1024) {
+                showToast("El archivo excede el límite máximo de 8MB", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                currentForumMedia = evt.target.result;
+                document.getElementById('forumPreviewImg').src = currentForumMedia;
+                document.getElementById('forumMediaPreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeForumMedia() {
+            currentForumMedia = null;
+            document.getElementById('forumMediaInput').value = '';
+            document.getElementById('forumMediaPreview').classList.add('hidden');
+        }
+
+        function createForumPost() {
+            const text = document.getElementById('forumPostText').value.trim();
+
+            if (!text && !currentForumMedia) {
+                showToast("Escribe algo o adjunta un archivo para publicar", "error");
+                return;
+            }
+
+            let userName = "UsuarioOtaku";
+            let userAvatar = "https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff";
+            let userRank = "Novato del Anime";
+
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    userName = u.username || u.nombre || userName;
+                    userAvatar = u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=13C8D6&color=fff`;
+                } catch(e){}
+            }
+
+            const newPost = {
+                id: 'post-' + Date.now(),
+                user: userName,
+                avatar: userAvatar,
+                rank: userRank,
+                category: activeForumCategory === 'populares' ? 'general' : activeForumCategory,
+                content: text,
+                media: currentForumMedia || '',
+                timestamp: 'Ahora mismo',
+                reactions: { love: 0, god: 0, cry: 0, filler: 0 },
+                comments: []
+            };
+
+            forumPosts.unshift(newPost);
+            localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+
+            document.getElementById('forumPostText').value = '';
+            removeForumMedia();
+
+            showToast("¡Publicación realizada en el foro!", "success");
+            renderForumFeed();
+            updateForumSidebarDynamics();
+            updateUserForumPostsCount();
+        }
+
+        function updateForumSidebarDynamics() {
+            updateTrendingHashtagsSidebar();
+        }
+
+        function updateTrendingHashtagsSidebar() {
+            const container = document.getElementById('trendingHashtagsContainer');
+            if (!container) return;
+
+            const hashtagCounts = {};
+            const regex = /#[\wáéíóúñ]+/gi;
+
+            forumPosts.forEach(p => {
+                const matches = p.content.match(regex);
+                if (matches) {
+                    matches.forEach(tag => {
+                        const cleanTag = tag;
+                        hashtagCounts[cleanTag] = (hashtagCounts[cleanTag] || 0) + 1;
+                    });
+                }
+            });
+
+            let sortedTags = Object.entries(hashtagCounts).sort((a, b) => b[1] - a[1]).map(item => item[0]);
+
+            if (sortedTags.length === 0) {
+                sortedTags = ["#TemporadaOtoño", "#MejorWaifu", "#TeoriasAnime", "#MiListaAnime"];
+            }
+
+            container.innerHTML = '';
+            sortedTags.slice(0, 6).forEach(tag => {
+                const isSelected = activeHashtagFilter && activeHashtagFilter.toLowerCase() === tag.toLowerCase();
+                const btnClass = isSelected ? 
+                    "bg-accent text-white border-accent shadow-md text-[11px] font-semibold px-2.5 py-1 rounded-lg cursor-pointer transition" : 
+                    "bg-darkbg hover:bg-gray-800 border border-gray-800 text-gray-300 text-[11px] font-semibold px-2.5 py-1 rounded-lg cursor-pointer transition";
+
+                container.innerHTML += `
+                    <span onclick="filterByHashtag('${tag}')" class="${btnClass}">${escapeHtml(tag)}</span>
+                `;
+            });
+
+            const clearBtn = document.getElementById('clearHashtagFilterBtn');
+            if (clearBtn) {
+                if (activeHashtagFilter) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        function filterByHashtag(tag) {
+            activeHashtagFilter = (activeHashtagFilter === tag) ? null : tag;
+            updateTrendingHashtagsSidebar();
+            renderForumFeed();
+            if (activeHashtagFilter) {
+                showToast(`Filtrando feed por ${tag}`, "success");
+            }
+        }
+
+        function clearHashtagFilter() {
+            activeHashtagFilter = null;
+            updateTrendingHashtagsSidebar();
+            renderForumFeed();
+        }
+
+        function renderForumFeed() {
+            const container = document.getElementById('forumFeedContainer');
+            if (!container) return;
+
+            let postsToRender = [...forumPosts];
+
+            if (activeHashtagFilter) {
+                postsToRender = postsToRender.filter(p => p.content && p.content.toLowerCase().includes(activeHashtagFilter.toLowerCase()));
+            }
+
+            if (activeForumCategory === 'populares') {
+                const ahora = Date.now();
+                const UN_DIA = 24 * 60 * 60 * 1000;
+                const UNA_SEMANA = 7 * UN_DIA;
+                const UN_MES = 30 * UN_DIA;
+
+                postsToRender = postsToRender.filter(p => {
+                    let postTime = ahora;
+                    if (p.id && p.id.startsWith('post-')) {
+                        const parts = p.id.split('-');
+                        if (parts[1] && !isNaN(parts[1])) {
+                            postTime = parseInt(parts[1]);
+                        }
+                    }
+
+                    const diferencia = ahora - postTime;
+
+                    if (activePopularFilter === 'dia') return diferencia <= UN_DIA;
+                    if (activePopularFilter === 'semana') return diferencia <= UNA_SEMANA;
+                    if (activePopularFilter === 'mes') return diferencia <= UN_MES;
+                    return true;
+                });
+
+                postsToRender.sort((a, b) => {
+                    const totalA = (a.reactions.love || 0) + (a.reactions.god || 0) + (a.reactions.cry || 0);
+                    const totalB = (b.reactions.love || 0) + (b.reactions.god || 0) + (b.reactions.cry || 0);
+                    return totalB - totalA;
+                });
+
+            } else if (activeForumCategory !== 'general') {
+                postsToRender = postsToRender.filter(p => p.category === activeForumCategory);
+            }
+
+            if (postsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-8 text-center text-gray-500 text-xs">
+                        No hay publicaciones con ${activeHashtagFilter || 'en esta categoría'}. ¡Sé el primero en publicar!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            let currentLoggedInUser = '';
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    currentLoggedInUser = u.username || u.nombre || '';
+                } catch(e){}
+            }
+
+            postsToRender.forEach(post => {
+                const card = document.createElement('div');
+                card.className = "bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4";
+
+                const mediaHtml = post.media ? `<div class="relative rounded-xl overflow-hidden border border-gray-800/80 max-h-[450px] bg-black/40 flex items-center justify-center cursor-pointer group/img" onclick="openImageLightbox('${post.media}')"><img src="${post.media}" class="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"><div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1"><i class="fa-solid fa-magnifying-glass-plus"></i> Ampliar imagen</div></div>` : '';
+
+                let authorActionHtml = '';
+                if (currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) {
+                    authorActionHtml = `<button onclick="deleteForumPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar mi publicación"><i class="fa-solid fa-trash-can"></i></button>`;
+                } else {
+                    authorActionHtml = `<button onclick="reportPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
+                }
+
+                let commentsHtml = post.comments.map(c => `
+                    <div class="bg-darkbg/70 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span onclick="openUserProfile('${escapeHtml(c.user)}')" class="font-bold text-gray-200 hover:text-accent transition cursor-pointer">${escapeHtml(c.user)}</span>
+                            <span class="text-[10px] text-gray-500">${c.time}</span>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">${escapeHtml(c.text)}</p>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${post.avatar}" onclick="openUserProfile('${escapeHtml(post.user)}')" class="w-10 h-10 rounded-xl object-cover border border-accent/40 cursor-pointer hover:opacity-80 transition">
+                            <div>
+                                <h4 onclick="openUserProfile('${escapeHtml(post.user)}')" class="text-xs font-bold text-white leading-tight hover:text-accent transition cursor-pointer flex items-center gap-1.5">
+                                    ${escapeHtml(post.user)}
+                                    <i class="fa-solid fa-circle-check text-[10px] text-accent" title="Ver perfil público"></i>
+                                </h4>
+                                <span class="text-[10px] text-accent font-semibold">${post.rank} &bull; ${post.timestamp}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${authorActionHtml}
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-200 leading-relaxed whitespace-pre-line">${escapeHtml(post.content)}</p>
+
+                    ${mediaHtml}
+
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-800">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="reactToPost('${post.id}', 'love')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                                ❤️ <span class="text-[11px]">${post.reactions.love}</span>
+                            </button>
+                            <button onclick="reactToPost('${post.id}', 'god')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                                🍜 God <span class="text-[11px]">${post.reactions.god}</span>
+                            </button>
+                            <button onclick="reactToPost('${post.id}', 'cry')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                                😭 <span class="text-[11px]">${post.reactions.cry}</span>
+                            </button>
+                            <button onclick="reactToPost('${post.id}', 'filler')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                                😡 Relleno <span class="text-[11px]">${post.reactions.filler}</span>
+                            </button>
+                        </div>
+
+                        <span class="text-xs text-gray-400 font-medium">
+                            <i class="fa-solid fa-comment mr-1 text-accent"></i> ${post.comments.length} Comentarios
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                            ${commentsHtml}
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario o respuesta..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                            <button onclick="addPostComment('${post.id}')" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
+                                Responder
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function openImageLightbox(imgUrl) {
+            const modal = document.getElementById('imageLightboxModal');
+            const img = document.getElementById('lightboxImg');
+            img.src = imgUrl;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeImageLightbox() {
+            const modal = document.getElementById('imageLightboxModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        let pendingDeletePostId = null;
+
+        function deleteForumPost(postId) {
+            pendingDeletePostId = postId;
+            const modal = document.getElementById('forumDeleteConfirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            const confirmBtn = document.getElementById('confirmForumDeleteBtn');
+            confirmBtn.onclick = function() {
+                if (pendingDeletePostId) {
+                    forumPosts = forumPosts.filter(p => p.id !== pendingDeletePostId);
+                    localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+                    showToast("Publicación eliminada correctamente", "success");
+                    renderForumFeed();
+                    updateForumSidebarDynamics();
+                    updateUserForumPostsCount();
+                }
+                closeForumDeleteModal();
+            };
+        }
+
+        function closeForumDeleteModal() {
+            pendingDeletePostId = null;
+            const modal = document.getElementById('forumDeleteConfirmModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function reactToPost(postId, reactionType) {
+            const post = forumPosts.find(p => p.id === postId);
+            if (!post) return;
+            post.reactions[reactionType] = (post.reactions[reactionType] || 0) + 1;
+            localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+            renderForumFeed();
+        }
+
+        function addPostComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+
+            const post = forumPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            let author = "OtakuAnónimo";
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                try { author = JSON.parse(savedUser).username || author; } catch(e){}
+            }
+
+            post.comments.push({
+                user: author,
+                text: text,
+                time: 'Ahora mismo'
+            });
+
+            localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+            input.value = '';
+            renderForumFeed();
+            updateForumSidebarDynamics();
+        }
+
+        function reportPost(postId) {
+            showToast("Gracias por avisar. La publicación ha sido enviada a moderación.", "success");
+        }
+    </script>
+
+<!-- BLOQUE DE ACCESO PRIVADO TEMPORAL -->
+<div id="privateGate" style="position: fixed; inset: 0; background: #0f1015; z-index: 99999; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif;">
+    <div style="background: #181a20; border: 1px solid #27272a; padding: 30px; border-radius: 20px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+        <span style="font-size: 40px; display: block; margin-bottom: 10px;">🐱🔒</span>
+        <h2 style="color: white; font-size: 18px; font-weight: bold; margin-bottom: 8px;">NEKOAOI - Acceso Privado</h2>
+        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 20px;">Introduce la contraseña para entrar a probar la plataforma.</p>
+        <input type="password" id="gatePassword" placeholder="Contraseña secreta" style="width: 100%; background: #0f1015; border: 1px solid #3f3f46; color: white; padding: 10px 14px; border-radius: 10px; font-size: 12px; margin-bottom: 12px; outline: none; box-sizing: border-box;">
+        <button onclick="checkPrivatePassword()" style="width: 100%; background: #13C8D6; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">Entrar a probar</button>
+        <p id="gateError" style="color: #ef4444; font-size: 11px; margin-top: 10px; display: none;">Contraseña incorrecta</p>
+    </div>
+</div>
+
+<script>
+    // Cambia 'tu_contraseña_secreta' por la contraseña que quieras darles a tus amigos
+    const CLAVE_SECRETA = "CORAZONdecalamar12";
+
+    // Revisar si ya había iniciado sesión antes en este navegador
+    if (localStorage.getItem('nekoai_unlocked') === 'true') {
+        document.getElementById('privateGate').style.display = 'none';
+    }
+
+    function checkPrivatePassword() {
+        const inputVal = document.getElementById('gatePassword').value;
+        if (inputVal === CLAVE_SECRETA) {
+            localStorage.setItem('nekoai_unlocked', 'true');
+            document.getElementById('privateGate').style.display = 'none';
+        } else {
+            const err = document.getElementById('gateError');
+            err.style.display = 'block';
+            setTimeout(() => err.style.display = 'none', 3000);
+        }
+    }
+</script>
+</body>
+</html>
