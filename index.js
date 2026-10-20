@@ -4,6 +4,7 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const path = require('path'); // Módulo nativo para manejar rutas de archivos
 
 // --- MÓDULOS DE SEGURIDAD NUEVOS ---
 const helmet = require('helmet');
@@ -31,8 +32,15 @@ passport.deserializeUser((obj, done) => done(null, obj));
 app.use(express.json());
 app.use(cors());
 
+// Configurar Express para servir todos los archivos estáticos (index.html, imágenes, CSS, JS)
+app.use(express.static(__dirname));
+
 // --- BLINDAJE DE SEGURIDAD ---
-app.use(helmet()); // Protege los encabezados HTTP del servidor
+app.use(
+    helmet({
+        contentSecurityPolicy: false // Desactivado para permitir cargar estilos/imágenes desde tu index.html
+    })
+);
 
 // Limitador general contra ataques de fuerza bruta / bots
 const generalLimiter = rateLimit({
@@ -63,6 +71,11 @@ mongoose.connect(MONGO_URI)
   .catch((err) => {
     console.error("Error al conectar a la base de datos:", err);
   });
+
+// --- RUTA PRINCIPAL QUE MUESTRA TU INDEX.HTML ---
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // --- RUTA DE REGISTRO SEGURO CONECTADA A MONGODB ---
 app.post('/api/auth/register', authLimiter, async (req, res) => {
@@ -99,11 +112,6 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: 'Error en el servidor al registrar el usuario.', detalle: error.message });
     }
-});
-
-// Ruta de prueba inicial
-app.get('/', (req, res) => {
-  res.send('El servidor de AniBase está activo, funcionando y blindado.');
 });
 
 // ==========================================
