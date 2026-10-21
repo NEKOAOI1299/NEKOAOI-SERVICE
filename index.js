@@ -86,17 +86,14 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
             return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
         }
 
-        // Verificar si el usuario o el correo ya están registrados en la base de datos
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
             return res.status(400).json({ error: 'El nombre de usuario o correo ya están registrados.' });
         }
 
-        // Hashear la contraseña con bcrypt de forma segura antes de guardarla
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Crear el nuevo usuario usando el modelo y la contraseña cifrada
         const newUser = new User({
             username,
             email,
@@ -118,7 +115,6 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
 // RUTAS DE LA API DE ANIBASE
 // ==========================================
 
-// 1. Ruta para CREAR/GUARDAR un nuevo anime
 app.post('/api/animes', async (req, res) => {
     try {
         const nuevoAnime = new Anime(req.body);
@@ -132,7 +128,6 @@ app.post('/api/animes', async (req, res) => {
     }
 });
 
-// 2. Ruta para OBTENER la lista de animes
 app.get('/api/animes', async (req, res) => {
     try {
         const listaAnimes = await Anime.find();
@@ -142,7 +137,6 @@ app.get('/api/animes', async (req, res) => {
     }
 });
 
-// 3. Ruta para AGREGAR o ACTUALIZAR un anime en la lista personal del usuario
 app.post('/api/mi-lista', async (req, res) => {
     try {
         const { usuarioId, animeId, estadoLista } = req.body;
@@ -151,7 +145,6 @@ app.post('/api/mi-lista', async (req, res) => {
             return res.status(400).json({ error: 'Faltan datos obligatorios (usuarioId o animeId).' });
         }
 
-        // Determinar si usuarioId es un ObjectId válido o un email/username de respaldo
         let queryUsuario = usuarioId;
         if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
             const userFound = await User.findOne({ $or: [{ email: usuarioId }, { username: usuarioId }] });
@@ -177,7 +170,6 @@ app.post('/api/mi-lista', async (req, res) => {
     }
 });
 
-// 4. Ruta para OBTENER la lista de un usuario específico
 app.get('/api/mi-lista/:usuarioId', async (req, res) => {
     try {
         let { usuarioId } = req.params;
@@ -198,7 +190,6 @@ app.get('/api/mi-lista/:usuarioId', async (req, res) => {
     }
 });
 
-// --- RUTA DE LOGIN SEGURO ---
 app.post('/api/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -217,7 +208,6 @@ app.post('/api/login', authLimiter, async (req, res) => {
             return res.status(400).json({ error: 'Correo o contraseña incorrectos.' });
         }
 
-        // Devolvemos explícitamente el _id para que el frontend lo reconozca al guardar listas
         return res.status(200).json({
             message: `¡Bienvenido de nuevo, ${user.username}! 🌟`,
             user: {
@@ -235,23 +225,54 @@ app.post('/api/login', authLimiter, async (req, res) => {
     }
 });
 
-// --- CONFIGURACIÓN DE PASSPORT GOOGLE ---
+// --- CONFIGURACIÓN DE PASSPORT GOOGLE (AUTOMÁTICA LOCAL/RENDER) ---
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:5000/auth/google/callback"
+    callbackURL: "/auth/google/callback"
 }, (accessToken, refreshToken, profile, done) => {
     return done(null, profile);
 }));
 
-// --- RUTAS DE AUTENTICACIÓN CON GOOGLE ---
-app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+app.get('/auth/google', (req, res, next) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const dynamicCallback = `${protocol}://${host}/auth/google/callback`;
 
-app.get('/auth/google/callback', 
-    passport.authenticate('google', { failureRedirect: '/' }),
-    (req, res) => {
-       res.redirect('/'); 
-    }
-);
+    passport.authenticate('google', { 
+        scope: ['profile', 'email'],
+        callbackURL: dynamicCallback 
+    })(req, res, next);
+});
+
+app.get('/auth/google/callback', (req, res, next) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const dynamicCallback = `${protocol}://${host}/auth/google/callback`;
+
+    passport.authenticate('google', { 
+        failureRedirect: '/',
+        callbackURL: dynamicCallback,
+        failureMessage: true
+    })(req, res, (err) => {
+        if (err) {
+            console.log("Error en autenticación de Google:", err);
+            return res.redirect('/');
+        }
+        
+        // Si entra aquí, ¡Google autenticó bien! Vamos a ver qué trae req.user
+        const googleUser = req.user._json || req.user;
+        const userData = {
+            username: googleUser.name || googleUser.displayName || 'Usuario Google',
+            email: googleUser.email || (googleUser.emails && googleUser.emails[0] ? googleUser.emails[0].value : 'google@user.com'),
+            avatar: googleUser.picture || (googleUser.photos && googleUser.photos[0] ? googleUser.photos[0].value : '')
+        };
+
+        res.send(`
+            <script>
+                localStorage.setItem('anibase_user', '${JSON.stringify(userData)}');
+                window.location.href = '/';
+            </script>
+        `);
+    });
+});

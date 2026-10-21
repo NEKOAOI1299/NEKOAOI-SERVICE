@@ -1044,7 +1044,15 @@
     </footer>
 
     <script>
-        let API_URL = "http://localhost:5000/api/animes";
+        // --- DETECCIÓN AUTOMÁTICA DE ENTORNO (LOCAL VS RENDER) ---
+        let BASE_URL = "";
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            BASE_URL = "http://localhost:5000";
+        } else {
+            BASE_URL = "https://nekoaoi.onrender.com";
+        }
+
+        let API_URL = `${BASE_URL}/api/animes`;
         let allAnimes = [];
         let currentUser = localStorage.getItem('anibase_user') || null;
         let miListaUsuario = [];
@@ -1053,21 +1061,6 @@
         let activeSeason = 'Invierno';
         let currentShareData = { title: '', url: '' };
         let isLoginMode = true;
-
-        let activeForumCategory = 'general';
-        let activePopularFilter = 'dia';
-        let activeHashtagFilter = null;
-        let forumPosts = JSON.parse(localStorage.getItem('nekoaoi_forum_posts') || '[]');
-        let currentForumMedia = null;
-
-        const animeFLVGenres = [
-            "Shounen", "Shoujo", "Seinen", "Josei", "Kodomo",
-            "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Ciencia Ficción",
-            "Isekai", "Romance", "Slice of Life", "Sobrenatural", "Misterio", "Psicológico",
-            "Terror", "Suspenso", "Mecha", "Deportes", "Escolar", "Musica", "Magia",
-            "Militar", "Histórico", "Demonios", "Vampiros", "Ecchi", "Harem", "Artes Marciales",
-            "Superpoderes", "Parodia", "Policial", "Juegos", "Espacial", "Cyberpunk"
-        ];
 
         let quizCurrentStep = 0;
         let quizAnswers = [];
@@ -1133,6 +1126,8 @@
                 }
             });
         }
+
+        const animeFLVGenres = ["Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", "Shounen", "Seinen", "Slice of Life", "Misterio", "Sobrenatural"];
 
         function populateGenreSelectors() {
             const genreSelects = document.querySelectorAll('.genre-select-options');
@@ -1200,7 +1195,7 @@
                 msgBox.classList.add('block');
             }
 
-            const endpoint = isLoginMode ? 'http://localhost:5000/api/login' : 'http://localhost:5000/api/auth/register';
+            const endpoint = isLoginMode ? `${BASE_URL}/api/login` : `${BASE_URL}/api/auth/register`;
             const bodyData = isLoginMode ? { email, password } : { username, email, password };
 
             try {
@@ -1247,7 +1242,7 @@
             } catch (error) {
                 if (msgBox) {
                     msgBox.classList.add('bg-accent/20', 'text-accent');
-                    msgBox.innerText = 'Error: No se pudo conectar con el servidor backend (http://localhost:5000).';
+                    msgBox.innerText = 'Error: No se pudo conectar con el servidor backend.';
                 }
             }
         }
@@ -1334,6 +1329,7 @@
             location.reload();
         }
 
+        // --- FUNCIÓN SWITCHTAB ACTUALIZADA ---
         function switchTab(tabId) {
             localStorage.setItem('anibase_current_tab', tabId);
 
@@ -1357,9 +1353,19 @@
                 activeBtn.classList.add('bg-accent', 'text-white', 'font-bold', 'shadow-md');
             }
 
-            if (tabId === 'directorio') applyDirectoryFilters();
-            if (tabId === 'temporadas') renderTemporadas();
-            if (tabId === 'milista') cargarMiListaPersonal();
+            // Recarga automática de datos según la pestaña activa
+            if (tabId === 'inicio') {
+                renderHomeSections();
+            }
+            if (tabId === 'directorio') {
+                applyDirectoryFilters();
+            }
+            if (tabId === 'temporadas') {
+                renderTemporadas();
+            }
+            if (tabId === 'milista') {
+                cargarMiListaPersonal();
+            }
             if (tabId === 'foro') {
                 renderForumFeed();
             }
@@ -1417,7 +1423,6 @@
                 return matchName && matchAnio && matchGenero && matchEstado && matchTipo;
             });
 
-            // Aplicar Ordenamiento
             filtered.sort((a, b) => {
                 if (sortOrder === 'popular_desc') {
                     return (b.puntuacion || 8) - (a.puntuacion || 8);
@@ -1483,7 +1488,7 @@
 
                 if (!idUsuario) return;
 
-                const respuesta = await fetch('http://localhost:5000/api/mi-lista/' + idUsuario);
+                const respuesta = await fetch(`${BASE_URL}/api/mi-lista/` + idUsuario);
                 if (!respuesta.ok) return;
 
                 miListaUsuario = await respuesta.json();
@@ -1609,7 +1614,7 @@
                 if (typeof applyDirectoryFilters === 'function') applyDirectoryFilters();
                 if (typeof renderTemporadas === 'function') renderTemporadas();
 
-                const respuesta = await fetch('http://localhost:5000/api/mi-lista', {
+                const respuesta = await fetch(`${BASE_URL}/api/mi-lista`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1787,7 +1792,6 @@
 
             document.getElementById('detailModalContent').innerHTML = `
                 <div class="flex flex-col md:flex-row gap-6">
-                    <!-- Columna Izquierda: Póster + Datos Técnicos + Botón Compartir -->
                     <div class="w-full md:w-5/12 flex-shrink-0 space-y-3">
                         <div class="relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900 shadow-xl">
                             <img src="${imageUrl}" class="w-full h-80 object-contain">
@@ -1796,7 +1800,6 @@
                             </span>
                         </div>
 
-                        <!-- Ficha técnica rápida para rellenar el espacio -->
                         <div class="grid grid-cols-2 gap-2 text-center text-xs">
                             <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800">
                                 <span class="block text-[10px] text-gray-400 uppercase font-bold">Estado</span>
@@ -1813,7 +1816,6 @@
                         </button>
                     </div>
 
-                    <!-- Columna Derecha: Sinopsis, Relleno, OST y Reseñas -->
                     <div class="w-full md:w-7/12 space-y-4">
                         <div>
                             <div class="flex items-center justify-between">
@@ -1865,7 +1867,7 @@
                                         <input type="checkbox" id="reviewSpoiler" class="rounded bg-cardbg border-gray-800 text-accent"> Spoiler
                                     </label>
                                 </div>
-                                <textarea id="reviewText" rows="2" placeholder="Tu opinión sin o con spoilers..." class="w-full bg-cardbg border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"></textarea>
+                                <textarea id="reviewText" rows="2" placeholder="Tu opinión..." class="w-full bg-cardbg border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"></textarea>
                                 <button onclick="addReview('${anime._id}')" class="bg-accent hover:bg-accenthover text-white px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">Publicar Reseña</button>
                             </div>
                         </div>
@@ -1977,8 +1979,8 @@
                         <div class="space-y-1 text-left">
                             <span class="bg-accent/20 text-accent font-bold px-2 py-0.5 rounded border border-accent/30 text-[10px]">${animeRecomendado.tipo || 'Serie'}</span>
                             <h5 class="text-lg font-bold text-white">${animeRecomendado.titulo}</h5>
-                            <p class="text-xs text-gray-400 leading-relaxed">${animeRecomendado.sinopsis || 'Recomendación perfecta elegida según tus elecciones en el quiz.'}</p>
-                            <p class="text-[11px] text-emerald-400 font-bold pt-1"><i class="fa-solid fa-circle-check"></i> Coincide con tu búsqueda de hoy</p>
+                            <p class="text-xs text-gray-400 leading-relaxed">${animeRecomendado.sinopsis || 'Recomendación perfecta elegida según tus elecciones.'}</p>
+                            <p class="text-[11px] text-emerald-400 font-bold pt-1"><i class="fa-solid fa-circle-check"></i> Coincide con tu búsqueda</p>
                         </div>
                     </div>
                 `;
@@ -2288,6 +2290,12 @@
             document.getElementById('publicProfileModal').classList.remove('flex');
             document.getElementById('publicProfileModal').classList.add('hidden');
         }
+
+        let forumPosts = JSON.parse(localStorage.getItem('nekoaoi_forum_posts') || '[]');
+        let activeForumCategory = 'general';
+        let activePopularFilter = 'dia';
+        let activeHashtagFilter = null;
+        let currentForumMedia = null;
 
         function initForumDefaultPosts() {
             if (forumPosts.length === 0) {
@@ -2634,7 +2642,7 @@
                         </div>
 
                         <div class="flex gap-2 pt-2">
-                            <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario o respuesta..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                            <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
                             <button onclick="addPostComment('${post.id}')" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
                                 Responder
                             </button>
@@ -2729,38 +2737,36 @@
         }
     </script>
 
-<!-- BLOQUE DE ACCESO PRIVADO TEMPORAL -->
-<div id="privateGate" style="position: fixed; inset: 0; background: #0f1015; z-index: 99999; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif;">
-    <div style="background: #181a20; border: 1px solid #27272a; padding: 30px; border-radius: 20px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
-        <span style="font-size: 40px; display: block; margin-bottom: 10px;">🐱🔒</span>
-        <h2 style="color: white; font-size: 18px; font-weight: bold; margin-bottom: 8px;">NEKOAOI - Acceso Privado</h2>
-        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 20px;">Introduce la contraseña para entrar a probar la plataforma.</p>
-        <input type="password" id="gatePassword" placeholder="Contraseña secreta" style="width: 100%; background: #0f1015; border: 1px solid #3f3f46; color: white; padding: 10px 14px; border-radius: 10px; font-size: 12px; margin-bottom: 12px; outline: none; box-sizing: border-box;">
-        <button onclick="checkPrivatePassword()" style="width: 100%; background: #13C8D6; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">Entrar a probar</button>
-        <p id="gateError" style="color: #ef4444; font-size: 11px; margin-top: 10px; display: none;">Contraseña incorrecta</p>
+    <!-- BLOQUE DE ACCESO PRIVADO TEMPORAL -->
+    <div id="privateGate" style="position: fixed; inset: 0; background: #0f1015; z-index: 99999; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif;">
+        <div style="background: #181a20; border: 1px solid #27272a; padding: 30px; border-radius: 20px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+            <span style="font-size: 40px; display: block; margin-bottom: 10px;">🐱🔒</span>
+            <h2 style="color: white; font-size: 18px; font-weight: bold; margin-bottom: 8px;">NEKOAOI - Acceso Privado</h2>
+            <p style="color: #9ca3af; font-size: 12px; margin-bottom: 20px;">Introduce la contraseña para entrar a probar la plataforma.</p>
+            <input type="password" id="gatePassword" placeholder="Contraseña secreta" style="width: 100%; background: #0f1015; border: 1px solid #3f3f46; color: white; padding: 10px 14px; border-radius: 10px; font-size: 12px; margin-bottom: 12px; outline: none; box-sizing: border-box;">
+            <button onclick="checkPrivatePassword()" style="width: 100%; background: #13C8D6; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">Entrar a probar</button>
+            <p id="gateError" style="color: #ef4444; font-size: 11px; margin-top: 10px; display: none;">Contraseña incorrecta</p>
+        </div>
     </div>
-</div>
 
-<script>
-    // Cambia 'tu_contraseña_secreta' por la contraseña que quieras darles a tus amigos
-    const CLAVE_SECRETA = "CORAZONdecalamar12";
+    <script>
+        const CLAVE_SECRETA = "CORAZONdecalamar12";
 
-    // Revisar si ya había iniciado sesión antes en este navegador
-    if (localStorage.getItem('nekoai_unlocked') === 'true') {
-        document.getElementById('privateGate').style.display = 'none';
-    }
-
-    function checkPrivatePassword() {
-        const inputVal = document.getElementById('gatePassword').value;
-        if (inputVal === CLAVE_SECRETA) {
-            localStorage.setItem('nekoai_unlocked', 'true');
+        if (localStorage.getItem('nekoai_unlocked') === 'true') {
             document.getElementById('privateGate').style.display = 'none';
-        } else {
-            const err = document.getElementById('gateError');
-            err.style.display = 'block';
-            setTimeout(() => err.style.display = 'none', 3000);
         }
-    }
-</script>
+
+        function checkPrivatePassword() {
+            const inputVal = document.getElementById('gatePassword').value;
+            if (inputVal === CLAVE_SECRETA) {
+                localStorage.setItem('nekoai_unlocked', 'true');
+                document.getElementById('privateGate').style.display = 'none';
+            } else {
+                const err = document.getElementById('gateError');
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+            }
+        }
+    </script>
 </body>
 </html>
