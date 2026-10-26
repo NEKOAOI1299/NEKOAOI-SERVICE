@@ -4,9 +4,9 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const path = require('path'); // Módulo nativo para manejar rutas de archivos
+const path = require('path');
 
-// --- MÓDULOS DE SEGURIDAD NUEVOS ---
+// --- MÓDULOS DE SEGURIDAD ---
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcrypt');
@@ -14,7 +14,7 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 const Anime = require('./models/anime');
 const User = require('./models/user');
-const UserAnime = require('./models/milista'); // Importamos el modelo de la lista personal
+const UserAnime = require('./models/milista');
 
 const app = express();
 app.use(session({
@@ -32,28 +32,28 @@ passport.deserializeUser((obj, done) => done(null, obj));
 app.use(express.json());
 app.use(cors());
 
-// Configurar Express para servir todos los archivos estáticos (index.html, imágenes, CSS, JS)
+// Servir archivos estáticos
 app.use(express.static(__dirname));
 
 // --- BLINDAJE DE SEGURIDAD ---
 app.use(
     helmet({
-        contentSecurityPolicy: false // Desactivado para permitir cargar estilos/imágenes desde tu index.html
+        contentSecurityPolicy: false
     })
 );
 
-// Limitador general contra ataques de fuerza bruta / bots
+// Limitador general
 const generalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Máximo 100 peticiones por IP
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: { error: 'Demasiadas peticiones desde esta IP. Inténtalo más tarde.' }
 });
 app.use(generalLimiter);
 
-// Limitador estricto exclusivo para rutas de Autenticación (Login/Registro)
+// Limitador estricto para Login/Registro
 const authLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hora
-    max: 10, // Máximo 10 intentos por hora
+    windowMs: 60 * 60 * 1000,
+    max: 10,
     message: { error: 'Demasiados intentos de acceso. Por favor espera.' }
 });
 
@@ -72,12 +72,12 @@ mongoose.connect(MONGO_URI)
     console.error("Error al conectar a la base de datos:", err);
   });
 
-// --- RUTA PRINCIPAL QUE MUESTRA TU INDEX.HTML ---
+// RUTA PRINCIPAL
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// --- RUTA DE REGISTRO SEGURO CONECTADA A MONGODB ---
+// RUTA DE REGISTRO
 app.post('/api/auth/register', authLimiter, async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -111,10 +111,7 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     }
 });
 
-// ==========================================
-// RUTAS DE LA API DE ANIBASE
-// ==========================================
-
+// API DE ANIMES
 app.post('/api/animes', async (req, res) => {
     try {
         const nuevoAnime = new Anime(req.body);
@@ -225,7 +222,7 @@ app.post('/api/login', authLimiter, async (req, res) => {
     }
 });
 
-// --- CONFIGURACIÓN DE PASSPORT GOOGLE (AUTOMÁTICA LOCAL/RENDER) ---
+// --- PASSPORT GOOGLE ---
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -260,7 +257,6 @@ app.get('/auth/google/callback', (req, res, next) => {
             return res.redirect('/');
         }
         
-        // Si entra aquí, ¡Google autenticó bien! Vamos a ver qué trae req.user
         const googleUser = req.user._json || req.user;
         const userData = {
             username: googleUser.name || googleUser.displayName || 'Usuario Google',
