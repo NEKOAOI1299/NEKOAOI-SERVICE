@@ -29,7 +29,7 @@ app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 
 // Servir archivos estáticos
@@ -97,14 +97,15 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
         const newUser = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            avatar: ''
         });
 
         await newUser.save();
 
         return res.status(201).json({
             message: '¡Usuario registrado de forma segura en la base de datos!',
-            user: { _id: newUser._id, username: newUser.username, email: newUser.email }
+            user: { _id: newUser._id, username: newUser.username, email: newUser.email, avatar: '' }
         });
     } catch (error) {
         return res.status(500).json({ error: 'Error en el servidor al registrar el usuario.', detalle: error.message });
@@ -187,6 +188,7 @@ app.get('/api/mi-lista/:usuarioId', async (req, res) => {
     }
 });
 
+// --- RUTA DE LOGIN ---
 app.post('/api/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -211,6 +213,7 @@ app.post('/api/login', authLimiter, async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
+                avatar: user.avatar || '',
                 level: user.level || 1,
                 xp: user.xp || 0,
                 myList: user.myList || []
@@ -219,6 +222,41 @@ app.post('/api/login', authLimiter, async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ error: 'Error en el servidor al iniciar sesión.', detalle: error.message });
+    }
+});
+
+// --- RUTA PARA GUARDAR/ACTUALIZAR EL AVATAR EN MONGODB ---
+app.post('/api/user/avatar', async (req, res) => {
+    try {
+        const { userId, avatar } = req.body;
+
+        if (!userId || !avatar) {
+            return res.status(400).json({ error: 'Faltan datos (userId o avatar).' });
+        }
+
+        let user = null;
+
+        if (mongoose.Types.ObjectId.isValid(userId)) {
+            user = await User.findById(userId);
+        }
+
+        if (!user) {
+            user = await User.findOne({ $or: [{ email: userId }, { username: userId }] });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'Usuario no encontrado en la base de datos.' });
+        }
+
+        user.avatar = avatar;
+        await user.save();
+
+        res.status(200).json({
+            message: '¡Foto de perfil actualizada en la nube con éxito!',
+            avatar: user.avatar
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar el avatar', detalle: error.message });
     }
 });
 
@@ -251,24 +289,47 @@ app.get('/auth/google/callback', (req, res, next) => {
         failureRedirect: '/',
         callbackURL: dynamicCallback,
         failureMessage: true
-    })(req, res, (err) => {
+    })(req, res, async (err) => {
         if (err) {
             console.log("Error en autenticación de Google:", err);
             return res.redirect('/');
         }
         
-        const googleUser = req.user._json || req.user;
-        const userData = {
-            username: googleUser.name || googleUser.displayName || 'Usuario Google',
-            email: googleUser.email || (googleUser.emails && googleUser.emails[0] ? googleUser.emails[0].value : 'google@user.com'),
-            avatar: googleUser.picture || (googleUser.photos && googleUser.photos[0] ? googleUser.photos[0].value : '')
-        };
+        try {
+            const googleUser = req.user._json || req.user;
+            const email = googleUser.email || (googleUser.emails && googleUser.emails[0] ? googleUser.emails[0].value : 'google@user.com');
+            const username = googleUser.name || googleUser.displayName || 'Usuario Google';
+            const avatar = googleUser.picture || (googleUser.photos && googleUser.photos[0] ? googleUser.photos[0].value : '');
 
-        res.send(`
-            <script>
-                localStorage.setItem('anibase_user', '${JSON.stringify(userData)}');
-                window.location.href = '/';
-            </script>
-        `);
+            let dbUser = await User.findOne({ email });
+            if (!dbUser) {
+                dbUser = new User({
+                    username,
+                    email,
+                    password: await bcrypt.hash(Math.random().toString(36), 10),
+                    avatar
+                });
+                await dbUser.save();
+            }
+
+            const userData = {
+                _id: dbUser._id,
+                username: dbUser.username,
+                email: dbUser.email,
+                avatar: dbUser.avatar
+            };
+
+            res.send(`
+                <script>
+                    localStorage.setItem('anibase_user', '${JSON.stringify(userData)}');
+                    window.location.href = '/';
+                </script>
+            `);
+        } catch (e) {
+            console.error("Error procesando usuario de Google:", e);
+            res.redirect('/');
+        }
     });
 });
+
+module.exports = app;

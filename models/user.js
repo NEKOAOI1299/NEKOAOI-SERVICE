@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true // Contraseña ya cifrada con bcrypt
     },
+    // --- CAMPO NUEVO PARA GUARDAR LA FOTO DE PERFIL EN LA NUBE ---
+    avatar: {
+        type: String,
+        default: ''
+    },
     // Lista personal de animes de cada usuario
     myList: [{
         animeTitle: { type: String, required: true },

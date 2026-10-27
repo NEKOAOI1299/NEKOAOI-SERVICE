@@ -673,7 +673,6 @@
             </div>
         </section>
     </main>
-
     <!-- Modal Visor de Imagen Ampliada (Lightbox) -->
     <div id="imageLightboxModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
         <button onclick="closeImageLightbox()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center transition cursor-pointer text-lg">
@@ -1077,13 +1076,16 @@
             { texto: "Para terminar: ¿Alguna condición extra que te encante?", opciones: ["Que tenga un plot-twist brutal al final", "Que los personajes secundarios tengan gran desarrollo", "Que trate sobre superación personal o arte", "Ninguna, confío plenamente en Neko"] }
         ];
 
-        window.onload = function() {
+        // CAMBIO CLAVE: async para esperar la descarga de animes antes de pintar pestañas
+        window.onload = async function() {
             populateYearSelectors();
             populateGenreSelectors();
             checkAuthUI();
             checkUserSession();
             initLevelSystem();
-            fetchAnimes();
+            
+            await fetchAnimes();
+            
             initForumDefaultPosts();
             initPrivacySettings();
 
@@ -1213,13 +1215,13 @@
                         msgBox.innerText = data.message || '¡Acceso exitoso!';
                     }
 
-                    const previousUser = localStorage.getItem('anibase_user');
                     let userData = data.user || { username: username || (email.split('@')[0]), email: email };
 
+                    const previousUser = localStorage.getItem('anibase_user');
                     if (previousUser) {
                         try {
                             const parsedOldUser = JSON.parse(previousUser);
-                            if (parsedOldUser.avatar) {
+                            if (parsedOldUser.avatar && !userData.avatar) {
                                 userData.avatar = parsedOldUser.avatar;
                             }
                         } catch (e) {
@@ -1329,7 +1331,6 @@
             location.reload();
         }
 
-        // --- FUNCIÓN SWITCHTAB ACTUALIZADA ---
         function switchTab(tabId) {
             localStorage.setItem('anibase_current_tab', tabId);
 
@@ -1353,7 +1354,6 @@
                 activeBtn.classList.add('bg-accent', 'text-white', 'font-bold', 'shadow-md');
             }
 
-            // Recarga automática de datos según la pestaña activa
             if (tabId === 'inicio') {
                 renderHomeSections();
             }
@@ -1484,11 +1484,11 @@
                 if (!usuarioGuardado) return;
 
                 const usuarioLogueado = JSON.parse(usuarioGuardado);
-                const idUsuario = usuarioLogueado._id || usuarioLogueado.id;
+                const idUsuario = usuarioLogueado._id || usuarioLogueado.id || usuarioLogueado.email;
 
                 if (!idUsuario) return;
 
-                const respuesta = await fetch(`${BASE_URL}/api/mi-lista/` + idUsuario);
+                const respuesta = await fetch(`${BASE_URL}/api/mi-lista/` + encodeURIComponent(idUsuario));
                 if (!respuesta.ok) return;
 
                 miListaUsuario = await respuesta.json();
@@ -2147,7 +2147,7 @@
             settingsForumCount.innerText = totalUserPosts;
         }
 
-        function handleAvatarUpload(event) {
+        async function handleAvatarUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -2157,7 +2157,7 @@
             }
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const imageBase64 = e.target.result;
 
                 const sAvatar = document.getElementById('settingsAvatar');
@@ -2172,6 +2172,25 @@
                     const user = JSON.parse(savedUser);
                     user.avatar = imageBase64;
                     localStorage.setItem('anibase_user', JSON.stringify(user));
+
+                    const userId = user._id || user.id || user.email || user.username;
+                    if (userId) {
+                        try {
+                            const response = await fetch(`${BASE_URL}/api/user/avatar`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId, avatar: imageBase64 })
+                            });
+                            if (response.ok) {
+                                showToast("¡Foto de perfil guardada en la nube con éxito! 🌟", "success");
+                            } else {
+                                const errData = await response.json().catch(() => ({}));
+                                showToast(errData.error || "Error al sincronizar avatar con la base de datos", "error");
+                            }
+                        } catch (err) {
+                            console.error("Error de red al actualizar avatar:", err);
+                        }
+                    }
                 }
             };
             reader.readAsDataURL(file);
@@ -2578,11 +2597,25 @@
                 const mediaHtml = post.media ? `<div class="relative rounded-xl overflow-hidden border border-gray-800/80 max-h-[450px] bg-black/40 flex items-center justify-center cursor-pointer group/img" onclick="openImageLightbox('${post.media}')"><img src="${post.media}" class="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"><div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1"><i class="fa-solid fa-magnifying-glass-plus"></i> Ampliar imagen</div></div>` : '';
 
                 let authorActionHtml = '';
-                if (currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) {
-                    authorActionHtml = `<button onclick="deleteForumPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar mi publicación"><i class="fa-solid fa-trash-can"></i></button>`;
-                } else {
-                    authorActionHtml = `<button onclick="reportPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
-                }
+    
+    // Verificamos si el usuario actual es admin o moderador
+    let canModerate = false;
+    const savedUserAuth = localStorage.getItem('anibase_user');
+    if (savedUserAuth) {
+        try {
+            const uObj = JSON.parse(savedUserAuth);
+            if (uObj && (uObj.email === 'jose.ips@hotmail.com' || uObj.role === 'admin' || uObj.role === 'moderador')) {
+                canModerate = true;
+            }
+        } catch(e) {}
+    }
+
+    // Si es el autor del post O es moderador/admin, mostrar el botón de eliminar
+    if ((currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) || canModerate) {
+        authorActionHtml = `<button onclick="deleteForumPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar publicación (Mod)"><i class="fa-solid fa-trash-can"></i></button>`;
+    } else {
+        authorActionHtml = `<button onclick="reportPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-gray-800 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
+    }
 
                 let commentsHtml = post.comments.map(c => `
                     <div class="bg-darkbg/70 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1">
@@ -2733,8 +2766,36 @@
         }
 
         function reportPost(postId) {
-            showToast("Gracias por avisar. La publicación ha sido enviada a moderación.", "success");
-        }
+    // Buscamos el post en el arreglo general del foro
+    const postIndex = forumPosts.findIndex(p => p.id === postId);
+    if (postIndex === -1) return;
+
+    // Inicializamos un contador de reportes si no existe
+    if (!forumPosts[postIndex].reportsCount) {
+        forumPosts[postIndex].reportsCount = 0;
+    }
+
+    // Sumamos un reporte al contador
+    forumPosts[postIndex].reportsCount++;
+
+    // LÍMITE DE REPORTES: Si llega a 30 reportes, se elimina automáticamente
+    if (forumPosts[postIndex].reportsCount >= 30) {
+        // Eliminamos el post del arreglo
+        forumPosts.splice(postIndex, 1);
+        localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+        
+        showToast("⚠️ Esta publicación ha sido eliminada automáticamente debido a que acumuló 30 reportes.", "error");
+    } else {
+        // Guardamos el incremento de reportes en el navegador
+        localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+        showToast("Gracias por avisar. La publicación ha sido enviada a moderación.", "success");
+    }
+
+    // Actualizamos el feed para reflejar los cambios
+    renderForumFeed();
+    updateForumSidebarDynamics();
+}
+
     </script>
 
     <!-- BLOQUE DE ACCESO PRIVADO TEMPORAL -->
