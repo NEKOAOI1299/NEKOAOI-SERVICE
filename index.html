@@ -1136,7 +1136,7 @@
             { texto: "Para terminar: ¿Alguna condición extra que te encante?", opciones: ["Que tenga un plot-twist brutal al final", "Que los personajes secundarios tengan gran desarrollo", "Que trate sobre superación personal o arte", "Ninguna, confío plenamente en Neko"] }
         ];
 
-        // CAMBIO CLAVE: async para esperar la descarga de animes antes de pintar pestañas
+        // CAMBIO CLAVE: async para esperar la descarga de animes y tu lista antes de pintar las tarjetas
         window.onload = async function() {
             populateYearSelectors();
             populateGenreSelectors();
@@ -1144,11 +1144,14 @@
             checkUserSession();
             initLevelSystem();
             
+            // Cargamos la lista local de inmediato para que los botones aparezcan azules al instante
+            cargarMiListaPersonal();
+            
+            // Luego descargamos los animes de la nube
             await fetchAnimes();
             
             initForumDefaultPosts();
             initPrivacySettings();
-
             const savedTab = localStorage.getItem('anibase_current_tab');
             if (savedTab) {
                 switchTab(savedTab);
@@ -1560,13 +1563,26 @@
 
                 const usuarioLogueado = JSON.parse(usuarioGuardado);
                 const idUsuario = usuarioLogueado._id || usuarioLogueado.id || usuarioLogueado.email;
-
                 if (!idUsuario) return;
 
+                // ⚡ CARGA INSTANTÁNEA: Leemos primero del navegador para que no parpadee
+                const localCache = localStorage.getItem(`neko_milista_${idUsuario}`);
+                if (localCache) {
+                    try {
+                        miListaUsuario = JSON.parse(localCache);
+                        actualizarContadoresYVista();
+                    } catch(e){}
+                }
+
+                // Luego actualizamos en segundo plano con la base de datos real
                 const respuesta = await fetch(`${BASE_URL}/api/mi-lista/` + encodeURIComponent(idUsuario));
                 if (!respuesta.ok) return;
 
                 miListaUsuario = await respuesta.json();
+                
+                // Guardamos la nueva versión en el caché local
+                localStorage.setItem(`neko_milista_${idUsuario}`, JSON.stringify(miListaUsuario));
+
                 actualizarContadoresYVista();
             } catch (error) {
                 console.error("Error al cargar la lista personal:", error);
