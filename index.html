@@ -418,20 +418,31 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-800">
                     <div>
                         <h3 class="text-xl font-bold text-white">Explorar por Temporadas</h3>
-                        <p class="text-xs text-gray-400">Selecciona la estación del año y el año de estreno</p>
+                        <p class="text-xs text-gray-400">Selecciona la estación del año, el año de estreno y el orden</p>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
                     <div id="seasonButtonsContainer" class="flex flex-wrap gap-2">
                         <button onclick="filterSeasonTab('Invierno')" class="season-btn bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md cursor-pointer">❄️ Invierno</button>
                         <button onclick="filterSeasonTab('Primavera')" class="season-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">🌸 Primavera</button>
                         <button onclick="filterSeasonTab('Verano')" class="season-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">☀️ Verano</button>
                         <button onclick="filterSeasonTab('Otoño')" class="season-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">🍁 Otoño</button>
                     </div>
-                    <div class="w-full sm:w-48">
-                        <select id="seasonYearFilter" onchange="renderTemporadas()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                        </select>
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                        <div class="w-full sm:w-48">
+                            <select id="seasonYearFilter" onchange="renderTemporadas()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-48">
+                            <select id="seasonSortOrder" onchange="renderTemporadas()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                                <option value="popular_desc">🔥 Más populares</option>
+                                <option value="popular_asc">📉 Menos populares</option>
+                                <option value="recent">⏰ Recién agregados</option>
+                                <option value="az">🔤 Alfabético (A-Z)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -464,26 +475,26 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
-                        <input type="text" id="listSearchInput" oninput="cargarMiListaPersonal()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        <input type="text" id="listSearchInput" oninput="renderMiListaUI()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
-                        <select id="listAnioFilter" onchange="cargarMiListaPersonal()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        <select id="listAnioFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                             <option value="">Todos los años</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género / Demografía</label>
-                        <select id="listGeneroFilter" onchange="cargarMiListaPersonal()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        <select id="listGeneroFilter" onchange="renderMiListaUI()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                             <option value="">Todos los géneros</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
-                        <select id="listEstadoFilter" onchange="cargarMiListaPersonal()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        <select id="listEstadoFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                             <option value="">Todos los estados</option>
                             <option value="En emisión">En emisión</option>
                             <option value="Finalizado">Finalizado</option>
@@ -491,7 +502,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
-                        <select id="listTipoFilter" onchange="cargarMiListaPersonal()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                        <select id="listTipoFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                             <option value="">Todos los tipos</option>
                             <option value="Serie">Serie</option>
                             <option value="Película">Película</option>
@@ -499,7 +510,17 @@
                             <option value="Especial">Especial</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Ordenar por</label>
+                        <select id="listSortOrder" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                            <option value="popular_desc">🔥 Más populares</option>
+                            <option value="popular_asc">📉 Menos populares</option>
+                            <option value="recent">⏰ Recién agregados</option>
+                            <option value="az">🔤 Alfabético (A-Z)</option>
+                        </select>
+                    </div>
                 </div>
+
 
                 <div id="miListaGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
             </div>
@@ -748,6 +769,16 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div id="detailModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal Grande de Reseñas y Debates de la Comunidad -->
+    <div id="reviewsModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+            <button onclick="closeReviewsModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="reviewsModalContent"></div>
         </div>
     </div>
 
@@ -1158,7 +1189,13 @@
             });
         }
 
-        const animeFLVGenres = ["Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", "Shounen", "Seinen", "Slice of Life", "Misterio", "Sobrenatural"];
+        const animeFLVGenres = [
+    "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", 
+    "Shounen", "Seinen", "Slice of Life", "Misterio", "Sobrenatural", 
+    "Isekai", "Ecchi", "Deportes", "Mecha", "Psicológico", "Terror", 
+    "Gore", "Suspense", "Magia", "Artes Marciales", "Fantasía Oscura", 
+    "Música", "Parodia", "Historical", "Military", "School", "Shoujo", "Josei", "Superpoderes"
+];
 
         function populateGenreSelectors() {
             const genreSelects = document.querySelectorAll('.genre-select-options');
@@ -1490,11 +1527,29 @@
 
         function renderTemporadas() {
             const year = document.getElementById('seasonYearFilter').value;
+            const sortOrder = document.getElementById('seasonSortOrder') ? document.getElementById('seasonSortOrder').value : 'popular_desc';
+
             const filtered = allAnimes.filter(a => {
                 const matchSeason = !activeSeason || a.temporada === activeSeason;
                 const matchYear = !year || String(a.anio) === String(year);
                 return matchSeason && matchYear;
             });
+
+            filtered.sort((a, b) => {
+                if (sortOrder === 'popular_desc') {
+                    return (b.puntuacion || 8) - (a.puntuacion || 8);
+                } else if (sortOrder === 'popular_asc') {
+                    return (a.puntuacion || 8) - (b.puntuacion || 8);
+                } else if (sortOrder === 'recent') {
+                    const timeA = a._id && a._id.startsWith('local-') ? parseInt(a._id.replace('local-', '')) : 0;
+                    const timeB = b._id && b._id.startsWith('local-') ? parseInt(b._id.replace('local-', '')) : 0;
+                    return timeB - timeA;
+                } else if (sortOrder === 'az') {
+                    return (a.titulo || '').localeCompare(b.titulo || '');
+                }
+                return 0;
+            });
+
             renderAnimes(filtered.length > 0 ? filtered : allAnimes, 'temporadasGrid');
         }
 
@@ -1576,6 +1631,7 @@
             const genero = document.getElementById('listGeneroFilter') ? document.getElementById('listGeneroFilter').value : '';
             const estado = document.getElementById('listEstadoFilter') ? document.getElementById('listEstadoFilter').value : '';
             const tipo = document.getElementById('listTipoFilter') ? document.getElementById('listTipoFilter').value : '';
+            const sortOrder = document.getElementById('listSortOrder') ? document.getElementById('listSortOrder').value : 'popular_desc';
 
             animesFiltrados = animesFiltrados.filter(item => {
                 const a = item.anime;
@@ -1586,6 +1642,23 @@
                 const matchEstado = !estado || a.estado === estado;
                 const matchTipo = !tipo || a.tipo === tipo;
                 return matchName && matchAnio && matchGenero && matchEstado && matchTipo;
+            });
+
+            animesFiltrados.sort((itemA, itemB) => {
+                const a = itemA.anime || {};
+                const b = itemB.anime || {};
+                if (sortOrder === 'popular_desc') {
+                    return (b.puntuacion || 8) - (a.puntuacion || 8);
+                } else if (sortOrder === 'popular_asc') {
+                    return (a.puntuacion || 8) - (b.puntuacion || 8);
+                } else if (sortOrder === 'recent') {
+                    const timeA = a._id && a._id.startsWith('local-') ? parseInt(a._id.replace('local-', '')) : 0;
+                    const timeB = b._id && b._id.startsWith('local-') ? parseInt(b._id.replace('local-', '')) : 0;
+                    return timeB - timeA;
+                } else if (sortOrder === 'az') {
+                    return (a.titulo || '').localeCompare(b.titulo || '');
+                }
+                return 0;
             });
 
             container.innerHTML = '';
@@ -1791,24 +1864,12 @@
             const anime = allAnimes.find(a => a._id === id);
             if (!anime) return;
 
-            const reviews = animeReviews[anime._id] || [];
             const imageUrl = anime.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
 
             let generosModalHtml = '';
             if (anime.generos && Array.isArray(anime.generos)) {
                 generosModalHtml = anime.generos.map(g => `<span class="bg-darkbg text-accent text-xs font-bold px-2.5 py-1 rounded-md border border-accent/30">${g}</span>`).join('');
             }
-
-            let reviewsHtml = reviews.length > 0 ? reviews.map(r => `
-                <div class="bg-darkbg p-3 rounded-xl border border-gray-800 text-xs space-y-1">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-gray-200">${escapeHtml(r.user)}</span>
-                        <span class="text-amber-400"><i class="fa-solid fa-star"></i> ${r.rating}/10</span>
-                    </div>
-                    ${r.hasSpoiler ? '<span class="inline-block bg-accent/20 text-accent border border-accent/30 px-2 py-0.5 rounded text-[10px] font-bold uppercase">⚠️ Contiene Spoilers</span>' : ''}
-                    <p class="text-gray-400 leading-relaxed">${escapeHtml(r.text)}</p>
-                </div>
-            `).join('') : '<p class="text-xs text-gray-500 italic">No hay reseñas aún. ¡Sé el primero en calificar!</p>';
 
             document.getElementById('detailModalContent').innerHTML = `
                 <div class="flex flex-col md:flex-row gap-6">
@@ -1818,6 +1879,12 @@
                             <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">
                                 ${anime.tipo || 'Serie'} &bull; ${anime.anio || '2024'}
                             </span>
+                        </div>
+
+                        <!-- PUNTUACIÓN OFICIAL -->
+                        <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800 text-center">
+                            <span class="block text-[10px] text-gray-400 uppercase font-bold">Puntuación</span>
+                            <span class="font-extrabold text-amber-400 text-sm"><i class="fa-solid fa-star"></i> ${anime.puntuacion || '8.5'} / 10</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-center text-xs">
@@ -1840,7 +1907,6 @@
                         <div>
                             <div class="flex items-center justify-between">
                                 <span class="bg-accent/20 text-accent font-bold px-2.5 py-1 rounded-md text-xs border border-accent/30">${anime.tipo || 'Serie'}</span>
-                                <span class="text-amber-400 font-extrabold text-sm flex items-center gap-1"><i class="fa-solid fa-star"></i> ${anime.puntuacion || '8.5'} / 10</span>
                             </div>
                             <h3 class="text-2xl font-extrabold text-white mt-1">${anime.titulo}</h3>
                             <div class="flex flex-wrap gap-1.5 mt-2 mb-2">
@@ -1851,15 +1917,19 @@
 
                         <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-1">
                             <div class="flex items-center justify-between text-xs font-bold text-gray-300">
-                                <span><i class="fa-solid fa-filter text-accent mr-1.5"></i> Filtro de Relleno (Filler Guide)</span>
+                                <span><i class="fa-solid fa-filter text-accent mr-1.5"></i> Porcentaje de relleno</span>
                                 <span class="text-emerald-400">Canon Detectado</span>
                             </div>
                             <p class="text-xs text-gray-400">${anime.rellenoGuia || 'Esta serie es 90% Canon oficial del Manga.'}</p>
                         </div>
 
+                        <!-- OPENINGS & ENDINGS -->
                         <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-2">
-                            <span class="text-xs font-bold text-gray-300 block"><i class="fa-solid fa-music text-gemini mr-1.5"></i> Banda Sonora / Openings & Endings</span>
-                            <div class="flex gap-2">
+                            <span class="text-xs font-bold text-gray-300 block"><i class="fa-solid fa-music text-gemini mr-1.5"></i> Openings & Endings</span>
+                            <div class="text-xs text-gray-300 space-y-1 bg-black/30 p-2.5 rounded-xl border border-gray-800">
+                                ${anime.musicaGuia || '<p class="text-gray-500 italic text-[11px]">Información de openings y endings pendiente de sincronización por el bot...</p>'}
+                            </div>
+                            <div class="flex gap-2 pt-1">
                                 <a href="https://open.spotify.com/search/${encodeURIComponent(anime.titulo + ' ost')}" target="_blank" class="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition">
                                     <i class="fa-brands fa-spotify text-emerald-400"></i> Spotify OST
                                 </a>
@@ -1869,27 +1939,11 @@
                             </div>
                         </div>
 
-                        <div class="space-y-3 pt-2 border-t border-gray-800">
-                            <h4 class="text-xs font-bold text-white flex items-center justify-between">
-                                <span><i class="fa-solid fa-comments text-accent mr-1.5"></i> Reseñas de la Comunidad</span>
-                                <span class="text-xs font-normal text-amber-400">${anime.puntuacion || '8.5'} / 10 ★</span>
-                            </h4>
-
-                            <div class="space-y-2 max-h-36 overflow-y-auto pr-1">
-                                ${reviewsHtml}
-                            </div>
-
-                            <div class="bg-darkbg p-3 rounded-xl border border-gray-800 space-y-2 pt-2">
-                                <span class="text-xs font-bold text-gray-300">Escribir una Reseña</span>
-                                <div class="flex gap-2 items-center">
-                                    <input type="number" id="reviewRating" min="1" max="10" placeholder="Nota (1-10)" class="w-24 bg-cardbg border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
-                                    <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
-                                        <input type="checkbox" id="reviewSpoiler" class="rounded bg-cardbg border-gray-800 text-accent"> Spoiler
-                                    </label>
-                                </div>
-                                <textarea id="reviewText" rows="2" placeholder="Tu opinión..." class="w-full bg-cardbg border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"></textarea>
-                                <button onclick="addReview('${anime._id}')" class="bg-accent hover:bg-accenthover text-white px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">Publicar Reseña</button>
-                            </div>
+                        <!-- BOTÓN PARA ABRIR EL MODAL GRANDE DE RESEÑAS -->
+                        <div class="pt-4 border-t border-gray-800">
+                            <button onclick="openReviewsModal('${anime._id}')" class="w-full bg-gradient-to-r from-accent to-gemini hover:opacity-90 text-white py-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-accent/20 cursor-pointer">
+                                <i class="fa-solid fa-comments text-base"></i>  Ver Reseñas y Opiniones
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1904,34 +1958,257 @@
             document.getElementById('detailModal').classList.add('hidden');
         }
 
-        function addReview(animeId) {
-            const rating = document.getElementById('reviewRating').value || '9';
-            const text = document.getElementById('reviewText').value.trim();
-            const hasSpoiler = document.getElementById('reviewSpoiler').checked;
+        // --- SISTEMA AVANZADO DE RESEÑAS Y DEBATES DE LA COMUNIDAD ---
+
+        function openReviewsModal(animeId) {
+            const anime = allAnimes.find(a => a._id === animeId);
+            if (!anime) return;
+
+            renderReviewsModalContent(animeId);
+            document.getElementById('reviewsModal').classList.remove('hidden');
+            document.getElementById('reviewsModal').classList.add('flex');
+        }
+
+        function closeReviewsModal() {
+            document.getElementById('reviewsModal').classList.remove('flex');
+            document.getElementById('reviewsModal').classList.add('hidden');
+        }
+
+        function renderReviewsModalContent(animeId) {
+            const anime = allAnimes.find(a => a._id === animeId);
+            if (!anime) return;
+
+            let reviews = animeReviews[anime._id] || [];
+            const sortOrder = document.getElementById('reviewSortOrderSelect') ? document.getElementById('reviewSortOrderSelect').value : 'recent';
+
+            // Ordenar reseñas (Recientes vs Más Populares por Likes)
+            reviews.sort((a, b) => {
+                if (sortOrder === 'popular') {
+                    const likesA = (a.likes || []).length;
+                    const likesB = (b.likes || []).length;
+                    return likesB - likesA;
+                } else {
+                    // Recientes por defecto
+                    const timeA = a.timestamp || 0;
+                    const timeB = b.timestamp || 0;
+                    return timeB - timeA;
+                }
+            });
+
+            let reviewsHtml = reviews.length > 0 ? reviews.map((r, index) => {
+                const reviewId = r.id || `${animeId}-rev-${index}`;
+                const likesCount = (r.likes || []).length;
+                
+                // Verificar si el usuario actual ya dio like
+                let currentUserName = '';
+                const savedUser = localStorage.getItem('anibase_user');
+                if (savedUser) {
+                    try { currentUserName = JSON.parse(savedUser).username || ''; } catch(e){}
+                }
+                const hasLiked = currentUserName && (r.likes || []).includes(currentUserName);
+                const likeBtnClass = hasLiked ? "text-rose-500 bg-rose-500/10 border-rose-500/30" : "text-gray-400 bg-darkbg border-gray-800 hover:text-white";
+
+                // Manejo de Spoilers Funcional
+                let contentHtml = '';
+                if (r.hasSpoiler) {
+                    contentHtml = `
+                        <div id="spoiler-box-${reviewId}" class="relative rounded-xl overflow-hidden bg-black/60 p-3 border border-amber-500/30">
+                            <div id="spoiler-blur-${reviewId}" class="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center gap-2 p-2 z-10 transition-all">
+                                <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-triangle-exclamation"></i> Esta reseña contiene spoilers</span>
+                                <button onclick="revealSpoiler('${reviewId}')" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-3 py-1 rounded-lg text-[11px] transition cursor-pointer">Revelar Spoiler</button>
+                            </div>
+                            <p class="text-gray-300 leading-relaxed select-none">${escapeHtml(r.text)}</p>
+                        </div>
+                    `;
+                } else {
+                    contentHtml = `<p class="text-gray-300 leading-relaxed">${escapeHtml(r.text)}</p>`;
+                }
+
+                // Sub-comentarios / Respuestas en cascada
+                let repliesHtml = (r.replies || []).map(rep => `
+                    <div class="bg-black/30 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1 ml-6 mt-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-accent">${escapeHtml(rep.user)}</span>
+                            <span class="text-[10px] text-gray-500">${rep.time || 'Hace un momento'}</span>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">${escapeHtml(rep.text)}</p>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="bg-darkbg p-4 rounded-2xl border border-gray-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center font-bold text-accent text-xs">
+                                    ${escapeHtml(r.user.charAt(0).toUpperCase())}
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white text-xs block">${escapeHtml(r.user)}</span>
+                                    <span class="text-[10px] text-gray-500">${r.timeAgo || 'Reciente'}</span>
+                                </div>
+                            </div>
+                            <button onclick="toggleReviewLike('${animeId}', '${reviewId}')" class="border px-3 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${likeBtnClass}">
+                                <i class="fa-solid fa-heart"></i> <span>${likesCount}</span>
+                            </button>
+                        </div>
+
+                        ${contentHtml}
+
+                        <!-- Hilo de Respuestas (Sub-comentarios) -->
+                        <div class="space-y-1 pt-2">
+                            ${repliesHtml}
+                            <div class="flex gap-2 pt-2 ml-6">
+                                <input type="text" id="reply-input-${reviewId}" placeholder="Responder a este debate..." class="w-full bg-cardbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                                <button onclick="addReviewReply('${animeId}', '${reviewId}')" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Responder</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<p class="text-xs text-gray-500 italic text-center py-8">No hay reseñas ni debates aún. ¡Sé el primero en opinar sobre esta serie!</p>';
+
+            document.getElementById('reviewsModalContent').innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-accent uppercase tracking-wider">Foro de Comunidad</span>
+                            <h3 class="text-2xl font-extrabold text-white mt-0.5">Debates y Reseñas: ${anime.titulo}</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs text-gray-400 font-semibold">Ordenar:</label>
+                            <select id="reviewSortOrderSelect" onchange="renderReviewsModalContent('${animeId}')" class="bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                                <option value="recent" ${sortOrder === 'recent' ? 'selected' : ''}>⏰ Más Recientes</option>
+                                <option value="popular" ${sortOrder === 'popular' ? 'selected' : ''}>❤️ Más Populares (Likes)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Formulario para Escribir Reseña -->
+                    <div class="bg-darkbg/80 border border-gray-800 rounded-2xl p-4 space-y-3 shadow-inner">
+                        <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-pen-nib text-accent"></i> Escribe tu opinión o reseña
+                        </h4>
+                        <textarea id="modalReviewText" rows="3" placeholder="¿Qué te pareció este anime? Comparte tu perspectiva..." class="w-full bg-cardbg border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-accent transition resize-none"></textarea>
+                        
+                        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
+                                <input type="checkbox" id="modalReviewSpoiler" class="w-4 h-4 rounded bg-cardbg border-gray-800 text-accent focus:ring-0"> 
+                                <span class="text-amber-400 font-semibold">⚠️ Contiene Spoilers</span>
+                            </label>
+                            <button onclick="submitAnimeReview('${animeId}')" class="bg-accent hover:bg-accenthover text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-accent/20 cursor-pointer">
+                                Publicar Reseña
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Reseñas -->
+                    <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
+                        ${reviewsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function revealSpoiler(reviewId) {
+            const blurBox = document.getElementById(`spoiler-blur-${reviewId}`);
+            if (blurBox) {
+                blurBox.style.opacity = '0';
+                setTimeout(() => blurBox.remove(), 300);
+            }
+        }
+
+        function toggleReviewLike(animeId, reviewId) {
+            const savedUser = localStorage.getItem('anibase_user');
+            if (!savedUser) {
+                showToast("Inicia sesión para dar 'Me gusta' a las reseñas", "error");
+                toggleAuthModal(true);
+                return;
+            }
+
+            let userName = 'Usuario';
+            try { userName = JSON.parse(savedUser).username || 'Usuario'; } catch(e){}
+
+            let reviews = animeReviews[animeId] || [];
+            const review = reviews.find((r, idx) => (r.id || `${animeId}-rev-${idx}`) === reviewId);
+            if (!review) return;
+
+            if (!review.likes) review.likes = [];
+            const userIndex = review.likes.indexOf(userName);
+
+            if (userIndex > -1) {
+                review.likes.splice(userIndex, 1);
+            } else {
+                review.likes.push(userName);
+            }
+
+            localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+            renderReviewsModalContent(animeId);
+        }
+
+        function addReviewReply(animeId, reviewId) {
+            const input = document.getElementById(`reply-input-${reviewId}`);
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) {
+                showToast("Escribe una respuesta válida", "error");
+                return;
+            }
+
+            let author = "OtakuAnónimo";
+            const savedUser = localStorage.getItem('anibase_user');
+            if (savedUser) {
+                try { author = JSON.parse(savedUser).username || author; } catch(e){}
+            }
+
+            let reviews = animeReviews[animeId] || [];
+            const review = reviews.find((r, idx) => (r.id || `${animeId}-rev-${idx}`) === reviewId);
+            if (!review) return;
+
+            if (!review.replies) review.replies = [];
+            review.replies.push({
+                user: author,
+                text: text,
+                time: 'Hace un momento'
+            });
+
+            localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+            input.value = '';
+            showToast("Respuesta publicada con éxito", "success");
+            renderReviewsModalContent(animeId);
+        }
+
+        function submitAnimeReview(animeId) {
+            const text = document.getElementById('modalReviewText').value.trim();
+            const hasSpoiler = document.getElementById('modalReviewSpoiler').checked;
 
             if (!text) {
-                showToast("Escribe un comentario para la reseña", "error");
+                showToast("Escribe un comentario en tu reseña", "error");
                 return;
             }
 
             if (!animeReviews[animeId]) animeReviews[animeId] = [];
-            
+
             let authorName = "OtakuAnónimo";
             const savedUser = localStorage.getItem('anibase_user');
             if (savedUser) {
                 try { authorName = JSON.parse(savedUser).username || authorName; } catch(e){}
             }
 
-            animeReviews[animeId].unshift({
+            const newReview = {
+                id: animeId + '-rev-' + Date.now(),
                 user: authorName,
-                rating: rating,
                 text: text,
-                hasSpoiler: hasSpoiler
-            });
+                hasSpoiler: hasSpoiler,
+                likes: [],
+                replies: [],
+                timestamp: Date.now(),
+                timeAgo: 'Hace un momento'
+            };
 
+            animeReviews[animeId].unshift(newReview);
             localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+
             showToast("¡Reseña publicada con éxito!", "success");
-            openAnimeDetail(animeId);
+            renderReviewsModalContent(animeId);
         }
 
         function startSeriesOnQuiz() {
