@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Oreja izquierda gigante y puntiaguda -->
+  <polygon points="40,60 180,180 80,260" fill="#1e40af" />
+  <polygon points="65,95 155,175 95,220" fill="#93c5fd" />
+  
+  <!-- Oreja derecha gigante y puntiaguda -->
+  <polygon points="472,60 332,180 432,260" fill="#1e40af" />
+  <polygon points="447,95 357,175 417,220" fill="#93c5fd" />
+  
+  <!-- Cabeza redonda grande -->
+  <circle cx="256" cy="280" r="185" fill="#2563eb" />
+  
+  <!-- Ojos -->
+  <path d="M160 250 Q195 220 230 260" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" />
+  <path d="M352 250 Q317 220 282 260" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" />
+  
+  <!-- Nariz y boca -->
+  <polygon points="244,290 268,290 256,305" fill="#FFFFFF" />
+  <path d="M232,320 Q256,340 256,320" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+  <path d="M280,320 Q256,340 256,320" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+  
+  <!-- Bigotes -->
+  <line x1="110" y1="285" x2="200" y2="295" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+  <line x1="100" y1="325" x2="200" y2="315" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+  <line x1="402" y1="285" x2="312" y2="295" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+  <line x1="412" y1="325" x2="312" y2="315" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+</svg>

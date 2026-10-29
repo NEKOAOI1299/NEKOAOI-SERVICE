@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEKOAOI - Plataforma & Comunidad Otaku</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -43,23 +44,26 @@
 </head>
 <body class="bg-darkbg text-gray-100 min-h-screen flex flex-col selection:bg-accent selection:text-white">
 
-    <header class="sticky top-0 z-40 bg-darkbg/95 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-6 py-3">
+<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col selection:bg-accent selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-darkbg/95 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-6 py-3.5">
         <div class="max-w-7xl mx-auto flex flex-col gap-2.5">
 
-            <!-- Fila Superior: Logo y Controles de Usuario -->
-            <div class="flex items-center justify-between w-full">
-                <!-- Logo con el gatito -->
+            <!-- Fila Superior: Logo, Pestañas PC y Usuario -->
+            <div class="flex items-center justify-between gap-4 w-full">
+
+                <!-- Logo y Nombre -->
                 <div class="flex items-center gap-3 flex-shrink-0 group cursor-pointer" onclick="switchTab('inicio')">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-gray-950 border border-blue-500/50 flex items-center justify-center shadow-lg overflow-hidden group-hover:border-blue-500 transition duration-300">
-                        <span class="text-3xl sm:text-5xl leading-none">🐱</span>
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gray-950 border border-blue-500/50 flex items-center justify-center shadow-lg overflow-hidden group-hover:border-blue-500 transition duration-300 p-1.5">
+                        <img src="favicon.svg" alt="Logo NEKOAOI" class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <h1 class="text-base sm:text-xl font-black tracking-wider text-white leading-tight">NEKOAOI</h1>
-                        <span class="text-[9px] sm:text-[11px] font-extrabold text-[#0066FF] tracking-widest block -mt-0.5">青い猫</span>
+                        <h1 class="text-base sm:text-lg font-black tracking-wider text-white leading-tight">NEKOAOI</h1>
+                        <span class="text-[9px] sm:text-[10px] font-extrabold text-[#0066FF] tracking-widest block -mt-0.5">青い猫</span>
                     </div>
                 </div>
 
-                <!-- Botones de Pestañas exclusivo para PC (Oculto en celular, visible en xl) -->
+                <!-- Botones de Pestañas para PC -->
                 <nav class="hidden xl:flex items-center bg-cardbg border border-gray-800 rounded-2xl p-1 gap-1 shadow-inner">
                     <button onclick="switchTab('inicio')" id="tab-inicio" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-accent text-white shadow-md whitespace-nowrap cursor-pointer">
                         <i class="fa-solid fa-house"></i> Inicio
@@ -76,7 +80,7 @@
                     <button onclick="switchTab('serieson')" id="tab-serieson" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
                         <i class="fa-solid fa-circle-question"></i> SeriesOn
                     </button>
-                    <button onclick="switchTab('foro')" id="tab-foro" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap overflow-visible cursor-pointer">
+                    <button onclick="switchTab('foro')" id="tab-foro" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
                         <i class="fa-solid fa-comments"></i> Foro
                     </button>
                     <button onclick="switchTab('ajustes')" id="tab-ajustes" class="tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
@@ -113,7 +117,7 @@
                                 <span id="navUsername" class="text-white text-xs font-semibold max-w-[80px] truncate">Usuario</span>
                                 <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
-                            <div class="absolute right-0 top-full pt-1 w-48 hidden group-hover:block transition-all">
+                            <div class="absolute right-0 top-full pt-1 w-48 hidden group-hover:block transition-all z-[99]">
                                 <div class="bg-cardbg border border-white/10 rounded-2xl shadow-2xl py-2">
                                     <div class="px-4 py-2 border-b border-white/10">
                                         <p class="text-[10px] text-gray-400 uppercase tracking-wider">Conectado como</p>
@@ -128,7 +132,36 @@
                         </div>
                     </div>
                 </div>
+
             </div>
+
+            <!-- Fila Inferior: Celular -->
+            <nav class="flex xl:hidden items-center bg-cardbg border border-gray-800 rounded-2xl p-1.5 gap-2 shadow-inner overflow-x-auto w-full scrollbar-none">
+                <button onclick="switchTab('inicio')" id="tab-inicio-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm transition flex items-center justify-center bg-accent text-white shadow-md flex-shrink-0 cursor-pointer" title="Inicio">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+                <button onclick="switchTab('directorio')" id="tab-directorio-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Directorio">
+                    <i class="fa-solid fa-folder-open"></i>
+                </button>
+                <button onclick="switchTab('temporadas')" id="tab-temporadas-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Temporadas">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </button>
+                <button onclick="switchTab('milista')" id="tab-milista-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Mi Lista">
+                    <i class="fa-solid fa-star"></i>
+                </button>
+                <button onclick="switchTab('serieson')" id="tab-serieson-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="SeriesOn">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
+                <button onclick="switchTab('foro')" id="tab-foro-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Foro">
+                    <i class="fa-solid fa-comments"></i>
+                </button>
+                <button onclick="switchTab('ajustes')" id="tab-ajustes-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Ajustes">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </nav>
+
+        </div>
+    </header>
 
             <!-- Fila Inferior exclusivo para Celular (Visible en celular, se oculta en PC con 'xl:hidden') -->
             <nav class="flex xl:hidden items-center bg-cardbg border border-gray-800 rounded-2xl p-1.5 gap-2 shadow-inner overflow-x-auto w-full scrollbar-none">
