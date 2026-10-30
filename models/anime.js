@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const animeSchema = new mongoose.Schema({
     // Datos Básicos e Identificación
     titulo: { type: String, required: true },
-    tituloOriginalKanji: { type: String },
-    tituloIngles: { type: String },
-    tituloEspanol: { type: String },
+    titulosAlternativos: {
+        ingles: { type: String, default: '' },
+        romaji: { type: String, default: '' },
+        japones: { type: String, default: '' },
+        espanol: { type: String, default: '' }
+    },
     
     // Formato y Clasificación
     tipo: { type: String, default: 'Serie' }, // TV, Película, OVA, ONA, Especial

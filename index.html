@@ -872,6 +872,34 @@
                     <input type="text" id="titulo" required placeholder="Ej. Shingeki no Kyojin, Naruto, One Piece..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                 </div>
 
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título Principal *</label>
+                    <input type="text" id="titulo" required placeholder="Ej. Shingeki no Kyojin, Naruto, One Piece..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                </div>
+
+                <!-- NUEVOS CAMPOS: 4 Títulos Alternativos -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título en Inglés</label>
+                        <input type="text" id="tituloIngles" placeholder="Ej. Attack on Titan" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título en Romaji</label>
+                        <input type="text" id="tituloRomaji" placeholder="Ej. Shingeki no Kyojin" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título en Japonés</label>
+                        <input type="text" id="tituloJapones" placeholder="Ej. 進撃の巨人" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título en Español (Alt)</label>
+                        <input type="text" id="tituloEspanol" placeholder="Ej. Ataque a los Titanes" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
@@ -1972,11 +2000,26 @@
                                 <span class="bg-accent/20 text-accent font-bold px-2.5 py-1 rounded-md text-xs border border-accent/30">${anime.tipo || 'Serie'}</span>
                             </div>
                             <h3 class="text-2xl font-extrabold text-white mt-1">${anime.titulo}</h3>
-                            <div class="flex flex-wrap gap-1.5 mt-2 mb-2">
-                                ${generosModalHtml}
-                            </div>
-                            <p class="text-xs text-gray-300 leading-relaxed bg-darkbg/50 p-3 rounded-xl border border-gray-800/60">${anime.sinopsis || 'Sin sinopsis disponible.'}</p>
-                        </div>
+
+                            <!-- Cuadrícula de los 4 Títulos Amplia y Visible -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 p-4 bg-darkbg/90 rounded-2xl border border-gray-700/80 text-xs shadow-md">
+    <div class="space-y-0.5">
+        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Español</span>
+        <span class="text-white font-bold truncate block text-xs">${anime.titulosAlternativos?.espanol || anime.titulo}</span>
+    </div>
+    <div class="space-y-0.5">
+        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Inglés</span>
+        <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.ingles || 'N/A'}</span>
+    </div>
+    <div class="space-y-0.5">
+        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Romaji</span>
+        <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.romaji || 'N/A'}</span>
+    </div>
+    <div class="space-y-0.5">
+        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Japonés</span>
+        <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.japones || 'N/A'}</span>
+    </div>
+</div>
 
                         <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-1">
                             <div class="flex items-center justify-between text-xs font-bold text-gray-300">
@@ -2360,6 +2403,12 @@
             const nuevoAnime = {
                 _id: 'local-' + Date.now(),
                 titulo: document.getElementById('titulo').value.trim(),
+                titulosAlternativos: {
+                    ingles: document.getElementById('tituloIngles').value.trim(),
+                    romaji: document.getElementById('tituloRomaji').value.trim(),
+                    japones: document.getElementById('tituloJapones').value.trim(),
+                    espanol: document.getElementById('tituloEspanol').value.trim()
+                },
                 tipo: document.getElementById('tipo').value,
                 anio: Number(document.getElementById('anio').value) || 2024,
                 estado: document.getElementById('estado').value,
