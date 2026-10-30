@@ -815,7 +815,7 @@
         </div>
     </div>
 
-    <!-- Modal Compartir Anime / Lista -->
+   <!-- Modal Compartir Anime / Lista -->
     <div id="shareModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-center">
             <button onclick="closeShareModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-800 text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
@@ -827,15 +827,23 @@
             <h3 class="text-xl font-bold text-white mb-2" id="shareModalTitle">Compartir con Amigos</h3>
             <p class="text-xs text-gray-400 mb-6" id="shareModalDesc">Envía tu recomendación o lista personalizada a tus contactos</p>
             
-            <div class="grid grid-cols-2 gap-3 mb-6">
+            <!-- Botones de Redes Sociales -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
                 <button onclick="shareVia('whatsapp')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
                 </button>
                 <button onclick="shareVia('twitter')" class="bg-sky-600 hover:bg-sky-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
                     <i class="fa-brands fa-x-twitter text-lg"></i> Twitter / X
                 </button>
+                <button onclick="shareVia('telegram')" class="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i class="fa-brands fa-telegram text-lg"></i> Telegram
+                </button>
+                <button onclick="shareVia('facebook')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i class="fa-brands fa-facebook text-lg"></i> Facebook
+                </button>
             </div>
 
+            <!-- Botón de Copiar Enlace -->
             <div class="relative">
                 <input type="text" id="shareLinkInput" readonly class="w-full bg-darkbg border border-gray-800 rounded-xl pl-4 pr-24 py-2.5 text-xs text-gray-300 focus:outline-none">
                 <button onclick="copyShareLink()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-accent hover:bg-accenthover text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
@@ -1895,13 +1903,19 @@
 
         function shareVia(platform) {
             const message = encodeURIComponent(`${currentShareData.text}\n${currentShareData.url}`);
+            const urlEncoded = encodeURIComponent(currentShareData.url);
+
             if (platform === 'whatsapp') {
                 window.open(`https://api.whatsapp.com/send?text=${message}`, '_blank');
             } else if (platform === 'twitter') {
                 window.open(`https://twitter.com/intent/tweet?text=${message}`, '_blank');
+            } else if (platform === 'telegram') {
+                window.open(`https://t.me/share/url?url=${urlEncoded}&text=${encodeURIComponent(currentShareData.text)}`, '_blank');
+            } else if (platform === 'facebook') {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${urlEncoded}`, '_blank');
             }
         }
-
+        
         function copyShareLink() {
             const input = document.getElementById('shareLinkInput');
             input.select();
