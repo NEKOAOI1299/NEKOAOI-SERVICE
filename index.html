@@ -44,8 +44,6 @@
 </head>
 <body class="bg-darkbg text-gray-100 min-h-screen flex flex-col selection:bg-accent selection:text-white">
 
-<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col selection:bg-accent selection:text-white">
-
     <header class="sticky top-0 z-50 bg-darkbg/95 backdrop-blur-md border-b border-gray-800/80 px-4 lg:px-6 py-3.5">
         <div class="max-w-7xl mx-auto flex flex-col gap-2.5">
 
@@ -163,33 +161,6 @@
         </div>
     </header>
 
-            <!-- Fila Inferior exclusivo para Celular (Visible en celular, se oculta en PC con 'xl:hidden') -->
-            <nav class="flex xl:hidden items-center bg-cardbg border border-gray-800 rounded-2xl p-1.5 gap-2 shadow-inner overflow-x-auto w-full scrollbar-none">
-                <button onclick="switchTab('inicio')" id="tab-inicio-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm transition flex items-center justify-center bg-accent text-white shadow-md flex-shrink-0 cursor-pointer" title="Inicio">
-                    <i class="fa-solid fa-house"></i>
-                </button>
-                <button onclick="switchTab('directorio')" id="tab-directorio-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Directorio">
-                    <i class="fa-solid fa-folder-open"></i>
-                </button>
-                <button onclick="switchTab('temporadas')" id="tab-temporadas-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Temporadas">
-                    <i class="fa-solid fa-calendar-days"></i>
-                </button>
-                <button onclick="switchTab('milista')" id="tab-milista-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Mi Lista">
-                    <i class="fa-solid fa-star"></i>
-                </button>
-                <button onclick="switchTab('serieson')" id="tab-serieson-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="SeriesOn">
-                    <i class="fa-solid fa-circle-question"></i>
-                </button>
-                <button onclick="switchTab('foro')" id="tab-foro-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Foro">
-                    <i class="fa-solid fa-comments"></i>
-                </button>
-                <button onclick="switchTab('ajustes')" id="tab-ajustes-mob" class="tab-btn tab-btn-mob p-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Ajustes">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-            </nav>
-
-        </div>
-    </header>
 
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
@@ -348,7 +319,7 @@
                     </h3>
                     <span class="text-xs text-gray-400">Mayor puntuación y favoritos</span>
                 </div>
-                <div id="popularesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+                <div id="popularesGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>
             </div>
 
             <div class="space-y-4">
@@ -358,7 +329,7 @@
                     </h3>
                     <span class="text-xs text-gray-400">En emisión semanal</span>
                 </div>
-                <div id="emisionGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+                <div id="emisionGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>
             </div>
 
             <div class="space-y-4 pt-6 border-t border-gray-800/60">
@@ -370,7 +341,7 @@
                         <i class="fa-solid fa-rotate-right"></i> Otro Aleatorio
                     </button>
                 </div>
-                <div id="aleatorioGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+                <div id="aleatorioGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>
             </div>
         </section>
 
@@ -442,7 +413,7 @@
                 </div>
             </div>
 
-            <div id="directoryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            <div id="directoryGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>
         </section>
 
         <!-- PESTAÑA 3: TEMPORADAS -->
@@ -480,7 +451,7 @@
                 </div>
             </div>
 
-            <div id="temporadasGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            <div id="temporadasGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>
         </section>
 
         <!-- PESTAÑA 4: MI LISTA & COMPARTIR -->
@@ -554,8 +525,7 @@
                     </div>
                 </div>
 
-
-                <div id="miListaGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+              <div id="miListaGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>  
             </div>
         </section>
 
@@ -647,25 +617,6 @@
                     </div>
                 </div>
 
-                <!-- Pestañas de Categorías del Foro -->
-                <div class="flex flex-wrap gap-2 pt-4 border-b border-gray-800/80 pb-4">
-                    <button onclick="switchForumCategory('general')" id="forum-tab-general" class="forum-cat-btn bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                        🌟 Discusión General
-                    </button>
-                    <button onclick="switchForumCategory('populares')" id="forum-tab-populares" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                        🔥 Posts Más Populares
-                    </button>
-                    <button onclick="switchForumCategory('listas')" id="forum-tab-listas" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                        ⭐ Comparte tu Lista
-                    </button>
-                    <button onclick="switchForumCategory('recomendaciones')" id="forum-tab-recomendaciones" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                        🎯 Busco Anime
-                    </button>
-                    <button onclick="switchForumCategory('fanart')" id="forum-tab-fanart" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-400 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                        🎨 FanArt & Creaciones
-                    </button>
-                </div>
-
                 <!-- Sub-Barra de Filtro Temporal -->
                 <div id="popularTimeFilterBar" class="hidden flex items-center justify-between bg-darkbg/60 border border-gray-800 p-3 rounded-2xl mt-3">
                     <span class="text-xs font-semibold text-gray-300 flex items-center gap-2">
@@ -685,77 +636,74 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Columna Principal: Formulario de Publicación y Feed -->
-                <div class="lg:col-span-2 space-y-6">
-                    
-                    <!-- Formulario de Publicación -->
-                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
-                        <div class="flex items-center gap-3">
-                            <img id="forumPostAvatar" src="https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff" class="w-10 h-10 rounded-xl object-cover border border-accent">
-                            <span class="text-xs font-bold text-gray-300">¿Qué anime estás viendo hoy o de qué te gustaría hablar?</span>
-                        </div>
+            <!-- Tendencias Otaku -->
+            <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-hashtag text-accent"></i> Tendencias Otaku
+                    </h3>
+                    <button id="clearHashtagFilterBtn" onclick="clearHashtagFilter()" class="hidden text-[10px] bg-accent/20 text-accent border border-accent/30 px-2 py-0.5 rounded-md hover:bg-accent/30 transition cursor-pointer">
+                        <i class="fa-solid fa-xmark mr-1"></i> Quitar filtro
+                    </button>
+                </div>
+                <div id="trendingHashtagsContainer" class="flex flex-wrap gap-2">
+                    <!-- Dinámico -->
+                </div>
+            </div>
 
-                        <textarea id="forumPostText" rows="3" placeholder="Escribe tu opinión, teoría, reseña o duda... (Usa #hashtags)" class="w-full bg-darkbg border border-gray-800 rounded-xl p-3.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-accent transition resize-none"></textarea>
+            <!-- Reglas del Foro -->
+            <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-3">
+                <h3 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-info text-accent"></i> Reglas del Foro
+                </h3>
+                <ul class="text-[11px] text-gray-400 space-y-1.5 list-disc list-inside leading-relaxed">
+                    <li>Respeta las opiniones de los demás.</li>
+                    <li>Usa alertas si tu post contiene spoilers.</li>
+                    <li>Imágenes explícitas o inapropiadas se rechazan automáticamente.</li>
+                </ul>
+            </div>
 
-                        <!-- Previsualización de Imagen/GIF -->
-                        <div id="forumMediaPreview" class="hidden relative rounded-xl overflow-hidden border border-gray-800 max-h-60 bg-black/40">
-                            <img id="forumPreviewImg" src="" class="w-full h-full object-contain">
-                            <button onclick="removeForumMedia()" class="absolute top-2 right-2 bg-black/70 hover:bg-black text-white w-7 h-7 rounded-full text-xs flex items-center justify-center cursor-pointer">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-800">
-                            <div class="flex items-center gap-2">
-                                <button type="button" onclick="document.getElementById('forumMediaInput').click()" class="bg-darkbg hover:bg-gray-800 border border-gray-800 text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-image text-emerald-400"></i> Foto / GIF
-                                </button>
-                                <input type="file" id="forumMediaInput" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden" onchange="handleForumMediaUpload(event)">
-                            </div>
-
-                            <button onclick="createForumPost()" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-5 py-2 rounded-xl transition shadow-lg shadow-accent/20 flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-paper-plane"></i> Publicar
-                            </button>
-                        </div>
+            <!-- Columna Principal: Formulario de Publicación y Feed -->
+            <div class="space-y-6">
+                <!-- Formulario de Publicación -->
+                <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <img id="forumPostAvatar" src="https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff" class="w-10 h-10 rounded-xl object-cover border border-accent">
+                        <span class="text-xs font-bold text-gray-300">¿Qué anime estás viendo hoy o de qué te gustaría hablar?</span>
                     </div>
 
-                    <!-- Feed de Publicaciones del Foro -->
-                    <div id="forumFeedContainer" class="space-y-6">
-                        <!-- Se llena dinámicamente -->
+                    <textarea id="forumPostText" rows="3" placeholder="Escribe tu opinión, teoría, reseña o duda... (Usa #hashtags)" class="w-full bg-darkbg border border-gray-800 rounded-xl p-3.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-accent transition resize-none"></textarea>
+
+                    <!-- Previsualización de Imagen/GIF -->
+                    <div id="forumMediaPreview" class="hidden relative rounded-xl overflow-hidden border border-gray-800 max-h-60 bg-black/40">
+                        <img id="forumPreviewImg" src="" class="w-full h-full object-contain">
+                        <button onclick="removeForumMedia()" class="absolute top-2 right-2 bg-black/70 hover:bg-black text-white w-7 h-7 rounded-full text-xs flex items-center justify-center cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-800">
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="document.getElementById('forumMediaInput').click()" class="bg-darkbg hover:bg-gray-800 border border-gray-800 text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-image text-emerald-400"></i> Foto / GIF
+                            </button>
+                            <input type="file" id="forumMediaInput" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden" onchange="handleForumMediaUpload(event)">
+                        </div>
+
+                        <button onclick="createForumPost()" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-5 py-2 rounded-xl transition shadow-lg shadow-accent/20 flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-paper-plane"></i> Publicar
+                        </button>
                     </div>
                 </div>
 
-                <!-- Columna Lateral: Tendencias y Panel Comunitario -->
-                <div class="space-y-6">
-                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-hashtag text-accent"></i> Tendencias Otaku
-                            </h3>
-                            <button id="clearHashtagFilterBtn" onclick="clearHashtagFilter()" class="hidden text-[10px] bg-accent/20 text-accent border border-accent/30 px-2 py-0.5 rounded-md hover:bg-accent/30 transition cursor-pointer">
-                                <i class="fa-solid fa-xmark mr-1"></i> Quitar filtro
-                            </button>
-                        </div>
-                        <div id="trendingHashtagsContainer" class="flex flex-wrap gap-2">
-                            <!-- Dinámico -->
-                        </div>
-                    </div>
-
-                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-3">
-                        <h3 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-info text-accent"></i> Reglas del Foro
-                        </h3>
-                        <ul class="text-[11px] text-gray-400 space-y-1.5 list-disc list-inside leading-relaxed">
-                            <li>Respeta las opiniones de los demás.</li>
-                            <li>Usa alertas si tu post contiene spoilers.</li>
-                            <li>Imágenes explícitas o inapropiadas se rechazan automáticamente.</li>
-                        </ul>
-                    </div>
+                <!-- Feed de Publicaciones del Foro -->
+                <div id="forumFeedContainer" class="space-y-6">
+                    <!-- Se llena dinámicamente -->
                 </div>
             </div>
         </section>
     </main>
+
     <!-- Modal Visor de Imagen Ampliada (Lightbox) -->
     <div id="imageLightboxModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
         <button onclick="closeImageLightbox()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center transition cursor-pointer text-lg">
@@ -796,12 +744,18 @@
     </div>
 
     <!-- Modal Ficha Detallada Anime -->
-    <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-gray-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
-            <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition cursor-pointer">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div id="detailModalContent"></div>
+    <div id="detailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-2 sm:p-4">
+        <div class="bg-cardbg border border-gray-800 rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden my-auto">
+            
+            <!-- Cabecera fija con el botón de cerrar siempre a la mano -->
+            <div class="absolute top-3 right-3 z-20">
+                <button onclick="closeDetailModal()" class="w-9 h-9 rounded-full bg-gray-800/90 hover:bg-gray-700 text-gray-200 flex items-center justify-center transition cursor-pointer shadow-lg border border-white/10">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Contenido con scroll interno para que no se salga de la pantalla -->
+            <div id="detailModalContent" class="p-4 sm:p-8 overflow-y-auto max-h-[92vh] w-full"></div>
         </div>
     </div>
 
@@ -827,7 +781,6 @@
             <h3 class="text-xl font-bold text-white mb-2" id="shareModalTitle">Compartir con Amigos</h3>
             <p class="text-xs text-gray-400 mb-6" id="shareModalDesc">Envía tu recomendación o lista personalizada a tus contactos</p>
             
-            <!-- Botones de Redes Sociales -->
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <button onclick="shareVia('whatsapp')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
@@ -843,7 +796,6 @@
                 </button>
             </div>
 
-            <!-- Botón de Copiar Enlace -->
             <div class="relative">
                 <input type="text" id="shareLinkInput" readonly class="w-full bg-darkbg border border-gray-800 rounded-xl pl-4 pr-24 py-2.5 text-xs text-gray-300 focus:outline-none">
                 <button onclick="copyShareLink()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-accent hover:bg-accenthover text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
@@ -872,12 +824,6 @@
                     <input type="text" id="titulo" required placeholder="Ej. Shingeki no Kyojin, Naruto, One Piece..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título Principal *</label>
-                    <input type="text" id="titulo" required placeholder="Ej. Shingeki no Kyojin, Naruto, One Piece..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                </div>
-
-                <!-- NUEVOS CAMPOS: 4 Títulos Alternativos -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Título en Inglés</label>
@@ -1172,7 +1118,6 @@
     </footer>
 
     <script>
-        // --- DETECCIÓN AUTOMÁTICA DE ENTORNO (LOCAL VS RENDER) ---
         let BASE_URL = "";
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             BASE_URL = "http://localhost:5000";
@@ -1205,7 +1150,6 @@
             { texto: "Para terminar: ¿Alguna condición extra que te encante?", opciones: ["Que tenga un plot-twist brutal al final", "Que los personajes secundarios tengan gran desarrollo", "Que trate sobre superación personal o arte", "Ninguna, confío plenamente en Neko"] }
         ];
 
-        // CAMBIO CLAVE: async para esperar la descarga de animes y tu lista antes de pintar las tarjetas
         window.onload = async function() {
             populateYearSelectors();
             populateGenreSelectors();
@@ -1213,10 +1157,7 @@
             checkUserSession();
             initLevelSystem();
             
-            // Cargamos la lista local de inmediato para que los botones aparezcan azules al instante
             cargarMiListaPersonal();
-            
-            // Luego descargamos los animes de la nube
             await fetchAnimes();
             
             initForumDefaultPosts();
@@ -1262,12 +1203,12 @@
         }
 
         const animeFLVGenres = [
-    "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", 
-    "Shounen", "Seinen", "Slice of Life", "Misterio", "Sobrenatural", 
-    "Isekai", "Ecchi", "Deportes", "Mecha", "Psicológico", "Terror", 
-    "Gore", "Suspense", "Magia", "Artes Marciales", "Fantasía Oscura", 
-    "Música", "Parodia", "Historical", "Military", "School", "Shoujo", "Josei", "Superpoderes"
-];
+            "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", 
+            "Shounen", "Seinen", "Slice of Life", "Misterio", "Sobrenatural", 
+            "Isekai", "Ecchi", "Deportes", "Mecha", "Psicológico", "Terror", 
+            "Gore", "Suspense", "Magia", "Artes Marciales", "Fantasía Oscura", 
+            "Música", "Parodia", "Historical", "Military", "School", "Shoujo", "Josei", "Superpoderes"
+        ];
 
         function populateGenreSelectors() {
             const genreSelects = document.querySelectorAll('.genre-select-options');
@@ -1362,9 +1303,7 @@
                             if (parsedOldUser.avatar && !userData.avatar) {
                                 userData.avatar = parsedOldUser.avatar;
                             }
-                        } catch (e) {
-                            console.error(e);
-                        }
+                        } catch (e) {}
                     }
 
                     localStorage.setItem('anibase_user', JSON.stringify(userData));
@@ -1470,7 +1409,6 @@
                 section.classList.add('hidden');
             });
 
-            // Limpiar todos los botones de PC y Celular
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-accent', 'text-white', 'font-bold', 'shadow-md');
                 btn.classList.add('text-gray-400', 'hover:text-white', 'hover:bg-gray-800/50');
@@ -1481,14 +1419,12 @@
                 targetSection.classList.remove('hidden');
             }
 
-            // Activar botón de PC
             const activeBtn = document.getElementById(`tab-${tabId}`);
             if (activeBtn) {
                 activeBtn.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-gray-800/50');
                 activeBtn.classList.add('bg-accent', 'text-white', 'font-bold', 'shadow-md');
             }
 
-            // Activar botón de Celular
             const activeBtnMob = document.getElementById(`tab-${tabId}-mob`);
             if (activeBtnMob) {
                 activeBtnMob.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-gray-800/50');
@@ -1514,7 +1450,6 @@
                 renderHomeSections();
                 cargarMiListaPersonal();
             } catch (error) {
-                console.warn("Aviso de conexión con backend:", error);
                 document.getElementById('animeCount').textContent = "Modo local Activo";
             }
         }
@@ -1634,7 +1569,6 @@
                 const idUsuario = usuarioLogueado._id || usuarioLogueado.id || usuarioLogueado.email;
                 if (!idUsuario) return;
 
-                // ⚡ CARGA INSTANTÁNEA: Leemos primero del navegador para que no parpadee
                 const localCache = localStorage.getItem(`neko_milista_${idUsuario}`);
                 if (localCache) {
                     try {
@@ -1643,19 +1577,14 @@
                     } catch(e){}
                 }
 
-                // Luego actualizamos en segundo plano con la base de datos real
                 const respuesta = await fetch(`${BASE_URL}/api/mi-lista/` + encodeURIComponent(idUsuario));
                 if (!respuesta.ok) return;
 
                 miListaUsuario = await respuesta.json();
-                
-                // Guardamos la nueva versión en el caché local
                 localStorage.setItem(`neko_milista_${idUsuario}`, JSON.stringify(miListaUsuario));
 
                 actualizarContadoresYVista();
-            } catch (error) {
-                console.error("Error al cargar la lista personal:", error);
-            }
+            } catch (error) {}
         }
 
         function switchListCategory(cat) {
@@ -1811,7 +1740,6 @@
                     await cargarMiListaPersonal();
                 }
             } catch (error) {
-                console.error("Error al actualizar la lista:", error);
                 showToast("Error de conexión con el servidor", "error");
                 await cargarMiListaPersonal();
             }
@@ -1842,11 +1770,14 @@
                 const card = document.createElement('div');
                 card.className = "bg-cardbg border border-gray-800/80 rounded-2xl overflow-hidden shadow-lg hover:border-accent/50 transition-all duration-300 flex flex-col group cursor-pointer";
                 
-                const imageUrl = anime.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
+                let imageUrl = anime.imagenUrl;
+                if (!imageUrl || imageUrl.startsWith('http') === false || imageUrl.length < 10) {
+                    imageUrl = `https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60`;
+                }
                 
                 let generosHtml = '';
                 if (anime.generos && Array.isArray(anime.generos)) {
-                    generosHtml = anime.generos.slice(0, 3).map(g => `<span class="bg-darkbg text-gray-400 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-gray-800">${g}</span>`).join('');
+                    generosHtml = anime.generos.slice(0, 2).map(g => `<span class="bg-darkbg text-gray-400 text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-gray-800">${g}</span>`).join('');
                 }
 
                 const itemGuardado = miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id));
@@ -1858,32 +1789,31 @@
 
                 card.innerHTML = `
                     <div class="relative aspect-[3/4] overflow-hidden bg-gray-900 flex items-center justify-center" onclick="openAnimeDetail('${anime._id}')">
-                        <img src="${imageUrl}" alt="${anime.titulo}" onerror="this.src='https://placehold.co/400x550/181a20/13C8D6?text=Anime'" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">
+                        <img src="${imageUrl}" alt="${anime.titulo}" onerror="this.src='https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=60'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-cardbg via-transparent to-transparent opacity-80 pointer-events-none"></div>
-                        <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-white/10">
-                            ${anime.tipo || 'Serie'} &bull; ${anime.anio || '2024'}
+                        <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-lg border border-white/10">
+                            ${anime.tipo || 'Serie'}
                         </span>
                     </div>
-                    <div class="p-5 flex flex-col flex-grow justify-between gap-4">
+                    <div class="p-3 sm:p-4 flex flex-col flex-grow justify-between gap-2.5">
                         <div onclick="openAnimeDetail('${anime._id}')">
-                            <h3 class="font-bold text-base text-white line-clamp-1 group-hover:text-accent transition mb-1">${anime.titulo}</h3>
-                            <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">${anime.sinopsis || 'Sin descripción.'}</p>
-                            <div class="flex flex-wrap gap-1.5 mb-2">
+                            <h3 class="font-bold text-xs sm:text-sm text-white line-clamp-1 group-hover:text-accent transition mb-0.5">${anime.titulo}</h3>
+                            <div class="flex flex-wrap gap-1 mb-1">
                                 ${generosHtml}
                             </div>
                         </div>
-                        <div class="space-y-2 pt-3 border-t border-gray-800/80">
-                            <div class="flex items-center justify-between text-xs text-gray-400">
+                        <div class="space-y-2 pt-2 border-t border-gray-800/80">
+                            <div class="flex items-center justify-between text-[11px] text-gray-400">
                                 <span class="text-amber-400 font-bold"><i class="fa-solid fa-star mr-1"></i> ${anime.puntuacion || '8.5'}</span>
                                 <div class="flex items-center gap-2">
-                                    <button onclick="shareAnime('${anime._id}')" class="text-gray-400 hover:text-emerald-400 transition cursor-pointer" title="Compartir anime"><i class="fa-solid fa-share-nodes"></i></button>
-                                    ${canDelete ? `<button onclick="deleteAnime('${anime._id}')" class="text-gray-500 hover:text-danger transition cursor-pointer" title="Eliminar anime"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                                    <button onclick="shareAnime('${anime._id}')" class="text-gray-400 hover:text-emerald-400 transition cursor-pointer" title="Compartir"><i class="fa-solid fa-share-nodes"></i></button>
+                                    ${canDelete ? `<button onclick="deleteAnime('${anime._id}')" class="text-gray-500 hover:text-danger transition cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                                 </div>
                             </div>
-                            <div class="grid grid-cols-3 gap-1 pt-1">
-                                <button onclick="toggleListStatus('${anime._id}', 'planeo')" class="text-[10px] py-1 px-1 rounded border ${inPlaneo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Planeo</button>
-                                <button onclick="toggleListStatus('${anime._id}', 'sigo')" class="text-[10px] py-1 px-1 rounded border ${inSigo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Sigo</button>
-                                <button onclick="toggleListStatus('${anime._id}', 'vi')" class="text-[10px] py-1 px-1 rounded border ${inVi ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Ya vi</button>
+                            <div class="grid grid-cols-3 gap-1 pt-0.5">
+                                <button onclick="toggleListStatus('${anime._id}', 'planeo')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inPlaneo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Planeo</button>
+                                <button onclick="toggleListStatus('${anime._id}', 'sigo')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inSigo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Sigo</button>
+                                <button onclick="toggleListStatus('${anime._id}', 'vi')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inVi ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Ya vi</button>
                             </div>
                         </div>
                     </div>
@@ -1891,6 +1821,8 @@
                 container.appendChild(card);
             });
         }
+
+
 
         function shareAnime(id) {
             const anime = allAnimes.find(a => a._id === id);
@@ -1957,11 +1889,6 @@
 
             const imageUrl = anime.imagenUrl || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
 
-            let generosModalHtml = '';
-            if (anime.generos && Array.isArray(anime.generos)) {
-                generosModalHtml = anime.generos.map(g => `<span class="bg-darkbg text-accent text-xs font-bold px-2.5 py-1 rounded-md border border-accent/30">${g}</span>`).join('');
-            }
-
             document.getElementById('detailModalContent').innerHTML = `
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="w-full md:w-5/12 flex-shrink-0 space-y-3">
@@ -1972,7 +1899,6 @@
                             </span>
                         </div>
 
-                        <!-- PUNTUACIÓN OFICIAL -->
                         <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800 text-center">
                             <span class="block text-[10px] text-gray-400 uppercase font-bold">Puntuación</span>
                             <span class="font-extrabold text-amber-400 text-sm"><i class="fa-solid fa-star"></i> ${anime.puntuacion || '8.5'} / 10</span>
@@ -2001,25 +1927,27 @@
                             </div>
                             <h3 class="text-2xl font-extrabold text-white mt-1">${anime.titulo}</h3>
 
-                            <!-- Cuadrícula de los 4 Títulos Amplia y Visible -->
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 p-4 bg-darkbg/90 rounded-2xl border border-gray-700/80 text-xs shadow-md">
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Español</span>
-        <span class="text-white font-bold truncate block text-xs">${anime.titulosAlternativos?.espanol || anime.titulo}</span>
-    </div>
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Inglés</span>
-        <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.ingles || 'N/A'}</span>
-    </div>
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Romaji</span>
-        <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.romaji || 'N/A'}</span>
-    </div>
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Japonés</span>
-        <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.japones || 'N/A'}</span>
-    </div>
-</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 p-4 bg-darkbg/90 rounded-2xl border border-gray-700/80 text-xs shadow-md">
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Español</span>
+                                    <span class="text-white font-bold truncate block text-xs">${anime.titulosAlternativos?.espanol || anime.titulo}</span>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Inglés</span>
+                                    <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.ingles || 'N/A'}</span>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Romaji</span>
+                                    <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.romaji || 'N/A'}</span>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Japonés</span>
+                                    <span class="text-gray-200 font-semibold truncate block text-xs">${anime.titulosAlternativos?.japones || 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-gray-300 leading-relaxed">${anime.sinopsis || 'Sin sinopsis disponible.'}</p>
+                        </div>
 
                         <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-1">
                             <div class="flex items-center justify-between text-xs font-bold text-gray-300">
@@ -2029,7 +1957,6 @@
                             <p class="text-xs text-gray-400">${anime.rellenoGuia || 'Esta serie es 90% Canon oficial del Manga.'}</p>
                         </div>
 
-                        <!-- OPENINGS & ENDINGS -->
                         <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-2">
                             <span class="text-xs font-bold text-gray-300 block"><i class="fa-solid fa-music text-gemini mr-1.5"></i> Openings & Endings</span>
                             <div class="text-xs text-gray-300 space-y-1 bg-black/30 p-2.5 rounded-xl border border-gray-800">
@@ -2045,10 +1972,9 @@
                             </div>
                         </div>
 
-                        <!-- BOTÓN PARA ABRIR EL MODAL GRANDE DE RESEÑAS -->
                         <div class="pt-4 border-t border-gray-800">
                             <button onclick="openReviewsModal('${anime._id}')" class="w-full bg-gradient-to-r from-accent to-gemini hover:opacity-90 text-white py-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-accent/20 cursor-pointer">
-                                <i class="fa-solid fa-comments text-base"></i>  Ver Reseñas y Opiniones
+                                <i class="fa-solid fa-comments text-base"></i> Ver Reseñas y Opiniones
                             </button>
                         </div>
                     </div>
@@ -2064,12 +1990,7 @@
             document.getElementById('detailModal').classList.add('hidden');
         }
 
-        // --- SISTEMA AVANZADO DE RESEÑAS Y DEBATES DE LA COMUNIDAD ---
-
         function openReviewsModal(animeId) {
-            const anime = allAnimes.find(a => a._id === animeId);
-            if (!anime) return;
-
             renderReviewsModalContent(animeId);
             document.getElementById('reviewsModal').classList.remove('hidden');
             document.getElementById('reviewsModal').classList.add('flex');
@@ -2087,17 +2008,11 @@
             let reviews = animeReviews[anime._id] || [];
             const sortOrder = document.getElementById('reviewSortOrderSelect') ? document.getElementById('reviewSortOrderSelect').value : 'recent';
 
-            // Ordenar reseñas (Recientes vs Más Populares por Likes)
             reviews.sort((a, b) => {
                 if (sortOrder === 'popular') {
-                    const likesA = (a.likes || []).length;
-                    const likesB = (b.likes || []).length;
-                    return likesB - likesA;
+                    return (b.likes || []).length - (a.likes || []).length;
                 } else {
-                    // Recientes por defecto
-                    const timeA = a.timestamp || 0;
-                    const timeB = b.timestamp || 0;
-                    return timeB - timeA;
+                    return (b.timestamp || 0) - (a.timestamp || 0);
                 }
             });
 
@@ -2105,7 +2020,6 @@
                 const reviewId = r.id || `${animeId}-rev-${index}`;
                 const likesCount = (r.likes || []).length;
                 
-                // Verificar si el usuario actual ya dio like
                 let currentUserName = '';
                 const savedUser = localStorage.getItem('anibase_user');
                 if (savedUser) {
@@ -2114,7 +2028,6 @@
                 const hasLiked = currentUserName && (r.likes || []).includes(currentUserName);
                 const likeBtnClass = hasLiked ? "text-rose-500 bg-rose-500/10 border-rose-500/30" : "text-gray-400 bg-darkbg border-gray-800 hover:text-white";
 
-                // Manejo de Spoilers Funcional
                 let contentHtml = '';
                 if (r.hasSpoiler) {
                     contentHtml = `
@@ -2130,7 +2043,6 @@
                     contentHtml = `<p class="text-gray-300 leading-relaxed">${escapeHtml(r.text)}</p>`;
                 }
 
-                // Sub-comentarios / Respuestas en cascada
                 let repliesHtml = (r.replies || []).map(rep => `
                     <div class="bg-black/30 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1 ml-6 mt-2">
                         <div class="flex items-center justify-between">
@@ -2160,7 +2072,6 @@
 
                         ${contentHtml}
 
-                        <!-- Hilo de Respuestas (Sub-comentarios) -->
                         <div class="space-y-1 pt-2">
                             ${repliesHtml}
                             <div class="flex gap-2 pt-2 ml-6">
@@ -2188,7 +2099,6 @@
                         </div>
                     </div>
 
-                    <!-- Formulario para Escribir Reseña -->
                     <div class="bg-darkbg/80 border border-gray-800 rounded-2xl p-4 space-y-3 shadow-inner">
                         <h4 class="text-xs font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-pen-nib text-accent"></i> Escribe tu opinión o reseña
@@ -2206,7 +2116,6 @@
                         </div>
                     </div>
 
-                    <!-- Lista de Reseñas -->
                     <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
                         ${reviewsHtml}
                     </div>
@@ -2254,10 +2163,7 @@
             const input = document.getElementById(`reply-input-${reviewId}`);
             if (!input) return;
             const text = input.value.trim();
-            if (!text) {
-                showToast("Escribe una respuesta válida", "error");
-                return;
-            }
+            if (!text) return;
 
             let author = "OtakuAnónimo";
             const savedUser = localStorage.getItem('anibase_user');
@@ -2604,9 +2510,7 @@
                                 const errData = await response.json().catch(() => ({}));
                                 showToast(errData.error || "Error al sincronizar avatar con la base de datos", "error");
                             }
-                        } catch (err) {
-                            console.error("Error de red al actualizar avatar:", err);
-                        }
+                        } catch (err) {}
                     }
                 }
             };
@@ -2769,47 +2673,6 @@
             updateUserForumPostsCount();
         }
 
-        function switchForumCategory(cat) {
-            activeForumCategory = cat;
-            document.querySelectorAll('.forum-cat-btn').forEach(btn => {
-                btn.classList.remove('bg-accent', 'text-white');
-                btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-400');
-            });
-            const activeBtn = document.getElementById(`forum-tab-${cat}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-400');
-                activeBtn.classList.add('bg-accent', 'text-white');
-            }
-
-            const popularBar = document.getElementById('popularTimeFilterBar');
-            if (popularBar) {
-                if (cat === 'populares') {
-                    popularBar.classList.remove('hidden');
-                } else {
-                    popularBar.classList.add('hidden');
-                }
-            }
-
-            renderForumFeed();
-        }
-
-        function setPopularTimeFilter(timeframe) {
-            activePopularFilter = timeframe;
-
-            document.querySelectorAll('.popular-filter-btn').forEach(btn => {
-                btn.classList.remove('bg-accent', 'text-white');
-                btn.classList.add('bg-cardbg', 'border', 'border-gray-800', 'text-gray-400');
-            });
-
-            const btnActivo = document.getElementById(`popular-filter-${timeframe}`);
-            if (btnActivo) {
-                btnActivo.classList.remove('bg-cardbg', 'border', 'border-gray-800', 'text-gray-400');
-                btnActivo.classList.add('bg-accent', 'text-white');
-            }
-
-            renderForumFeed();
-        }
-
         function handleForumMediaUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -2860,7 +2723,7 @@
                 user: userName,
                 avatar: userAvatar,
                 rank: userRank,
-                category: activeForumCategory === 'populares' ? 'general' : activeForumCategory,
+                category: 'general',
                 content: text,
                 media: currentForumMedia || '',
                 timestamp: 'Ahora mismo',
@@ -2895,8 +2758,7 @@
                 const matches = p.content.match(regex);
                 if (matches) {
                     matches.forEach(tag => {
-                        const cleanTag = tag;
-                        hashtagCounts[cleanTag] = (hashtagCounts[cleanTag] || 0) + 1;
+                        hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1;
                     });
                 }
             });
@@ -2954,39 +2816,6 @@
                 postsToRender = postsToRender.filter(p => p.content && p.content.toLowerCase().includes(activeHashtagFilter.toLowerCase()));
             }
 
-            if (activeForumCategory === 'populares') {
-                const ahora = Date.now();
-                const UN_DIA = 24 * 60 * 60 * 1000;
-                const UNA_SEMANA = 7 * UN_DIA;
-                const UN_MES = 30 * UN_DIA;
-
-                postsToRender = postsToRender.filter(p => {
-                    let postTime = ahora;
-                    if (p.id && p.id.startsWith('post-')) {
-                        const parts = p.id.split('-');
-                        if (parts[1] && !isNaN(parts[1])) {
-                            postTime = parseInt(parts[1]);
-                        }
-                    }
-
-                    const diferencia = ahora - postTime;
-
-                    if (activePopularFilter === 'dia') return diferencia <= UN_DIA;
-                    if (activePopularFilter === 'semana') return diferencia <= UNA_SEMANA;
-                    if (activePopularFilter === 'mes') return diferencia <= UN_MES;
-                    return true;
-                });
-
-                postsToRender.sort((a, b) => {
-                    const totalA = (a.reactions.love || 0) + (a.reactions.god || 0) + (a.reactions.cry || 0);
-                    const totalB = (b.reactions.love || 0) + (b.reactions.god || 0) + (b.reactions.cry || 0);
-                    return totalB - totalA;
-                });
-
-            } else if (activeForumCategory !== 'general') {
-                postsToRender = postsToRender.filter(p => p.category === activeForumCategory);
-            }
-
             if (postsToRender.length === 0) {
                 container.innerHTML = `
                     <div class="bg-cardbg border border-gray-800 rounded-2xl p-8 text-center text-gray-500 text-xs">
@@ -3014,25 +2843,22 @@
                 const mediaHtml = post.media ? `<div class="relative rounded-xl overflow-hidden border border-gray-800/80 max-h-[450px] bg-black/40 flex items-center justify-center cursor-pointer group/img" onclick="openImageLightbox('${post.media}')"><img src="${post.media}" class="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"><div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1"><i class="fa-solid fa-magnifying-glass-plus"></i> Ampliar imagen</div></div>` : '';
 
                 let authorActionHtml = '';
-    
-    // Verificamos si el usuario actual es admin o moderador
-    let canModerate = false;
-    const savedUserAuth = localStorage.getItem('anibase_user');
-    if (savedUserAuth) {
-        try {
-            const uObj = JSON.parse(savedUserAuth);
-            if (uObj && (uObj.email === 'jose.ips@hotmail.com' || uObj.role === 'admin' || uObj.role === 'moderador')) {
-                canModerate = true;
-            }
-        } catch(e) {}
-    }
+                let canModerate = false;
+                const savedUserAuth = localStorage.getItem('anibase_user');
+                if (savedUserAuth) {
+                    try {
+                        const uObj = JSON.parse(savedUserAuth);
+                        if (uObj && (uObj.email === 'jose.ips@hotmail.com' || uObj.role === 'admin' || uObj.role === 'moderador')) {
+                            canModerate = true;
+                        }
+                    } catch(e) {}
+                }
 
-    // Si es el autor del post O es moderador/admin, mostrar el botón de eliminar
-    if ((currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) || canModerate) {
-        authorActionHtml = `<button onclick="deleteForumPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar publicación (Mod)"><i class="fa-solid fa-trash-can"></i></button>`;
-    } else {
-        authorActionHtml = `<button onclick="reportPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-gray-800 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
-    }
+                if ((currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) || canModerate) {
+                    authorActionHtml = `<button onclick="deleteForumPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar publicación (Mod)"><i class="fa-solid fa-trash-can"></i></button>`;
+                } else {
+                    authorActionHtml = `<button onclick="reportPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-gray-800 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
+                }
 
                 let commentsHtml = post.comments.map(c => `
                     <div class="bg-darkbg/70 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1">
@@ -3183,36 +3009,27 @@
         }
 
         function reportPost(postId) {
-    // Buscamos el post en el arreglo general del foro
-    const postIndex = forumPosts.findIndex(p => p.id === postId);
-    if (postIndex === -1) return;
+            const postIndex = forumPosts.findIndex(p => p.id === postId);
+            if (postIndex === -1) return;
 
-    // Inicializamos un contador de reportes si no existe
-    if (!forumPosts[postIndex].reportsCount) {
-        forumPosts[postIndex].reportsCount = 0;
-    }
+            if (!forumPosts[postIndex].reportsCount) {
+                forumPosts[postIndex].reportsCount = 0;
+            }
 
-    // Sumamos un reporte al contador
-    forumPosts[postIndex].reportsCount++;
+            forumPosts[postIndex].reportsCount++;
 
-    // LÍMITE DE REPORTES: Si llega a 30 reportes, se elimina automáticamente
-    if (forumPosts[postIndex].reportsCount >= 30) {
-        // Eliminamos el post del arreglo
-        forumPosts.splice(postIndex, 1);
-        localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
-        
-        showToast("⚠️ Esta publicación ha sido eliminada automáticamente debido a que acumuló 30 reportes.", "error");
-    } else {
-        // Guardamos el incremento de reportes en el navegador
-        localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
-        showToast("Gracias por avisar. La publicación ha sido enviada a moderación.", "success");
-    }
+            if (forumPosts[postIndex].reportsCount >= 30) {
+                forumPosts.splice(postIndex, 1);
+                localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+                showToast("⚠️ Esta publicación ha sido eliminada automáticamente debido a que acumuló 30 reportes.", "error");
+            } else {
+                localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+                showToast("Gracias por avisar. La publicación ha sido enviada a moderación.", "success");
+            }
 
-    // Actualizamos el feed para reflejar los cambios
-    renderForumFeed();
-    updateForumSidebarDynamics();
-}
-
+            renderForumFeed();
+            updateForumSidebarDynamics();
+        }
     </script>
 
     <!-- BLOQUE DE ACCESO PRIVADO TEMPORAL -->
