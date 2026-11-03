@@ -15,6 +15,7 @@ const animeSchema = new mongoose.Schema({
     anio: { type: Number },
     temporada: { type: String },
     generos: [String],
+    tags: [String],
     
     // Fechas y Temporadas
     fechaSalida: { type: String },
@@ -44,7 +45,25 @@ const animeSchema = new mongoose.Schema({
     imagenUrl: { type: String },
     
     // Registro
-    creadoEn: { type: Date, default: Date.now }
+    creadoEn: { type: Date, default: Date.now },
+
+    // Nuevos campos AniList
+    episodios: {
+        type: Number,
+        default: null
+    },
+    estudio: {
+        type: String,
+        default: ''
+    },
+    fechaEstreno: {
+        type: String,
+        default: ''
+    },
+    fechaFinalizacion: {
+        type: String,
+        default: ''
+    }
 });
 
 module.exports = mongoose.model('Anime', animeSchema);

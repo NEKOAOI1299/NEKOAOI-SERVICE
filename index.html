@@ -1879,12 +1879,13 @@
             showToast("¡Enlace copiado al portapapeles!", "success");
         }
 
-        function openAnimeDetail(id) {
+function openAnimeDetail(id) {
             const anime = allAnimes.find(a => a._id === id);
             if (!anime) return;
 
             const imageUrl = anime.imagenUrl || anime.imagenPortada || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
 
+            // 1. Inyectamos todo el HTML del modal
             document.getElementById('detailModalContent').innerHTML = `
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="w-full md:w-5/12 flex-shrink-0 space-y-3">
@@ -1910,6 +1911,28 @@
                                 <span class="font-semibold text-gray-200">${anime.temporada || 'Desconocida'}</span>
                             </div>
                         </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs my-3">
+                            <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800">
+                                <span class="block text-[10px] text-gray-400 uppercase font-bold">Episodios</span>
+                                <span class="font-extrabold text-white text-xs">
+                                    ${anime.episodios || anime.episodiosTotales ? `${anime.episodios || anime.episodiosTotales} cap.` : 'En emisión / TBD'}
+                                </span>
+                            </div>
+                            <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800">
+                                <span class="block text-[10px] text-gray-400 uppercase font-bold">Estudio</span>
+                                <span class="font-semibold text-gray-200 text-xs truncate block" title="${anime.estudio || anime.estudioAnimacion || 'N/A'}">
+                                    ${anime.estudio || anime.estudioAnimacion || 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800 text-center col-span-2 my-2">
+                            <span class="block text-[10px] text-gray-400 uppercase font-bold">Periodo de Emisión</span>
+                            <span class="font-semibold text-gray-200 text-xs">
+                                ${anime.fechaEstreno || 'N/A'} &rarr; ${anime.fechaFinalizacion || 'En emisión'}
+                            </span>
+                        </div>
 
                         <button onclick="shareAnime('${anime._id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20 cursor-pointer">
                             <i class="fa-solid fa-share-nodes"></i> Compartir Anime
@@ -1924,28 +1947,40 @@
                             <h3 class="text-2xl font-extrabold text-white mt-1">${anime.titulo}</h3>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4 p-4 bg-darkbg/90 rounded-2xl border border-gray-700/80 text-xs shadow-md">
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Español</span>
-        <span class="text-white font-bold break-words block text-xs">${anime.titulosAlternativos?.espanol || anime.titulo}</span>
-    </div>
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Inglés</span>
-        <span class="text-gray-200 font-semibold break-words block text-xs">${anime.titulosAlternativos?.ingles || 'N/A'}</span>
-    </div>
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Romaji</span>
-        <span class="text-gray-200 font-semibold break-words block text-xs">${anime.titulosAlternativos?.romaji || 'N/A'}</span>
-    </div>
-    <div class="space-y-0.5">
-        <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Japonés</span>
-        <span class="text-gray-200 font-semibold break-words block text-xs">${anime.titulosAlternativos?.japones || 'N/A'}</span>
-    </div>
-</div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Español</span>
+                                    <span class="text-white font-bold break-words block text-xs">${anime.titulosAlternativos?.espanol || anime.titulo}</span>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Inglés</span>
+                                    <span class="text-gray-200 font-semibold break-words block text-xs">${anime.titulosAlternativos?.ingles || 'N/A'}</span>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Romaji</span>
+                                    <span class="text-gray-200 font-semibold break-words block text-xs">${anime.titulosAlternativos?.romaji || 'N/A'}</span>
+                                </div>
+                                <div class="space-y-0.5">
+                                    <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Japonés</span>
+                                    <span class="text-gray-200 font-semibold break-words block text-xs">${anime.titulosAlternativos?.japones || 'N/A'}</span>
+                                </div>
+                            </div>
 
                             <p class="text-xs text-gray-300 leading-relaxed">${anime.sinopsis || 'Sin sinopsis disponible.'}</p>
                         </div>
 
-<div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-2">
+                        <!-- Sección de Géneros Completos -->
+                        <div class="my-3">
+                            <span class="block text-[10px] text-gray-400 uppercase font-bold mb-1.5">Géneros</span>
+                            <div class="flex flex-wrap gap-1.5" id="modal-generos-container"></div>
+                        </div>
+
+                        <!-- Sección de Tags / Etiquetas de Trama -->
+                        <div class="my-3">
+                            <span class="block text-[10px] text-gray-400 uppercase font-bold mb-1.5">Etiquetas de Trama (Tags)</span>
+                            <div class="flex flex-wrap gap-1.5" id="modal-tags-container"></div>
+                        </div>
+
+                        <div class="bg-darkbg/80 border border-gray-800 p-3 rounded-2xl space-y-2">
                             <span class="text-xs font-bold text-gray-300 block"><i class="fa-solid fa-music text-gemini mr-1.5"></i> Openings & Endings</span>
                             <div class="flex gap-2 pt-1">
                                 <a href="https://open.spotify.com/search/${encodeURIComponent(anime.titulo + ' ost')}" target="_blank" class="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition">
@@ -1966,9 +2001,30 @@
                 </div>
             `;
 
+            // 2. Rellenar dinámicamente los Géneros
+            const generosContainer = document.getElementById('modal-generos-container');
+            if (generosContainer && anime.generos && anime.generos.length > 0) {
+                generosContainer.innerHTML = anime.generos.map(g => 
+                    `<span class="bg-darkbg border border-gray-800 text-gray-300 text-xs px-2.5 py-1 rounded-md font-medium">${g}</span>`
+                ).join('');
+            } else if (generosContainer) {
+                generosContainer.innerHTML = `<span class="text-xs text-gray-500">Sin géneros registrados</span>`;
+            }
+
+            // 3. Rellenar dinámicamente las Tags (limitadas a 8 para evitar saturar el modal)
+            const tagsContainer = document.getElementById('modal-tags-container');
+            if (tagsContainer && anime.tags && anime.tags.length > 0) {
+                tagsContainer.innerHTML = anime.tags.slice(0, 8).map(t => 
+                    `<span class="bg-cardbg border border-gray-800/80 text-gray-400 text-[10px] px-2 py-0.5 rounded-md font-normal">${t}</span>`
+                ).join('');
+            } else if (tagsContainer) {
+                tagsContainer.innerHTML = `<span class="text-xs text-gray-500">Sin etiquetas adicionales</span>`;
+            }
+
             document.getElementById('detailModal').classList.remove('hidden');
             document.getElementById('detailModal').classList.add('flex');
         }
+
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.remove('flex');
