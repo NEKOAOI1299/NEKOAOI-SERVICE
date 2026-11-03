@@ -12,6 +12,8 @@ const animeSchema = new mongoose.Schema({
     
     // Formato y Clasificación
     tipo: { type: String, default: 'Serie' }, // TV, Película, OVA, ONA, Especial
+    anio: { type: Number },
+    temporada: { type: String },
     generos: [String],
     
     // Fechas y Temporadas
@@ -39,6 +41,7 @@ const animeSchema = new mongoose.Schema({
     // Extras para la Comunidad
     rellenoGuia: { type: String }, // Porcentaje o detalle de capítulos canon/relleno
     imagenPortada: { type: String },
+    imagenUrl: { type: String },
     
     // Registro
     creadoEn: { type: Date, default: Date.now }

@@ -134,6 +134,21 @@ app.get('/api/animes', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los animes', detalle: error.message });
     }
 });
+// RUTA PARA ELIMINAR UN ANIME POR SU ID
+app.delete('/api/animes/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const animeEliminado = await Anime.findByIdAndDelete(id);
+        
+        if (!animeEliminado) {
+            return res.status(404).json({ error: 'Anime no encontrado en la base de datos.' });
+        }
+
+        res.status(200).json({ mensaje: '¡Anime eliminado con éxito de la base de datos!' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar el anime', detalle: error.message });
+    }
+});
 
 app.post('/api/mi-lista', async (req, res) => {
     try {
