@@ -154,32 +154,23 @@ app.post('/api/mi-lista', async (req, res) => {
     try {
         const { usuarioId, animeId, estadoLista } = req.body;
 
-        if (!usuarioId || !animeId) {
-            return res.status(400).json({ error: 'Faltan datos obligatorios (usuarioId o animeId).' });
+        // Si la acción es eliminar, borramos el documento de la base de datos
+        if (estadoLista === 'eliminar') {
+            await UserAnime.deleteMany({ usuario: usuarioId, anime: animeId });
+            return res.status(200).json({ message: 'Anime eliminado de la lista exitosamente' });
         }
 
-        let queryUsuario = usuarioId;
-        if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
-            const userFound = await User.findOne({ $or: [{ email: usuarioId }, { username: usuarioId }] });
-            if (userFound) {
-                queryUsuario = userFound._id;
-            } else {
-                return res.status(404).json({ error: 'Usuario no encontrado en la base de datos.' });
-            }
-        }
+        // Si no es eliminar, lo crea o actualiza normalmente como lo tenías
+        const actualizado = await UserAnime.findOneAndUpdate(
+            { usuario: usuarioId, anime: animeId },
+            { estadoLista: estadoLista },
+            { upsert: true, new: true }
+        );
 
-        let registro = await UserAnime.findOne({ usuario: queryUsuario, anime: animeId });
-
-        if (registro) {
-            registro.estadoLista = estadoLista;
-            await registro.save();
-        } else {
-            registro = new UserAnime({ usuario: queryUsuario, anime: animeId, estadoLista: estadoLista || 'planeo_ver' });
-            await registro.save();
-        }
-        res.status(200).json({ mensaje: '¡Lista actualizada con éxito!', registro });
+        res.status(200).json({ message: 'Lista actualizada', data: actualizado });
     } catch (error) {
-        res.status(500).json({ error: 'Error al actualizar la lista personal', detalle: error.message });
+        console.error("Error en /api/mi-lista:", error);
+        res.status(500).json({ error: 'Error interno en el servidor' });
     }
 });
 

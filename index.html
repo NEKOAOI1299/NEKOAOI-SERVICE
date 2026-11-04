@@ -1569,28 +1569,47 @@
         async function cargarMiListaPersonal() {
             try {
                 const usuarioGuardado = localStorage.getItem('anibase_user');
-                if (!usuarioGuardado) return;
+                if (!usuarioGuardado) {
+                    miListaUsuario = [];
+                    actualizarContadoresYVista();
+                    return;
+                }
 
                 const usuarioLogueado = JSON.parse(usuarioGuardado);
                 const idUsuario = usuarioLogueado._id || usuarioLogueado.id || usuarioLogueado.email;
-                if (!idUsuario) return;
+                if (!idUsuario) {
+                    miListaUsuario = [];
+                    actualizarContadoresYVista();
+                    return;
+                }
 
                 const localCache = localStorage.getItem(`neko_milista_${idUsuario}`);
                 if (localCache) {
                     try {
-                        miListaUsuario = JSON.parse(localCache);
+                        const parsed = JSON.parse(localCache);
+                        miListaUsuario = Array.isArray(parsed) ? parsed : [];
                         actualizarContadoresYVista();
-                    } catch(e){}
+                    } catch(e) {
+                        miListaUsuario = [];
+                    }
                 }
 
                 const respuesta = await fetch(`${BASE_URL}/api/mi-lista/` + encodeURIComponent(idUsuario));
-                if (!respuesta.ok) return;
+                if (!respuesta.ok) {
+                    if (!localCache) miListaUsuario = [];
+                    actualizarContadoresYVista();
+                    return;
+                }
 
-                miListaUsuario = await respuesta.json();
+                const data = await respuesta.json();
+                miListaUsuario = Array.isArray(data) ? data : [];
+                
                 localStorage.setItem(`neko_milista_${idUsuario}`, JSON.stringify(miListaUsuario));
-
                 actualizarContadoresYVista();
-            } catch (error) {}
+            } catch (error) {
+                miListaUsuario = [];
+                actualizarContadoresYVista();
+            }
         }
 
         function switchListCategory(cat) {
@@ -1607,14 +1626,27 @@
             renderMiListaUI();
         }
 
-        function actualizarContadoresYVista() {
+function actualizarContadoresYVista() {
             if (!Array.isArray(miListaUsuario)) return;
+
+            // Filtrar elementos válidos y eliminar duplicados para que el contador coincida exactamente con la vista
+            const validItems = [];
+            const vistosIds = new Set();
+
+            miListaUsuario.forEach(item => {
+                if (!item || !item.anime) return;
+                const animeId = item.anime._id || item.anime;
+                const clave = `${animeId}-${item.estadoLista}`;
+                if (vistosIds.has(clave)) return;
+                vistosIds.add(clave);
+                validItems.push(item);
+            });
 
             let totalPlaneo = 0;
             let totalSigo = 0;
             let totalVi = 0;
 
-            miListaUsuario.forEach(item => {
+            validItems.forEach(item => {
                 if (item.estadoLista === 'planeo_ver') totalPlaneo++;
                 if (item.estadoLista === 'sigo_viendo') totalSigo++;
                 if (item.estadoLista === 'ya_vi') totalVi++;
@@ -1629,11 +1661,12 @@
             if (elVi) elVi.innerText = totalVi;
 
             const settingsCount = document.getElementById('settingsAnimeCount');
-            if (settingsCount) settingsCount.innerText = miListaUsuario.length;
+            if (settingsCount) settingsCount.innerText = validItems.length;
 
             renderMiListaUI();
             updateUserLevelUI();
         }
+
 
         function renderMiListaUI() {
             const container = document.getElementById('miListaGrid');
@@ -1643,7 +1676,22 @@
             if (activeListCat === 'sigo') estadoBusqueda = 'sigo_viendo';
             if (activeListCat === 'vi') estadoBusqueda = 'ya_vi';
 
-            let animesFiltrados = miListaUsuario.filter(item => item.estadoLista === estadoBusqueda);
+            // 1. Filtrar por estado y asegurar que el objeto anime exista y tenga _id
+            let animesFiltrados = miListaUsuario.filter(item => {
+                if (!item || item.estadoLista !== estadoBusqueda) return false;
+                const a = item.anime;
+                // Si 'anime' es solo un ID en texto o un objeto válido
+                return a !== null && a !== undefined;
+            });
+
+            // 2. Eliminar duplicados exactos en la misma lista para evitar el desfase en el contador
+            const vistosIds = new Set();
+            animesFiltrados = animesFiltrados.filter(item => {
+                const animeId = item.anime._id || item.anime;
+                if (vistosIds.has(animeId)) return false;
+                vistosIds.add(animeId);
+                return true;
+            });
 
             const searchInput = document.getElementById('listSearchInput');
             const query = searchInput ? searchInput.value.toLowerCase() : '';
@@ -1655,7 +1703,7 @@
 
             animesFiltrados = animesFiltrados.filter(item => {
                 const a = item.anime;
-                if (!a) return false;
+                if (!a || typeof a !== 'object') return false;
                 const matchName = !query || (a.titulo && a.titulo.toLowerCase().includes(query));
                 const matchAnio = !anio || String(a.anio) === String(anio);
                 const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero.toLowerCase())));
@@ -1688,11 +1736,11 @@
                 return;
             }
 
-            const animesAmostrar = animesFiltrados.map(item => item.anime).filter(Boolean);
+            const animesAmostrar = animesFiltrados.map(item => item.anime).filter(a => a && typeof a === 'object');
             renderAnimes(animesAmostrar, 'miListaGrid', true);
         }
 
-        async function toggleListStatus(id, category) {
+async function toggleListStatus(id, category) {
             try {
                 const usuarioGuardado = localStorage.getItem('anibase_user');
                 if (!usuarioGuardado) {
@@ -1714,38 +1762,49 @@
                 if (category === 'vi') estadoBD = 'ya_vi';
 
                 let itemExistente = miListaUsuario.find(m => m.anime && (m.anime._id === id || m.anime === id));
-                const animeObj = allAnimes.find(a => a._id === id);
+                let accionBackend = estadoBD;
 
-                if (itemExistente) {
-                    itemExistente.estadoLista = estadoBD;
-                } else if (animeObj) {
-                    miListaUsuario.push({ anime: animeObj, estadoLista: estadoBD });
+                // TOGGLE OFF: Si ya estaba en el mismo estado, lo quitamos de la lista
+                if (itemExistente && itemExistente.estadoLista === estadoBD) {
+                    miListaUsuario = miListaUsuario.filter(m => {
+                        const aId = m.anime && (m.anime._id || m.anime);
+                        return aId !== id;
+                    });
+                    accionBackend = 'eliminar';
+                    showToast("Anime quitado de tu lista", "success");
+                } else {
+                    const animeObj = (typeof allAnimes !== 'undefined') ? allAnimes.find(a => a._id === id) : null;
+                    if (itemExistente) {
+                        itemExistente.estadoLista = estadoBD;
+                    } else if (animeObj) {
+                        miListaUsuario.push({ anime: animeObj, estadoLista: estadoBD });
+                    }
+                    showToast("¡Anime actualizado en tu lista personal!", "success");
                 }
 
+                // 1. Actualizamos contadores y la vista específica de Mi Lista inmediatamente
                 actualizarContadoresYVista();
+                if (typeof renderMiListaUI === 'function') renderMiListaUI();
                 if (typeof renderHomeSections === 'function') renderHomeSections();
                 if (typeof applyDirectoryFilters === 'function') applyDirectoryFilters();
-                if (typeof renderTemporadas === 'function') renderTemporadas();
 
+                // 2. Comunicar el cambio con el Backend
                 const respuesta = await fetch(`${BASE_URL}/api/mi-lista`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         usuarioId: idUsuario,
                         animeId: id,
-                        estadoLista: estadoBD
+                        estadoLista: accionBackend
                     })
                 });
 
-                if (respuesta.ok) {
-                    showToast("¡Anime guardado en tu lista personal!", "success");
-                    await cargarMiListaPersonal();
-                } else {
-                    const errorData = await respuesta.json().catch(() => ({}));
-                    showToast(errorData.error || "Error al guardar en la base de datos", "error");
+                if (!respuesta.ok) {
+                    // Si falla el servidor, revertimos volviendo a cargar
                     await cargarMiListaPersonal();
                 }
             } catch (error) {
+                console.error(error);
                 showToast("Error de conexión con el servidor", "error");
                 await cargarMiListaPersonal();
             }
@@ -2018,6 +2077,30 @@ function openAnimeDetail(id) {
                                     <i class="fa-brands fa-youtube text-accent"></i> YouTube Openings
                                 </a>
                             </div>
+                        </div>
+                        <!-- Botones de Estado en Lista (Planeo, Sigo, Ya vi) dentro del Modal -->
+                        <div class="grid grid-cols-3 gap-2 my-3">
+                            <button onclick="toggleListStatus('${anime._id}', 'planeo'); openAnimeDetail('${anime._id}')" class="text-xs py-2 px-1 rounded-xl border transition cursor-pointer font-bold ${
+                                miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id) && m.estadoLista === 'planeo_ver') 
+                                ? 'bg-accent border-accent text-white shadow-md' 
+                                : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'
+                            }">
+                                <i class="fa-solid fa-clock mr-1"></i> Planeo
+                            </button>
+                            <button onclick="toggleListStatus('${anime._id}', 'sigo'); openAnimeDetail('${anime._id}')" class="text-xs py-2 px-1 rounded-xl border transition cursor-pointer font-bold ${
+                                miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id) && m.estadoLista === 'sigo_viendo') 
+                                ? 'bg-accent border-accent text-white shadow-md' 
+                                : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'
+                            }">
+                                <i class="fa-solid alt fa-play mr-1"></i> Sigo
+                            </button>
+                            <button onclick="toggleListStatus('${anime._id}', 'vi'); openAnimeDetail('${anime._id}')" class="text-xs py-2 px-1 rounded-xl border transition cursor-pointer font-bold ${
+                                miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id) && m.estadoLista === 'ya_vi') 
+                                ? 'bg-accent border-accent text-white shadow-md' 
+                                : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'
+                            }">
+                                <i class="fa-solid fa-check mr-1"></i> Ya vi
+                            </button>
                         </div>
 
                         <div class="pt-4 border-t border-gray-800">
