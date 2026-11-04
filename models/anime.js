@@ -17,6 +17,14 @@ const animeSchema = new mongoose.Schema({
     generos: [String],
     tags: [String],
     
+    // Relaciones (Precuelas, Secuelas, Spin-offs, etc.)
+    relaciones: [{
+        titulo: String,
+        tipoRelacion: String,
+        imagenUrl: String,
+        idAnilist: Number
+    }],
+    
     // Fechas y Temporadas
     fechaSalida: { type: String },
     temporadaEstreno: { type: String }, // Ej. Primavera 2024

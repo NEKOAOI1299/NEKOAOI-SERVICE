@@ -76,6 +76,22 @@ async function importAnime(animeName) {
               name
               rank
             }
+            relations {
+              edges {
+                relationType
+                node {
+                  id
+                  title {
+                    romaji
+                    english
+                  }
+                  coverImage {
+                    large
+                  }
+                  format
+                }
+              }
+            }
             episodes
             averageScore
             seasonYear
@@ -138,7 +154,6 @@ async function importAnime(animeName) {
             return;
         }
 
-        // 🔍 LÍNEA DE DEPURACIÓN PARA VER QUÉ DEVUELVE ANILIST EN LA TERMINAL
         console.log("🔍 Datos crudos de tags desde AniList:", JSON.stringify(animeData.tags, null, 2));
 
         console.log(`🌐 Traduciendo sinopsis al español...`);
@@ -147,7 +162,6 @@ async function importAnime(animeName) {
 
         const urlImagen = animeData.coverImage?.extraLarge || animeData.coverImage?.large || animeData.coverImage?.medium || '';
 
-        // Traducir la estación del inglés de AniList al español
         const estaciones = {
             'WINTER': 'Invierno',
             'SPRING': 'Primavera',
@@ -157,10 +171,8 @@ async function importAnime(animeName) {
         const temporadaEspanol = estaciones[animeData.season] || 'Otoño';
         const anioReal = animeData.startDate?.year || animeData.seasonYear || 2024;
 
-        // Extraer el estudio de animación principal
         const estudioPrincipal = animeData.studios?.nodes?.[0]?.name || 'Desconocido';
 
-        // Formateador de fechas de AniList a texto legible
         const formatAniDate = (d) => {
             if (!d || !d.year) return 'Desconocida';
             const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -172,7 +184,14 @@ async function importAnime(animeName) {
         const fechaEstrenoTexto = formatAniDate(animeData.startDate);
         const fechaFinalizacionTexto = formatAniDate(animeData.endDate);
 
-        // Mapeo adaptado exactamente al esquema models/anime.js con géneros y tags
+        // Mapeo de relaciones de AniList
+        const relacionesMapeadas = animeData.relations?.edges ? animeData.relations.edges.map(edge => ({
+            titulo: edge.node.title.romaji || edge.node.title.english,
+            tipoRelacion: edge.relationType,
+            imagenUrl: edge.node.coverImage?.large || '',
+            idAnilist: edge.node.id
+        })) : [];
+
         const animePayload = {
             titulo: animeData.title.romaji || animeData.title.english,
             titulosAlternativos: {
@@ -186,6 +205,7 @@ async function importAnime(animeName) {
             temporada: temporadaEspanol,
             generos: animeData.genres || [],
             tags: animeData.tags ? animeData.tags.sort((a, b) => b.rank - a.rank).map(t => t.name) : [],
+            relaciones: relacionesMapeadas,
             estado: animeData.status === 'RELEASING' ? 'En emisión' : 'Finalizado',
             episodiosTotales: animeData.episodes || 0,
             puntuacion: animeData.averageScore ? (animeData.averageScore / 10) : 8.5,
@@ -199,20 +219,14 @@ async function importAnime(animeName) {
             fechaFinalizacion: fechaFinalizacionTexto
         };   
 
-        // 1. Borramos cualquier registro previo con el mismo título para evitar duplicados
         await Anime.deleteOne({ titulo: animePayload.titulo });
 
-        // 2. Guardamos el nuevo documento con los campos nuevos incluidos
         const nuevoAnime = new Anime(animePayload);
         const animeGuardado = await nuevoAnime.save();
 
         console.log(`\n🎉 ¡Anime procesado y sincronizado con éxito!`);
         console.log(`📌 Título: ${animeGuardado.titulo}`);
-        console.log(`🎭 Géneros: ${animeGuardado.generos.join(', ')}`);
-        console.log(`🏷️ Tags: ${(animeGuardado.tags || []).join(', ')}`);
-        console.log(`📅 Estreno: ${animeGuardado.fechaEstreno} | Fin: ${animeGuardado.fechaFinalizacion}`);
-        console.log(`📺 Episodios: ${animeGuardado.episodios} | 🎬 Estudio: ${animeGuardado.estudio}`);
-        console.log(`🖼️ Imagen: ${animeGuardado.imagenPortada}`);
+        console.log(`🔗 Relaciones guardadas: ${animeGuardado.relaciones.length}`);
         console.log(`📝 Sinopsis (Español): ${animeGuardado.sinopsis.substring(0, 100)}...\n`);
 
     } catch (error) {
