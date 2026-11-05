@@ -3005,51 +3005,6 @@ async function reactToPost(postId, reactionType) {
             document.getElementById('forumMediaPreview').classList.add('hidden');
         }
 
-        function createForumPost() {
-            const text = document.getElementById('forumPostText').value.trim();
-
-            if (!text && !currentForumMedia) {
-                showToast("Escribe algo o adjunta un archivo para publicar", "error");
-                return;
-            }
-
-            let userName = "UsuarioOtaku";
-            let userAvatar = "https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff";
-            let userRank = "Novato del Anime";
-
-            const savedUser = localStorage.getItem('anibase_user');
-            if (savedUser) {
-                try {
-                    const u = JSON.parse(savedUser);
-                    userName = u.username || u.nombre || userName;
-                    userAvatar = u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=13C8D6&color=fff`;
-                } catch(e){}
-            }
-
-            const newPost = {
-                id: 'post-' + Date.now(),
-                user: userName,
-                avatar: userAvatar,
-                rank: userRank,
-                category: 'general',
-                content: text,
-                media: currentForumMedia || '',
-                timestamp: 'Ahora mismo',
-                reactions: { love: 0, god: 0, cry: 0, filler: 0 },
-                comments: []
-            };
-
-            forumPosts.unshift(newPost);
-            localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
-
-            document.getElementById('forumPostText').value = '';
-            removeForumMedia();
-
-            showToast("¡Publicación realizada en el foro!", "success");
-            renderForumFeed();
-            updateForumSidebarDynamics();
-            updateUserForumPostsCount();
-        }
 
         
 
