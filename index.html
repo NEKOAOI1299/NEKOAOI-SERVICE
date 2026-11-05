@@ -2839,20 +2839,9 @@ function openAnimeDetail(id) {
             document.getElementById('publicProfileModal').classList.add('flex');
         }
 
-        function closePublicProfileModal() {
-            document.getElementById('publicProfileModal').classList.remove('flex');
-            document.getElementById('publicProfileModal').classList.add('hidden');
-        }
-
-        let forumPosts = JSON.parse(localStorage.getItem('nekoaoi_forum_posts') || '[]');
-        let activeForumCategory = 'general';
-        let activePopularFilter = 'dia';
-        let activeHashtagFilter = null;
-        let currentForumMedia = null;
-
 // --- FUNCIONES DEL FORO CONECTADAS A MONGODB (POLLING) ---
 
- forumPosts = [];
+ 
 
 // 1. Cargar posts desde el Servidor
 async function fetchForumPosts() {
