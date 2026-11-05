@@ -3225,7 +3225,7 @@ if (activeForumCategory) {
             const confirmBtn = document.getElementById('confirmForumDeleteBtn');
             confirmBtn.onclick = function() {
                 if (pendingDeletePostId) {
-                    forumPosts = forumPosts.filter(p => p.id !== pendingDeletePostId);
+                    forumPosts = forumPosts.filter(p => p._id !== pendingDeletePostId);
                     localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
                     showToast("Publicación eliminada correctamente", "success");
                     renderForumFeed();

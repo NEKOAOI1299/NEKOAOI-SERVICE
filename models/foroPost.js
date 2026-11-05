@@ -21,4 +21,13 @@ const foroPostSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now }
 });
 
+// Esto permite que el frontend use post.id sin problemas mapeándolo al _id de MongoDB
+foroPostSchema.virtual('id').get(function() {
+    return this._id.toHexString();
+});
+
+foroPostSchema.set('toJSON', {
+    virtuals: true
+});
+
 module.exports = mongoose.model('ForoPost', foroPostSchema);
