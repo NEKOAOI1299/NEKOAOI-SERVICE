@@ -1194,9 +1194,8 @@ window.onload = async function() {
             await fetchAnimes();
             populateTagSelector();
             
-            // Cargar posts de MongoDB e iniciar Polling automático cada 4 segundos
             await fetchForumPosts();
-            setInterval(fetchForumPosts, 4000);
+setInterval(fetchForumPosts, 30000);
 
             initPrivacySettings();
             const savedTab = localStorage.getItem('anibase_current_tab');
