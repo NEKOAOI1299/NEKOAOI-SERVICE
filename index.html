@@ -629,6 +629,21 @@
                     </div>
                 </div>
 
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mt-4">
+                    <button onclick="filterForumCategory('general')" id="cat-btn-general" class="forum-cat-btn bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md cursor-pointer flex-shrink-0">
+                        💬 General
+                    </button>
+                    <button onclick="filterForumCategory('fanart')" id="cat-btn-fanart" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex-shrink-0">
+                        🎨 FanArt
+                    </button>
+                    <button onclick="filterForumCategory('debate')" id="cat-btn-debate" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex-shrink-0">
+                        🔥 Debates & Teorías
+                    </button>
+                    <button onclick="filterForumCategory('recomendacion')" id="cat-btn-recomendacion" class="forum-cat-btn bg-darkbg border border-gray-800 text-gray-300 hover:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex-shrink-0">
+                        🌟 Recomendaciones
+                    </button>
+                </div>
+
                 <!-- Sub-Barra de Filtro Temporal -->
                 <div id="popularTimeFilterBar" class="hidden flex items-center justify-between bg-darkbg/60 border border-gray-800 p-3 rounded-2xl mt-3">
                     <span class="text-xs font-semibold text-gray-300 flex items-center gap-2">
@@ -1168,7 +1183,7 @@
             { texto: "Para terminar: ¿Alguna condición extra que te encante?", opciones: ["Que tenga un plot-twist brutal al final", "Que los personajes secundarios tengan gran desarrollo", "Que trate sobre superación personal o arte", "Ninguna, confío plenamente en Neko"] }
         ];
 
-        window.onload = async function() {
+window.onload = async function() {
             populateYearSelectors();
             populateGenreSelectors();
             checkAuthUI();
@@ -1177,10 +1192,12 @@
             
             cargarMiListaPersonal();
             await fetchAnimes();
-
             populateTagSelector();
             
-            initForumDefaultPosts();
+            // Cargar posts de MongoDB e iniciar Polling automático cada 4 segundos
+            await fetchForumPosts();
+            setInterval(fetchForumPosts, 4000);
+
             initPrivacySettings();
             const savedTab = localStorage.getItem('anibase_current_tab');
             if (savedTab) {
@@ -1189,6 +1206,7 @@
                 switchTab('inicio');
             }
         };
+
 
         function initPrivacySettings() {
             const savedPrivacy = localStorage.getItem('nekoaoi_public_profile');
@@ -1559,13 +1577,18 @@
             renderTemporadas();
         }
 
-        function renderTemporadas() {
+function renderTemporadas() {
             const year = document.getElementById('seasonYearFilter').value;
             const sortOrder = document.getElementById('seasonSortOrder') ? document.getElementById('seasonSortOrder').value : 'popular_desc';
 
             const filtered = allAnimes.filter(a => {
-                const matchSeason = !activeSeason || a.temporada === activeSeason;
+                // Comparamos la temporada ignorando mayúsculas/minúsculas para evitar fallos
+                const animeTemporada = (a.temporada || '').trim().toLowerCase();
+                const seleccionada = (activeSeason || '').trim().toLowerCase();
+                
+                const matchSeason = !seleccionada || animeTemporada === seleccionada;
                 const matchYear = !year || String(a.anio) === String(year);
+                
                 return matchSeason && matchYear;
             });
 
@@ -1584,7 +1607,7 @@
                 return 0;
             });
 
-            renderAnimes(filtered.length > 0 ? filtered : allAnimes, 'temporadasGrid');
+            renderAnimes(filtered, 'temporadasGrid');
         }
 
         async function cargarMiListaPersonal() {
@@ -2827,41 +2850,135 @@ function openAnimeDetail(id) {
         let activeHashtagFilter = null;
         let currentForumMedia = null;
 
-        function initForumDefaultPosts() {
-            if (forumPosts.length === 0) {
-                forumPosts = [
-                    {
-                        id: 'post-' + (Date.now() - 3600000),
-                        user: 'OtakuSenpai',
-                        avatar: 'https://ui-avatars.com/api/?name=OtakuSenpai&background=13C8D6&color=fff',
-                        rank: 'Novato del Anime',
-                        category: 'general',
-                        content: '¿Alguien más considera que la dirección de fotografía y música en #Frieren es de lo mejor de la década? ¡Cada capítulo se siente como cine puro! #TemporadaOtoño',
-                        media: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=60',
-                        timestamp: 'Hace 2 horas',
-                        reactions: { love: 12, god: 25, cry: 2, filler: 0 },
-                        comments: [
-                            { user: 'KuroNeko', text: 'Totalmente de acuerdo, la escena del baile fue arte puro.', time: 'Hace 1 hora' }
-                        ]
-                    },
-                    {
-                        id: 'post-' + (Date.now() - 7200000),
-                        user: 'RinTohsaka',
-                        avatar: 'https://ui-avatars.com/api/?name=RinTohsaka&background=8b5cf6&color=fff',
-                        rank: 'Coleccionista Pro',
-                        category: 'listas',
-                        content: '¡Hola a todos! Acabo de actualizar mi #MiListaAnime con más de 40 animes Seinen. ¿Me recomiendan algo parecido a Monster o Psycho-Pass? #MejorWaifu',
-                        media: '',
-                        timestamp: 'Hace 5 horas',
-                        reactions: { love: 5, god: 8, cry: 0, filler: 0 },
-                        comments: []
-                    }
-                ];
-                localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
-            }
+// --- FUNCIONES DEL FORO CONECTADAS A MONGODB (POLLING) ---
+
+ forumPosts = [];
+
+// 1. Cargar posts desde el Servidor
+async function fetchForumPosts() {
+    try {
+        const res = await fetch(`${BASE_URL}/api/foro`);
+        if (res.ok) {
+            forumPosts = await res.json();
+            renderForumFeed();
             updateForumSidebarDynamics();
-            updateUserForumPostsCount();
         }
+    } catch (e) {
+        console.error("Error sincronizando foro:", e);
+    }
+}
+
+// 2. Crear una nueva publicación en MongoDB
+async function createForumPost() {
+    const text = document.getElementById('forumPostText').value.trim();
+
+    if (!text && !currentForumMedia) {
+        showToast("Escribe algo o adjunta un archivo para publicar", "error");
+        return;
+    }
+
+    let userName = "UsuarioOtaku";
+    let userAvatar = "https://ui-avatars.com/api/?name=U&background=13C8D6&color=fff";
+    let userRank = "Novato del Anime";
+
+    const savedUser = localStorage.getItem('anibase_user');
+    if (savedUser) {
+        try {
+            const u = JSON.parse(savedUser);
+            userName = u.username || u.nombre || userName;
+            userAvatar = u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=13C8D6&color=fff`;
+        } catch(e){}
+    }
+
+    const newPost = {
+        user: userName,
+        avatar: userAvatar,
+        rank: userRank,
+        category: 'general',
+        content: text,
+        media: currentForumMedia || '',
+        reactions: { love: 0, god: 0, cry: 0, filler: 0 },
+        comments: [],
+        timestamp: new Date()
+    };
+
+    try {
+        const res = await fetch(`${BASE_URL}/api/foro`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPost)
+        });
+
+        if (res.ok) {
+            document.getElementById('forumPostText').value = '';
+            removeForumMedia();
+            showToast("¡Publicación realizada en el foro!", "success");
+            await fetchForumPosts();
+        }
+    } catch (error) {
+        showToast("Error al conectar con el servidor", "error");
+    }
+}
+
+ activeForumCategory = 'general';
+
+function filterForumCategory(cat) {
+    activeForumCategory = cat;
+    document.querySelectorAll('.forum-cat-btn').forEach(btn => {
+        btn.classList.remove('bg-accent', 'text-white', 'shadow-md');
+        btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+    });
+    const selectedBtn = document.getElementById(`cat-btn-${cat}`);
+    if (selectedBtn) {
+        selectedBtn.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+        selectedBtn.classList.add('bg-accent', 'text-white', 'shadow-md');
+    }
+    renderForumFeed();
+}
+
+// 3. Eliminar publicación de MongoDB
+function deleteForumPost(postId) {
+    pendingDeletePostId = postId;
+    const modal = document.getElementById('forumDeleteConfirmModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    const confirmBtn = document.getElementById('confirmForumDeleteBtn');
+    confirmBtn.onclick = async function() {
+        if (pendingDeletePostId) {
+            try {
+                const res = await fetch(`${BASE_URL}/api/foro/${pendingDeletePostId}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    showToast("Publicación eliminada correctamente", "success");
+                    await fetchForumPosts();
+                    updateUserForumPostsCount();
+                }
+            } catch (e) {
+                showToast("Error al eliminar la publicación", "error");
+            }
+        }
+        closeForumDeleteModal();
+    };
+}
+
+// 4. Reaccionar a una publicación en MongoDB
+async function reactToPost(postId, reactionType) {
+    try {
+        const res = await fetch(`${BASE_URL}/api/foro/${postId}/react`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reaction: reactionType })
+        });
+        if (res.ok) {
+            await fetchForumPosts();
+        }
+    } catch (e) {
+        console.error("Error al reaccionar:", e);
+    }
+}
+
 
         function handleForumMediaUpload(e) {
             const file = e.target.files[0];
@@ -2933,6 +3050,8 @@ function openAnimeDetail(id) {
             updateUserForumPostsCount();
         }
 
+        
+
         function updateForumSidebarDynamics() {
             updateTrendingHashtagsSidebar();
         }
@@ -3001,6 +3120,11 @@ function openAnimeDetail(id) {
             if (!container) return;
 
             let postsToRender = [...forumPosts];
+
+            // Filtrar por categoría activa
+if (activeForumCategory) {
+    postsToRender = postsToRender.filter(p => (p.category || 'general') === activeForumCategory);
+}
 
             if (activeHashtagFilter) {
                 postsToRender = postsToRender.filter(p => p.content && p.content.toLowerCase().includes(activeHashtagFilter.toLowerCase()));
@@ -3390,6 +3514,8 @@ function openFranchiseModal(animeId) {
                 });
             });
         }
+
+        
 
 
     </script>

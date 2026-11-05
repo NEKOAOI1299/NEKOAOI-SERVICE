@@ -5,6 +5,7 @@ const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const path = require('path');
+const ForoPost = require('./models/foroPost');
 
 // --- MÓDULOS DE SEGURIDAD ---
 const helmet = require('helmet');
@@ -336,6 +337,54 @@ app.get('/auth/google/callback', (req, res, next) => {
             res.redirect('/');
         }
     });
+});
+
+// OBTENER POSTS DEL FORO
+app.get('/api/foro', async (req, res) => {
+    try {
+        const posts = await ForoPost.find().sort({ timestamp: -1 });
+        res.status(200).json(posts);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los posts del foro', detalle: error.message });
+    }
+});
+
+// CREAR POST EN EL FORO
+app.post('/api/foro', async (req, res) => {
+    try {
+        const nuevoPost = new ForoPost(req.body);
+        const guardado = await nuevoPost.save();
+        res.status(201).json(guardado);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear el post', detalle: error.message });
+    }
+});
+
+// ACTUALIZAR REACCIONES DE UN POST
+app.post('/api/foro/:id/react', async (req, res) => {
+    try {
+        const { reaction } = req.body; // 'love', 'god', 'cry', 'filler'
+        const post = await ForoPost.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Post no encontrado' });
+
+        if (post.reactions[reaction] !== undefined) {
+            post.reactions[reaction] += 1;
+            await post.save();
+        }
+        res.status(200).json(post);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar reacción', detalle: error.message });
+    }
+});
+
+// ELIMINAR POST DEL FORO
+app.delete('/api/foro/:id', async (req, res) => {
+    try {
+        await ForoPost.findByIdAndDelete(req.params.id);
+        res.status(200).json({ mensaje: 'Post eliminado con éxito' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar el post', detalle: error.message });
+    }
 });
 
 module.exports = app;
