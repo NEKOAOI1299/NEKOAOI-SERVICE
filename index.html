@@ -359,52 +359,58 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
-                        <input type="text" id="dirSearchInput" oninput="applyDirectoryFilters()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
-                        <select id="dirAnioFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los años</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género</label>
-                        <select id="dirGeneroFilter" onchange="applyDirectoryFilters()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los géneros</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
-                        <select id="dirEstadoFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los estados</option>
-                            <option value="En emisión">En emisión</option>
-                            <option value="Finalizado">Finalizado</option>
-                            <option value="Próximamente">Próximamente</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
-                        <select id="dirTipoFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los tipos</option>
-                            <option value="Serie">Serie</option>
-                            <option value="Película">Película</option>
-                            <option value="OVA">OVA</option>
-                            <option value="Especial">Especial</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Ordenar por</label>
-                        <select id="dirSortOrder" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="popular_desc">🔥 Más populares</option>
-                            <option value="popular_asc">📉 Menos populares</option>
-                            <option value="recent">⏰ Recién agregados</option>
-                            <option value="az">🔤 Alfabético (A-Z)</option>
-                        </select>
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
+        <input type="text" id="dirSearchInput" oninput="applyDirectoryFilters()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
+        <select id="dirAnioFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los años</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género</label>
+        <select id="dirGeneroFilter" onchange="applyDirectoryFilters()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los géneros</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Etiqueta (Tag)</label>
+        <select id="dirTagFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todas las etiquetas</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
+        <select id="dirEstadoFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los estados</option>
+            <option value="En emisión">En emisión</option>
+            <option value="Finalizado">Finalizado</option>
+            <option value="Próximamente">Próximamente</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
+        <select id="dirTipoFilter" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los tipos</option>
+            <option value="Serie">Serie</option>
+            <option value="Película">Película</option>
+            <option value="OVA">OVA</option>
+            <option value="Especial">Especial</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Ordenar por</label>
+        <select id="dirSortOrder" onchange="applyDirectoryFilters()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="popular_desc">🔥 Más populares</option>
+            <option value="popular_asc">📉 Menos populares</option>
+            <option value="recent">⏰ Recién agregados</option>
+            <option value="az">🔤 Alfabético (A-Z)</option>
+        </select>
+    </div>
+</div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <button onclick="resetDirectoryFilters()" class="bg-accent hover:bg-accenthover text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-lg shadow-accent/20 cursor-pointer">
@@ -479,51 +485,57 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
-                        <input type="text" id="listSearchInput" oninput="renderMiListaUI()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
-                        <select id="listAnioFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los años</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género / Demografía</label>
-                        <select id="listGeneroFilter" onchange="renderMiListaUI()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los géneros</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
-                        <select id="listEstadoFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los estados</option>
-                            <option value="En emisión">En emisión</option>
-                            <option value="Finalizado">Finalizado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
-                        <select id="listTipoFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="">Todos los tipos</option>
-                            <option value="Serie">Serie</option>
-                            <option value="Película">Película</option>
-                            <option value="OVA">OVA</option>
-                            <option value="Especial">Especial</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Ordenar por</label>
-                        <select id="listSortOrder" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent transition">
-                            <option value="popular_desc">🔥 Más populares</option>
-                            <option value="popular_asc">📉 Menos populares</option>
-                            <option value="recent">⏰ Recién agregados</option>
-                            <option value="az">🔤 Alfabético (A-Z)</option>
-                        </select>
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Buscar por nombre</label>
+        <input type="text" id="listSearchInput" oninput="renderMiListaUI()" placeholder="Título..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Año</label>
+        <select id="listAnioFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los años</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Género</label>
+        <select id="listGeneroFilter" onchange="renderMiListaUI()" class="genre-select-options w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los géneros</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Etiqueta (Tag)</label>
+        <select id="listTagFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todas las etiquetas</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Estado</label>
+        <select id="listEstadoFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los estados</option>
+            <option value="En emisión">En emisión</option>
+            <option value="Finalizado">Finalizado</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Tipo</label>
+        <select id="listTipoFilter" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="">Todos los tipos</option>
+            <option value="Serie">Serie</option>
+            <option value="Película">Película</option>
+            <option value="OVA">OVA</option>
+            <option value="Especial">Especial</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Ordenar por</label>
+        <select id="listSortOrder" onchange="renderMiListaUI()" class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accent transition">
+            <option value="popular_desc">🔥 Más populares</option>
+            <option value="popular_asc">📉 Menos populares</option>
+            <option value="recent">⏰ Recién agregados</option>
+            <option value="az">🔤 Alfabético (A-Z)</option>
+        </select>
+    </div>
+</div>
 
               <div id="miListaGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"></div>  
             </div>
@@ -1165,6 +1177,8 @@
             
             cargarMiListaPersonal();
             await fetchAnimes();
+
+            populateTagSelector();
             
             initForumDefaultPosts();
             initPrivacySettings();
@@ -1476,10 +1490,12 @@
             renderAnimes(shuffled, 'aleatorioGrid');
         }
 
+
         function applyDirectoryFilters() {
             const query = (document.getElementById('dirSearchInput').value || '').toLowerCase();
             const anio = document.getElementById('dirAnioFilter').value;
-            const genero = document.getElementById('dirGeneroFilter').value;
+            const genero = document.getElementById('dirGeneroFilter').value.toLowerCase();
+            const tagSeleccionado = document.getElementById('dirTagFilter') ? document.getElementById('dirTagFilter').value.toLowerCase() : '';
             const estado = document.getElementById('dirEstadoFilter').value;
             const tipo = document.getElementById('dirTipoFilter').value;
             const sortOrder = document.getElementById('dirSortOrder') ? document.getElementById('dirSortOrder').value : 'popular_desc';
@@ -1487,10 +1503,15 @@
             const filtered = allAnimes.filter(a => {
                 const matchName = !query || (a.titulo && a.titulo.toLowerCase().includes(query));
                 const matchAnio = !anio || String(a.anio) === String(anio);
-                const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero.toLowerCase())));
+                
+                const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero)));
+                
+                // Filtro específico para las etiquetas (tags)
+                const matchTag = !tagSeleccionado || (a.tags && a.tags.some(t => t.toLowerCase().includes(tagSeleccionado)));
+
                 const matchEstado = !estado || a.estado === estado;
                 const matchTipo = !tipo || a.tipo === tipo;
-                return matchName && matchAnio && matchGenero && matchEstado && matchTipo;
+                return matchName && matchAnio && matchGenero && matchTag && matchEstado && matchTipo;
             });
 
             filtered.sort((a, b) => {
@@ -1697,6 +1718,7 @@ function actualizarContadoresYVista() {
             const query = searchInput ? searchInput.value.toLowerCase() : '';
             const anio = document.getElementById('listAnioFilter') ? document.getElementById('listAnioFilter').value : '';
             const genero = document.getElementById('listGeneroFilter') ? document.getElementById('listGeneroFilter').value : '';
+            const tagSeleccionado = document.getElementById('listTagFilter') ? document.getElementById('listTagFilter').value.toLowerCase() : '';
             const estado = document.getElementById('listEstadoFilter') ? document.getElementById('listEstadoFilter').value : '';
             const tipo = document.getElementById('listTipoFilter') ? document.getElementById('listTipoFilter').value : '';
             const sortOrder = document.getElementById('listSortOrder') ? document.getElementById('listSortOrder').value : 'popular_desc';
@@ -1707,10 +1729,12 @@ function actualizarContadoresYVista() {
                 const matchName = !query || (a.titulo && a.titulo.toLowerCase().includes(query));
                 const matchAnio = !anio || String(a.anio) === String(anio);
                 const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero.toLowerCase())));
+                const matchTag = !tagSeleccionado || (a.tags && a.tags.some(t => t.toLowerCase().includes(tagSeleccionado)));
                 const matchEstado = !estado || a.estado === estado;
                 const matchTipo = !tipo || a.tipo === tipo;
-                return matchName && matchAnio && matchGenero && matchEstado && matchTipo;
+                return matchName && matchAnio && matchGenero && matchTag && matchEstado && matchTipo;
             });
+                
 
             animesFiltrados.sort((itemA, itemB) => {
                 const a = itemA.anime || {};
@@ -3294,6 +3318,79 @@ function openFranchiseModal(animeId) {
             document.getElementById('franchiseModal').classList.remove('flex');
             document.getElementById('franchiseModal').classList.add('hidden');
         }
+
+        // Diccionario de traducción de tags comunes del inglés al español
+        const tagTranslations = {
+            "magic": "Magia",
+            "school": "Escuela",
+            "super power": "Superpoderes",
+            "super powers": "Superpoderes",
+            "time travel": "Viaje en el tiempo",
+            "fantasy": "Fantasía",
+            "action": "Acción",
+            "adventure": "Aventura",
+            "comedy": "Comedia",
+            "drama": "Drama",
+            "romance": "Romance",
+            "sci-fi": "Ciencia Ficción",
+            "slice of life": "Slice of Life",
+            "supernatural": "Sobrenatural",
+            "mystery": "Misterio",
+            "psychological": "Psicológico",
+            "sports": "Deportes",
+            "mecha": "Mecha",
+            "horror": "Terror",
+            "historical": "Histórico",
+            "military": "Militar",
+            "music": "Música",
+            "parody": "Parodia",
+            "samurai": "Samurái",
+            "space": "Espacio",
+            "vampire": "Vampiros",
+            "demon": "Demonios",
+            "gore": "Gore",
+            "seinen": "Seinen",
+            "shounen": "Shounen",
+            "shoujo": "Shoujo",
+            "josei": "Josei",
+            "isekai": "Isekai",
+            "ecchi": "Ecchi"
+        };
+
+        function translateTag(tag) {
+            const lower = tag.toLowerCase().trim();
+            if (tagTranslations[lower]) {
+                return tagTranslations[lower];
+            }
+            return tag.charAt(0).toUpperCase() + tag.slice(1);
+        }
+
+        function populateTagSelector() {
+            const tagSelects = [document.getElementById('dirTagFilter'), document.getElementById('listTagFilter')];
+            
+            const allTagsSet = new Set();
+            allAnimes.forEach(anime => {
+                if (anime.tags && Array.isArray(anime.tags)) {
+                    anime.tags.forEach(t => {
+                        if (t) allTagsSet.add(t.trim());
+                    });
+                }
+            });
+
+            const sortedTags = Array.from(allTagsSet).sort();
+
+            tagSelects.forEach(tagSelect => {
+                if (!tagSelect) return;
+                tagSelect.innerHTML = '<option value="">Todas las etiquetas</option>';
+                sortedTags.forEach(tag => {
+                    const opt = document.createElement('option');
+                    opt.value = tag;
+                    opt.textContent = translateTag(tag); // <--- Aquí usamos la función de traducción
+                    tagSelect.appendChild(opt);
+                });
+            });
+        }
+
 
     </script>
 </body>

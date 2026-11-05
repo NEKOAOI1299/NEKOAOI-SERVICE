@@ -5,7 +5,7 @@ require('dotenv').config();
 const Anime = require('../models/anime');
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
-// Función alternativa utilizando una API pública libre de bloqueos anti-bot
+// Función utilizando una API pública libre de bloqueos anti-bot
 async function traducirTexto(texto) {
     if (!texto) return 'Sin descripción disponible.';
     try {
@@ -160,6 +160,31 @@ async function importAnime(animeName) {
         const sinopsisIngles = animeData.description ? animeData.description.replace(/<[^>]*>?/gm, '') : 'Sin descripción disponible.';
         const sinopsisEspanol = await traducirTexto(sinopsisIngles);
 
+        // --- TRADUCCIÓN AUTOMÁTICA DE GÉNEROS ---
+        console.log(`🌐 Traduciendo géneros al español...`);
+        let generosTraducidos = [];
+        if (animeData.genres && Array.isArray(animeData.genres)) {
+            for (const genero of animeData.genres) {
+                const trad = await traducirTexto(genero);
+                // Limpiamos y capitalizamos la primera letra
+                const limpio = trad.trim().charAt(0).toUpperCase() + trad.trim().slice(1);
+                generosTraducidos.push(limpio);
+            }
+        }
+
+        // --- TRADUCCIÓN AUTOMÁTICA DE ETIQUETAS (TAGS) ---
+        console.log(`🌐 Traduciendo etiquetas (tags) al español...`);
+        let tagsTraducidos = [];
+        if (animeData.tags && Array.isArray(animeData.tags)) {
+            // Ordenamos por rank y tomamos los principales para no saturar
+            const topTags = animeData.tags.sort((a, b) => b.rank - a.rank).slice(0, 15);
+            for (const tagObj of topTags) {
+                const tradTag = await traducirTexto(tagObj.name);
+                const limpioTag = tradTag.trim().charAt(0).toUpperCase() + tradTag.trim().slice(1);
+                tagsTraducidos.push(limpioTag);
+            }
+        }
+
         const urlImagen = animeData.coverImage?.extraLarge || animeData.coverImage?.large || animeData.coverImage?.medium || '';
 
         const estaciones = {
@@ -203,8 +228,8 @@ async function importAnime(animeName) {
             tipo: animeData.format === 'MOVIE' ? 'Película' : 'Serie',
             anio: Number(anioReal),
             temporada: temporadaEspanol,
-            generos: animeData.genres || [],
-            tags: animeData.tags ? animeData.tags.sort((a, b) => b.rank - a.rank).map(t => t.name) : [],
+            generos: generosTraducidos, // <--- Géneros ya traducidos al español
+            tags: tagsTraducidos,         // <--- Tags ya traducidos al español
             relaciones: relacionesMapeadas,
             estado: animeData.status === 'RELEASING' ? 'En emisión' : 'Finalizado',
             episodiosTotales: animeData.episodes || 0,
@@ -224,9 +249,10 @@ async function importAnime(animeName) {
         const nuevoAnime = new Anime(animePayload);
         const animeGuardado = await nuevoAnime.save();
 
-        console.log(`\n🎉 ¡Anime procesado y sincronizado con éxito!`);
+        console.log(`\n🎉 ¡Anime procesado, traducido y sincronizado con éxito!`);
         console.log(`📌 Título: ${animeGuardado.titulo}`);
-        console.log(`🔗 Relaciones guardadas: ${animeGuardado.relaciones.length}`);
+        console.log(`🌐 Géneros traducidos:`, animeGuardado.generos);
+        console.log(`🌐 Tags traducidos:`, animeGuardado.tags);
         console.log(`📝 Sinopsis (Español): ${animeGuardado.sinopsis.substring(0, 100)}...\n`);
 
     } catch (error) {
