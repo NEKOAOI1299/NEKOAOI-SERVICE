@@ -178,7 +178,7 @@ app.post('/api/mi-lista', async (req, res) => {
 app.get('/api/mi-lista/:usuarioId', async (req, res) => {
     try {
         let { usuarioId } = req.params;
-        
+
         if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
             const userFound = await User.findOne({ $or: [{ email: usuarioId }, { username: usuarioId }] });
             if (userFound) {
@@ -189,7 +189,9 @@ app.get('/api/mi-lista/:usuarioId', async (req, res) => {
         }
 
         const listaUsuario = await UserAnime.find({ usuario: usuarioId }).populate('anime');
-        res.status(200).json(listaUsuario);
+        // Filtra de forma segura aquellos animes que ya no existan en la colección principal
+        const listaValida = listaUsuario.filter(item => item.anime !== null);
+        res.status(200).json(listaValida);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener la lista personal', detalle: error.message });
     }
@@ -405,5 +407,77 @@ app.post('/api/foro/:id/comment', async (req, res) => {
         res.status(500).json({ error: 'Error al guardar el comentario' });
     }
 });
+
+const Review = require('./models/review');
+
+// OBTENER RESEÑAS DE UN ANIME
+app.get('/api/animes/:animeId/reviews', async (req, res) => {
+    try {
+        const reviews = await Review.find({ animeId: req.params.animeId }).sort({ timestamp: -1 });
+        res.status(200).json(reviews);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener reseñas' });
+    }
+});
+
+// PUBLICAR UNA RESEÑA
+app.post('/api/animes/:animeId/reviews', async (req, res) => {
+    try {
+        const nuevaReseña = new Review({
+            animeId: req.params.animeId,
+            ...req.body
+        });
+        const guardada = await nuevaReseña.save();
+        res.status(201).json(guardada);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al guardar la reseña' });
+    }
+});
+
+// DAR LIKE A UNA RESEÑA
+app.post('/api/reviews/:reviewId/like', async (req, res) => {
+    try {
+        const { username } = req.body;
+        const review = await Review.findById(req.params.reviewId);
+        if (!review) return res.status(404).json({ error: 'Reseña no encontrada' });
+
+        const index = review.likes.indexOf(username);
+        if (index > -1) {
+            review.likes.splice(index, 1); // Quitar like
+        } else {
+            review.likes.push(username); // Dar like
+        }
+        await review.save();
+        res.status(200).json(review);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar like' });
+    }
+});
+
+// RESPONDER A UNA RESEÑA
+app.post('/api/reviews/:reviewId/reply', async (req, res) => {
+    try {
+        const { user, text } = req.body;
+        const review = await Review.findById(req.params.reviewId);
+        if (!review) return res.status(404).json({ error: 'Reseña no encontrada' });
+
+        review.replies.push({ user, text, time: 'Hace un momento' });
+        await review.save();
+        res.status(200).json(review);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al responder reseña' });
+    }
+});
+
+// ELIMINAR RESEÑA
+app.delete('/api/reviews/:reviewId', async (req, res) => {
+    try {
+        await Review.findByIdAndDelete(req.params.reviewId);
+        res.status(200).json({ mensaje: 'Reseña eliminada' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar reseña' });
+    }
+});
+
 
 module.exports = app;

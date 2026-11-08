@@ -2202,11 +2202,31 @@ function openAnimeDetail(id) {
             document.getElementById('detailModal').classList.add('hidden');
         }
 
-        function openReviewsModal(animeId) {
+
+async function openReviewsModal(animeId) {
+    // Asegurar que si pasan un objeto o un ID inválido se extraiga el string correcto
+    const idClean = (typeof animeId === 'object' && animeId !== null) ? (animeId._id || animeId.id) : animeId;
+    if (!idClean) return;
+    
+    await fetchAnimeReviews(idClean);
+    document.getElementById('reviewsModal').classList.remove('hidden');
+    document.getElementById('reviewsModal').classList.add('flex');
+}
+
+
+async function fetchAnimeReviews(animeId) {
+    try {
+        const res = await fetch(`${BASE_URL}/api/animes/${animeId}/reviews`);
+        if (res.ok) {
+            const data = await res.json();
+            animeReviews[animeId] = data; 
             renderReviewsModalContent(animeId);
-            document.getElementById('reviewsModal').classList.remove('hidden');
-            document.getElementById('reviewsModal').classList.add('flex');
         }
+    } catch (e) {
+        console.error("Error al cargar reseñas:", e);
+        renderReviewsModalContent(animeId);
+    }
+}
 
         function closeReviewsModal() {
             document.getElementById('reviewsModal').classList.remove('flex');
@@ -2214,126 +2234,148 @@ function openAnimeDetail(id) {
         }
 
         function renderReviewsModalContent(animeId) {
-            const anime = allAnimes.find(a => a._id === animeId);
-            if (!anime) return;
+    const anime = allAnimes.find(a => a._id === animeId);
+    if (!anime) return;
 
-            let reviews = animeReviews[anime._id] || [];
-            const sortOrder = document.getElementById('reviewSortOrderSelect') ? document.getElementById('reviewSortOrderSelect').value : 'recent';
+    let reviews = animeReviews[anime._id] || [];
+    const sortOrder = document.getElementById('reviewSortOrderSelect') ? document.getElementById('reviewSortOrderSelect').value : 'recent';
 
-            reviews.sort((a, b) => {
-                if (sortOrder === 'popular') {
-                    return (b.likes || []).length - (a.likes || []).length;
-                } else {
-                    return (b.timestamp || 0) - (a.timestamp || 0);
-                }
-            });
+    reviews.sort((a, b) => {
+        if (sortOrder === 'popular') {
+            return (b.likes || []).length - (a.likes || []).length;
+        } else {
+            return (b.timestamp || 0) - (a.timestamp || 0);
+        }
+    });
 
-            let reviewsHtml = reviews.length > 0 ? reviews.map((r, index) => {
-                const reviewId = r.id || `${animeId}-rev-${index}`;
-                const likesCount = (r.likes || []).length;
-                
-                let currentUserName = '';
-                const savedUser = localStorage.getItem('anibase_user');
-                if (savedUser) {
-                    try { currentUserName = JSON.parse(savedUser).username || ''; } catch(e){}
-                }
-                const hasLiked = currentUserName && (r.likes || []).includes(currentUserName);
-                const likeBtnClass = hasLiked ? "text-rose-500 bg-rose-500/10 border-rose-500/30" : "text-gray-400 bg-darkbg border-gray-800 hover:text-white";
+    let currentUserName = '';
+    let canModerate = false;
+    const savedUser = localStorage.getItem('anibase_user');
+    if (savedUser) {
+        try { 
+            const u = JSON.parse(savedUser);
+            currentUserName = u.username || u.nombre || '';
+            if (u.email === 'jose.ips@hotmail.com' || u.role === 'admin' || u.role === 'moderador') {
+                canModerate = true;
+            }
+        } catch(e){}
+    }
 
-                let contentHtml = '';
-                if (r.hasSpoiler) {
-                    contentHtml = `
-                        <div id="spoiler-box-${reviewId}" class="relative rounded-xl overflow-hidden bg-black/60 p-3 border border-amber-500/30">
-                            <div id="spoiler-blur-${reviewId}" class="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center gap-2 p-2 z-10 transition-all">
-                                <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-triangle-exclamation"></i> Esta reseña contiene spoilers</span>
-                                <button onclick="revealSpoiler('${reviewId}')" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-3 py-1 rounded-lg text-[11px] transition cursor-pointer">Revelar Spoiler</button>
-                            </div>
-                            <p class="text-gray-300 leading-relaxed select-none">${escapeHtml(r.text)}</p>
-                        </div>
-                    `;
-                } else {
-                    contentHtml = `<p class="text-gray-300 leading-relaxed">${escapeHtml(r.text)}</p>`;
-                }
+    let reviewsHtml = reviews.length > 0 ? reviews.map((r, index) => {
+        const reviewId = r.id || `${animeId}-rev-${index}`;
+        const likesCount = (r.likes || []).length;
+        
+        const hasLiked = currentUserName && (r.likes || []).includes(currentUserName);
+        const likeBtnClass = hasLiked ? "text-rose-500 bg-rose-500/10 border-rose-500/30" : "text-gray-400 bg-darkbg border-gray-800 hover:text-white";
 
-                let repliesHtml = (r.replies || []).map(rep => `
-                    <div class="bg-black/30 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1 ml-6 mt-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-accent">${escapeHtml(rep.user)}</span>
-                            <span class="text-[10px] text-gray-500">${rep.time || 'Hace un momento'}</span>
-                        </div>
-                        <p class="text-gray-300 leading-relaxed">${escapeHtml(rep.text)}</p>
+        // Determinar si el usuario actual puede borrar (es admin o es el creador de la reseña)
+        const isAuthor = currentUserName && currentUserName.toLowerCase() === (r.user || '').toLowerCase();
+        
+        let actionBtnHtml = '';
+        if (isAuthor || canModerate) {
+            actionBtnHtml = `<button onclick="deleteAnimeReview('${animeId}', '${reviewId}')" class="w-7 h-7 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar reseña"><i class="fa-solid fa-trash-can"></i></button>`;
+        } else {
+            actionBtnHtml = `<button onclick="reportAnimeReview('${animeId}', '${reviewId}')" class="w-7 h-7 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar reseña"><i class="fa-solid fa-flag"></i></button>`;
+        }
+
+        let contentHtml = '';
+        if (r.hasSpoiler) {
+            contentHtml = `
+                <div id="spoiler-box-${reviewId}" class="relative rounded-xl overflow-hidden bg-black/60 p-3 border border-amber-500/30">
+                    <div id="spoiler-blur-${reviewId}" class="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center gap-2 p-2 z-10 transition-all">
+                        <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-triangle-exclamation"></i> Esta reseña contiene spoilers</span>
+                        <button onclick="revealSpoiler('${reviewId}')" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-3 py-1 rounded-lg text-[11px] transition cursor-pointer">Revelar Spoiler</button>
                     </div>
-                `).join('');
-
-                return `
-                    <div class="bg-darkbg p-4 rounded-2xl border border-gray-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center font-bold text-accent text-xs">
-                                    ${escapeHtml(r.user.charAt(0).toUpperCase())}
-                                </div>
-                                <div>
-                                    <span class="font-bold text-white text-xs block">${escapeHtml(r.user)}</span>
-                                    <span class="text-[10px] text-gray-500">${r.timeAgo || 'Reciente'}</span>
-                                </div>
-                            </div>
-                            <button onclick="toggleReviewLike('${animeId}', '${reviewId}')" class="border px-3 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${likeBtnClass}">
-                                <i class="fa-solid fa-heart"></i> <span>${likesCount}</span>
-                            </button>
-                        </div>
-
-                        ${contentHtml}
-
-                        <div class="space-y-1 pt-2">
-                            ${repliesHtml}
-                            <div class="flex gap-2 pt-2 ml-6">
-                                <input type="text" id="reply-input-${reviewId}" placeholder="Responder a este debate..." class="w-full bg-cardbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
-                                <button onclick="addReviewReply('${animeId}', '${reviewId}')" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Responder</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('') : '<p class="text-xs text-gray-500 italic text-center py-8">No hay reseñas ni debates aún. ¡Sé el primero en opinar sobre esta serie!</p>';
-
-            document.getElementById('reviewsModalContent').innerHTML = `
-                <div class="space-y-6">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
-                        <div>
-                            <span class="text-xs font-bold text-accent uppercase tracking-wider">Foro de Comunidad</span>
-                            <h3 class="text-2xl font-extrabold text-white mt-0.5">Debates y Reseñas: ${anime.titulo}</h3>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label class="text-xs text-gray-400 font-semibold">Ordenar:</label>
-                            <select id="reviewSortOrderSelect" onchange="renderReviewsModalContent('${animeId}')" class="bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
-                                <option value="recent" ${sortOrder === 'recent' ? 'selected' : ''}>⏰ Más Recientes</option>
-                                <option value="popular" ${sortOrder === 'popular' ? 'selected' : ''}>❤️ Más Populares (Likes)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="bg-darkbg/80 border border-gray-800 rounded-2xl p-4 space-y-3 shadow-inner">
-                        <h4 class="text-xs font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-pen-nib text-accent"></i> Escribe tu opinión o reseña
-                        </h4>
-                        <textarea id="modalReviewText" rows="3" placeholder="¿Qué te pareció este anime? Comparte tu perspectiva..." class="w-full bg-cardbg border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-accent transition resize-none"></textarea>
-                        
-                        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-                            <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
-                                <input type="checkbox" id="modalReviewSpoiler" class="w-4 h-4 rounded bg-cardbg border-gray-800 text-accent focus:ring-0"> 
-                                <span class="text-amber-400 font-semibold">⚠️ Contiene Spoilers</span>
-                            </label>
-                            <button onclick="submitAnimeReview('${animeId}')" class="bg-accent hover:bg-accenthover text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-accent/20 cursor-pointer">
-                                Publicar Reseña
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-                        ${reviewsHtml}
-                    </div>
+                    <p class="text-gray-300 leading-relaxed select-none">${escapeHtml(r.text)}</p>
                 </div>
             `;
+        } else {
+            contentHtml = `<p class="text-gray-300 leading-relaxed">${escapeHtml(r.text)}</p>`;
         }
+
+        let repliesHtml = (r.replies || []).map(rep => `
+            <div class="bg-black/30 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1 ml-6 mt-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-accent">${escapeHtml(rep.user)}</span>
+                    <span class="text-[10px] text-gray-500">${rep.time || 'Hace un momento'}</span>
+                </div>
+                <p class="text-gray-300 leading-relaxed">${escapeHtml(rep.text)}</p>
+            </div>
+        `).join('');
+
+        return `
+            <div class="bg-darkbg p-4 rounded-2xl border border-gray-800 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center font-bold text-accent text-xs">
+                            ${escapeHtml((r.user || 'U').charAt(0).toUpperCase())}
+                        </div>
+                        <div>
+                            <span class="font-bold text-white text-xs block">${escapeHtml(r.user)}</span>
+                            <span class="text-[10px] text-gray-500">${r.timeAgo || 'Reciente'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleReviewLike('${animeId}', '${reviewId}')" class="border px-3 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${likeBtnClass}">
+                            <i class="fa-solid fa-heart"></i> <span>${likesCount}</span>
+                        </button>
+                        ${actionBtnHtml}
+                    </div>
+                </div>
+
+                ${contentHtml}
+
+                <div class="space-y-1 pt-2">
+                    ${repliesHtml}
+                    <div class="flex gap-2 pt-2 ml-6">
+                        <input type="text" id="reply-input-${reviewId}" placeholder="Responder a este debate..." class="w-full bg-cardbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                        <button onclick="addReviewReply('${animeId}', '${reviewId}')" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Responder</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('') : '<p class="text-xs text-gray-500 italic text-center py-8">No hay reseñas ni debates aún. ¡Sé el primero en opinar sobre esta serie!</p>';
+
+document.getElementById('reviewsModalContent').innerHTML = `
+        <div class="space-y-6 relative pt-6 sm:pt-0">
+
+            <div class="flex items-center justify-between gap-4 border-b border-gray-800 pb-4 pr-10">
+                <div>
+                    <span class="text-xs font-bold text-accent uppercase tracking-wider">Foro de Comunidad</span>
+                    <h3 class="text-2xl font-extrabold text-white mt-0.5">Debates y Reseñas: ${anime.titulo}</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-gray-400 font-semibold">Ordenar:</label>
+                    <select id="reviewSortOrderSelect" onchange="renderReviewsModalContent('${animeId}')" class="bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                        <option value="recent" ${sortOrder === 'recent' ? 'selected' : ''}>⏰ Más Recientes</option>
+                        <option value="popular" ${sortOrder === 'popular' ? 'selected' : ''}>❤️ Más Populares (Likes)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-darkbg/80 border border-gray-800 rounded-2xl p-4 space-y-3 shadow-inner">
+                <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-nib text-accent"></i> Escribe tu opinión o reseña
+                </h4>
+                <textarea id="modalReviewText" rows="3" placeholder="¿Qué te pareció este anime? Comparte tu perspectiva..." class="w-full bg-cardbg border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-accent transition resize-none"></textarea>
+                
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
+                        <input type="checkbox" id="modalReviewSpoiler" class="w-4 h-4 rounded bg-cardbg border-gray-800 text-accent focus:ring-0"> 
+                        <span class="text-amber-400 font-semibold">⚠️ Contiene Spoilers</span>
+                    </label>
+                    <button onclick="submitAnimeReview('${animeId}')" class="bg-accent hover:bg-accenthover text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-accent/20 cursor-pointer">
+                        Publicar Reseña
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
+                ${reviewsHtml}
+            </div>
+        </div>
+    `;
+}
 
         function revealSpoiler(reviewId) {
             const blurBox = document.getElementById(`spoiler-blur-${reviewId}`);
@@ -2343,97 +2385,106 @@ function openAnimeDetail(id) {
             }
         }
 
-        function toggleReviewLike(animeId, reviewId) {
-            const savedUser = localStorage.getItem('anibase_user');
-            if (!savedUser) {
-                showToast("Inicia sesión para dar 'Me gusta' a las reseñas", "error");
-                toggleAuthModal(true);
-                return;
-            }
 
-            let userName = 'Usuario';
-            try { userName = JSON.parse(savedUser).username || 'Usuario'; } catch(e){}
+async function toggleReviewLike(animeId, reviewId) {
+    const savedUser = localStorage.getItem('anibase_user');
+    if (!savedUser) {
+        showToast("Inicia sesión para dar 'Me gusta'", "error");
+        toggleAuthModal(true);
+        return;
+    }
 
-            let reviews = animeReviews[animeId] || [];
-            const review = reviews.find((r, idx) => (r.id || `${animeId}-rev-${idx}`) === reviewId);
-            if (!review) return;
+    let userName = 'Usuario';
+    try { userName = JSON.parse(savedUser).username || 'Usuario'; } catch(e){}
 
-            if (!review.likes) review.likes = [];
-            const userIndex = review.likes.indexOf(userName);
-
-            if (userIndex > -1) {
-                review.likes.splice(userIndex, 1);
-            } else {
-                review.likes.push(userName);
-            }
-
-            localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
-            renderReviewsModalContent(animeId);
+    try {
+        const res = await fetch(`${BASE_URL}/api/reviews/${reviewId}/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: userName })
+        });
+        if (res.ok) {
+            await fetchAnimeReviews(animeId); 
         }
+    } catch (e) {
+        showToast("Error al actualizar like", "error");
+    }
+}
 
-        function addReviewReply(animeId, reviewId) {
-            const input = document.getElementById(`reply-input-${reviewId}`);
-            if (!input) return;
-            const text = input.value.trim();
-            if (!text) return;
+async function addReviewReply(animeId, reviewId) {
+    const input = document.getElementById(`reply-input-${reviewId}`);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
 
-            let author = "OtakuAnónimo";
-            const savedUser = localStorage.getItem('anibase_user');
-            if (savedUser) {
-                try { author = JSON.parse(savedUser).username || author; } catch(e){}
-            }
+    let author = "OtakuAnónimo";
+    const savedUser = localStorage.getItem('anibase_user');
+    if (savedUser) {
+        try { author = JSON.parse(savedUser).username || author; } catch(e){}
+    }
 
-            let reviews = animeReviews[animeId] || [];
-            const review = reviews.find((r, idx) => (r.id || `${animeId}-rev-${idx}`) === reviewId);
-            if (!review) return;
-
-            if (!review.replies) review.replies = [];
-            review.replies.push({
-                user: author,
-                text: text,
-                time: 'Hace un momento'
-            });
-
-            localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+    try {
+        const res = await fetch(`${BASE_URL}/api/reviews/${reviewId}/reply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user: author, text: text })
+        });
+        if (res.ok) {
             input.value = '';
             showToast("Respuesta publicada con éxito", "success");
-            renderReviewsModalContent(animeId);
+            await fetchAnimeReviews(animeId);
         }
+    } catch (e) {
+        showToast("Error al enviar respuesta", "error");
+    }
+}
 
-        function submitAnimeReview(animeId) {
-            const text = document.getElementById('modalReviewText').value.trim();
-            const hasSpoiler = document.getElementById('modalReviewSpoiler').checked;
+async function submitAnimeReview(animeId) {
+    const text = document.getElementById('modalReviewText').value.trim();
+    const hasSpoiler = document.getElementById('modalReviewSpoiler').checked;
 
-            if (!text) {
-                showToast("Escribe un comentario en tu reseña", "error");
-                return;
-            }
+    if (!text) {
+        showToast("Escribe un comentario en tu reseña", "error");
+        return;
+    }
 
-            if (!animeReviews[animeId]) animeReviews[animeId] = [];
+    let authorName = "OtakuAnónimo";
+    const savedUser = localStorage.getItem('anibase_user');
+    if (savedUser) {
+        try { 
+            const u = JSON.parse(savedUser);
+            authorName = u.username || u.nombre || authorName; 
+        } catch(e){}
+    }
 
-            let authorName = "OtakuAnónimo";
-            const savedUser = localStorage.getItem('anibase_user');
-            if (savedUser) {
-                try { authorName = JSON.parse(savedUser).username || authorName; } catch(e){}
-            }
+    const newReview = {
+        user: authorName,
+        text: text,
+        hasSpoiler: hasSpoiler,
+        timestamp: Date.now(),
+        timeAgo: 'Hace un momento'
+    };
 
-            const newReview = {
-                id: animeId + '-rev-' + Date.now(),
-                user: authorName,
-                text: text,
-                hasSpoiler: hasSpoiler,
-                likes: [],
-                replies: [],
-                timestamp: Date.now(),
-                timeAgo: 'Hace un momento'
-            };
+    try {
+        const response = await fetch(`${BASE_URL}/api/animes/${animeId}/reviews`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newReview)
+        });
 
-            animeReviews[animeId].unshift(newReview);
-            localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
-
+        if (response.ok) {
             showToast("¡Reseña publicada con éxito!", "success");
-            renderReviewsModalContent(animeId);
+            document.getElementById('modalReviewText').value = '';
+            document.getElementById('modalReviewSpoiler').checked = false;
+            await fetchAnimeReviews(animeId); 
+        } else {
+            showToast("Error al publicar la reseña", "error");
         }
+    } catch (error) {
+        showToast("Error de conexión con el servidor", "error");
+    }
+}
+
 
         function startSeriesOnQuiz() {
             quizCurrentStep = 0;
@@ -3468,7 +3519,42 @@ function openFranchiseModal(animeId) {
             });
         }
 
-        
+async function deleteAnimeReview(animeId, reviewId) {
+    if (!confirm("¿Estás seguro de eliminar esta reseña?")) return;
+
+    try {
+        const res = await fetch(`${BASE_URL}/api/reviews/${reviewId}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            showToast("Reseña eliminada", "success");
+            await fetchAnimeReviews(animeId);
+        }
+    } catch (e) {
+        showToast("Error al eliminar reseña", "error");
+    }
+}
+
+
+function reportAnimeReview(animeId, reviewId) {
+    if (!animeReviews[animeId]) return;
+
+    const review = animeReviews[animeId].find((r, idx) => (r.id || `${animeId}-rev-${idx}`) === reviewId);
+    if (!review) return;
+
+    review.reportsCount = (review.reportsCount || 0) + 1;
+
+    if (review.reportsCount >= 30) {
+        animeReviews[animeId] = animeReviews[animeId].filter((r, idx) => (r.id || `${animeId}-rev-${idx}`) !== reviewId);
+        localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+        showToast("⚠️ La reseña ha sido eliminada automáticamente por acumular 30 reportes.", "error");
+    } else {
+        localStorage.setItem('anibase_reviews', JSON.stringify(animeReviews));
+        showToast("Gracias por avisar. La reseña ha sido enviada a moderación.", "success");
+    }
+
+    renderReviewsModalContent(animeId);
+}
 
 
     </script>
