@@ -486,5 +486,100 @@ app.delete('/api/reviews/:reviewId', async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar reseña', detalle: error.message });
     }
 });
+// ==========================================
+// 🤖 BOT AUTOMÁTICO DE ANILIST Y ACTUALIZACIÓN DIARIA
+// ==========================================
+const cron = require('node-cron');
+const axios = require('axios');
+
+async function sincronizarAnimesConAniList() {
+    console.log('🤖 [BOT] Iniciando sincronización automática con AniList...');
+    
+    const query = `
+    query {
+      Page(perPage: 50) {
+        media(type: ANIME, sort: [POPULARITY_DESC]) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          status
+          seasonYear
+          episodes
+          coverImage {
+            large
+          }
+          description
+          genres
+          studios(isMain: true) {
+            nodes {
+              name
+            }
+          }
+          startDate {
+            year
+            month
+            day
+          }
+          endDate {
+            year
+            month
+            day
+          }
+        }
+      }
+    }`;
+
+    try {
+        const response = await axios.post('https://graphql.anilist.co', { query });
+        const animesApi = response.data.data.Page.media;
+
+        for (let item of animesApi) {
+            let estadoMapeado = 'En emisión';
+            if (item.status === 'NOT_YET_RELEASED') estadoMapeado = 'Próximamente';
+            if (item.status === 'FINISHED') estadoMapeado = 'Finalizado';
+
+            const tituloAnime = item.title.romaji || item.title.english || 'Sin título';
+            const estudioNombre = item.studios && item.studios.nodes[0] ? item.studios.nodes[0].name : '';
+            
+            let fechaEstrenoStr = '';
+            if (item.startDate && item.startDate.year) {
+                fechaEstrenoStr = `${item.startDate.year}-${String(item.startDate.month || 1).padStart(2, '0')}-${String(item.startDate.day || 1).padStart(2, '0')}`;
+            }
+
+            await Anime.findOneAndUpdate(
+                { titulo: tituloAnime },
+                {
+                    titulo: tituloAnime,
+                    titulosAlternativos: {
+                        ingles: item.title.english || '',
+                        romaji: item.title.romaji || '',
+                        japones: item.title.native || ''
+                    },
+                    sinopsis: item.description ? item.description.replace(/<[^>]*>?/gm, '') : 'Sin descripción',
+                    imagenUrl: item.coverImage ? item.coverImage.large : '',
+                    estado: estadoMapeado,
+                    episodios: item.episodes || 0,
+                    generos: item.genres || [],
+                    anio: item.seasonYear || new Date().getFullYear(),
+                    estudio: estudioNombre,
+                    fechaEstreno: fechaEstrenoStr
+                },
+                { upsert: true, new: true }
+            );
+        }
+
+        console.log('🤖 [BOT] Sincronización diaria completada con éxito.');
+    } catch (error) {
+        console.error('❌ Error en el bot de sincronización:', error.message);
+    }
+}
+
+// Se ejecutará automáticamente todos los días a las 3:00 AM
+cron.schedule('0 3 * * *', () => {
+    sincronizarAnimesConAniList();
+});
 
 module.exports = app;

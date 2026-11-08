@@ -2353,6 +2353,7 @@ document.getElementById('reviewsModalContent').innerHTML = `
                     </select>
                 </div>
             </div>
+            
             <div class="bg-darkbg/80 border border-gray-800 rounded-2xl p-4 space-y-3 shadow-inner">
                 <h4 class="text-xs font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-pen-nib text-accent"></i> Escribe tu opinión o reseña
@@ -3210,7 +3211,7 @@ async function reactToPost(postId, reactionType) {
                             ${escapeHtml(post.user)}
                             <i class="fa-solid fa-circle-check text-[10px] text-accent" title="Ver perfil público"></i>
                         </h4>
-                        <span class="text-[10px] text-accent font-semibold">${post.rank} &bull; ${post.timestamp}</span>
+                        <span class="text-[10px] text-accent font-semibold">${post.rank} &bull; ${formatearFechaForo(post.timestamp)}</span>s
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -3559,6 +3560,27 @@ function reportAnimeReview(animeId, reviewId) {
     renderReviewsModalContent(animeId);
 }
 
+function formatearFechaForo(fechaIso) {
+    if (!fechaIso) return 'Reciente';
+    try {
+        const fecha = new Date(fechaIso);
+        if (isNaN(fecha.getTime())) return fechaIso;
+        
+        const opciones = { 
+            day: 'numeric', 
+            month: 'short', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true 
+        };
+        
+        // Formateamos y eliminamos cualquier letra "S" o sobrante al final
+        let resultado = fecha.toLocaleDateString('es-ES', opciones);
+        return resultado.replace(/\s+s$/i, '').replace(/s$/, '').trim();
+    } catch (e) {
+        return 'Hace un momento';
+    }
+}
 
     </script>
 </body>
