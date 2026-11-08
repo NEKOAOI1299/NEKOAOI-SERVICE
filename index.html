@@ -3071,133 +3071,135 @@ async function reactToPost(postId, reactionType) {
         }
 
         function renderForumFeed() {
-            const container = document.getElementById('forumFeedContainer');
-            if (!container) return;
+    const container = document.getElementById('forumFeedContainer');
+    if (!container) return;
 
-            let postsToRender = [...forumPosts];
+    let postsToRender = [...forumPosts];
 
-            // Filtrar por categoría activa
-if (activeForumCategory) {
-    postsToRender = postsToRender.filter(p => (p.category || 'general') === activeForumCategory);
-}
+    if (activeForumCategory) {
+        postsToRender = postsToRender.filter(p => (p.category || 'general') === activeForumCategory);
+    }
 
-            if (activeHashtagFilter) {
-                postsToRender = postsToRender.filter(p => p.content && p.content.toLowerCase().includes(activeHashtagFilter.toLowerCase()));
-            }
+    if (activeHashtagFilter) {
+        postsToRender = postsToRender.filter(p => p.content && p.content.toLowerCase().includes(activeHashtagFilter.toLowerCase()));
+    }
 
-            if (postsToRender.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-cardbg border border-gray-800 rounded-2xl p-8 text-center text-gray-500 text-xs">
-                        No hay publicaciones con ${activeHashtagFilter || 'en esta categoría'}. ¡Sé el primero en publicar!
-                    </div>
-                `;
-                return;
-            }
+    if (postsToRender.length === 0) {
+        container.innerHTML = `
+            <div class="bg-cardbg border border-gray-800 rounded-2xl p-8 text-center text-gray-500 text-xs">
+                No hay publicaciones con ${activeHashtagFilter || 'en esta categoría'}. ¡Sé el primero en publicar!
+            </div>
+        `;
+        return;
+    }
 
-            container.innerHTML = '';
+    container.innerHTML = '';
 
-            let currentLoggedInUser = '';
-            const savedUser = localStorage.getItem('anibase_user');
-            if (savedUser) {
-                try {
-                    const u = JSON.parse(savedUser);
-                    currentLoggedInUser = u.username || u.nombre || '';
-                } catch(e){}
-            }
+    let currentLoggedInUser = '';
+    const savedUser = localStorage.getItem('anibase_user');
+    if (savedUser) {
+        try {
+            const u = JSON.parse(savedUser);
+            currentLoggedInUser = u.username || u.nombre || '';
+        } catch(e){}
+    }
 
-            postsToRender.forEach(post => {
-                const card = document.createElement('div');
-                card.className = "bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4";
+    postsToRender.forEach(post => {
+        const card = document.createElement('div');
+        card.className = "bg-cardbg border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4";
 
-                const mediaHtml = post.media ? `<div class="relative rounded-xl overflow-hidden border border-gray-800/80 max-h-[450px] bg-black/40 flex items-center justify-center cursor-pointer group/img" onclick="openImageLightbox('${post.media}')"><img src="${post.media}" class="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"><div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1"><i class="fa-solid fa-magnifying-glass-plus"></i> Ampliar imagen</div></div>` : '';
+        const mediaHtml = post.media ? `<div class="relative rounded-xl overflow-hidden border border-gray-800/80 max-h-[450px] bg-black/40 flex items-center justify-center cursor-pointer group/img" onclick="openImageLightbox('${post.media}')"><img src="${post.media}" class="w-full h-full object-contain group-hover/img:scale-105 transition duration-300"><div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1"><i class="fa-solid fa-magnifying-glass-plus"></i> Ampliar imagen</div></div>` : '';
 
-                let authorActionHtml = '';
-                let canModerate = false;
-                const savedUserAuth = localStorage.getItem('anibase_user');
-                if (savedUserAuth) {
-                    try {
-                        const uObj = JSON.parse(savedUserAuth);
-                        if (uObj && (uObj.email === 'jose.ips@hotmail.com' || uObj.role === 'admin' || uObj.role === 'moderador')) {
-                            canModerate = true;
-                        }
-                    } catch(e) {}
+        let authorActionHtml = '';
+        let canModerate = false;
+        const savedUserAuth = localStorage.getItem('anibase_user');
+        if (savedUserAuth) {
+            try {
+                const uObj = JSON.parse(savedUserAuth);
+                if (uObj && (uObj.email === 'jose.ips@hotmail.com' || uObj.role === 'admin' || uObj.role === 'moderador')) {
+                    canModerate = true;
                 }
-
-                if ((currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) || canModerate) {
-                    authorActionHtml = `<button onclick="deleteForumPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar publicación (Mod)"><i class="fa-solid fa-trash-can"></i></button>`;
-                } else {
-                    authorActionHtml = `<button onclick="reportPost('${post.id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-gray-800 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
-                }
-
-                let commentsHtml = post.comments.map(c => `
-                    <div class="bg-darkbg/70 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span onclick="openUserProfile('${escapeHtml(c.user)}')" class="font-bold text-gray-200 hover:text-accent transition cursor-pointer">${escapeHtml(c.user)}</span>
-                            <span class="text-[10px] text-gray-500">${c.time}</span>
-                        </div>
-                        <p class="text-gray-300 leading-relaxed">${escapeHtml(c.text)}</p>
-                    </div>
-                `).join('');
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <img src="${post.avatar}" onclick="openUserProfile('${escapeHtml(post.user)}')" class="w-10 h-10 rounded-xl object-cover border border-accent/40 cursor-pointer hover:opacity-80 transition">
-                            <div>
-                                <h4 onclick="openUserProfile('${escapeHtml(post.user)}')" class="text-xs font-bold text-white leading-tight hover:text-accent transition cursor-pointer flex items-center gap-1.5">
-                                    ${escapeHtml(post.user)}
-                                    <i class="fa-solid fa-circle-check text-[10px] text-accent" title="Ver perfil público"></i>
-                                </h4>
-                                <span class="text-[10px] text-accent font-semibold">${post.rank} &bull; ${post.timestamp}</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            ${authorActionHtml}
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-gray-200 leading-relaxed whitespace-pre-line">${escapeHtml(post.content)}</p>
-
-                    ${mediaHtml}
-
-                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-800">
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="reactToPost('${post.id}', 'love')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
-                                ❤️ <span class="text-[11px]">${post.reactions.love}</span>
-                            </button>
-                            <button onclick="reactToPost('${post.id}', 'god')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
-                                🍜 God <span class="text-[11px]">${post.reactions.god}</span>
-                            </button>
-                            <button onclick="reactToPost('${post.id}', 'cry')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
-                                😭 <span class="text-[11px]">${post.reactions.cry}</span>
-                            </button>
-                            <button onclick="reactToPost('${post.id}', 'filler')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
-                                😡 Relleno <span class="text-[11px]">${post.reactions.filler}</span>
-                            </button>
-                        </div>
-
-                        <span class="text-xs text-gray-400 font-medium">
-                            <i class="fa-solid fa-comment mr-1 text-accent"></i> ${post.comments.length} Comentarios
-                        </span>
-                    </div>
-
-                    <div class="space-y-2 pt-2">
-                        <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                            ${commentsHtml}
-                        </div>
-
-                        <div class="flex gap-2 pt-2">
-                            <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
-                            <button onclick="addPostComment('${post.id}')" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
-                                Responder
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(card);
-            });
+            } catch(e) {}
         }
+
+        // 1. CAMBIO: deleteForumPost y reportPost usan post._id
+        if ((currentLoggedInUser && currentLoggedInUser.toLowerCase() === post.user.toLowerCase()) || canModerate) {
+            authorActionHtml = `<button onclick="deleteForumPost('${post._id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-danger/40 flex items-center justify-center text-xs transition cursor-pointer" title="Borrar publicación (Mod)"><i class="fa-solid fa-trash-can"></i></button>`;
+        } else {
+            authorActionHtml = `<button onclick="reportPost('${post._id}')" class="w-8 h-8 rounded-lg bg-darkbg hover:bg-danger/20 text-gray-400 hover:text-danger border border-gray-800 hover:border-gray-800 flex items-center justify-center text-xs transition cursor-pointer" title="Reportar publicación"><i class="fa-solid fa-flag"></i></button>`;
+        }
+
+        let commentsHtml = (post.comments || []).map(c => `
+            <div class="bg-darkbg/70 p-2.5 rounded-xl border border-gray-800/80 text-xs space-y-1">
+                <div class="flex items-center justify-between">
+                    <span onclick="openUserProfile('${escapeHtml(c.user)}')" class="font-bold text-gray-200 hover:text-accent transition cursor-pointer">${escapeHtml(c.user)}</span>
+                    <span class="text-[10px] text-gray-500">${c.time}</span>
+                </div>
+                <p class="text-gray-300 leading-relaxed">${escapeHtml(c.text)}</p>
+            </div>
+        `).join('');
+
+        card.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="${post.avatar}" onclick="openUserProfile('${escapeHtml(post.user)}')" class="w-10 h-10 rounded-xl object-cover border border-accent/40 cursor-pointer hover:opacity-80 transition">
+                    <div>
+                        <h4 onclick="openUserProfile('${escapeHtml(post.user)}')" class="text-xs font-bold text-white leading-tight hover:text-accent transition cursor-pointer flex items-center gap-1.5">
+                            ${escapeHtml(post.user)}
+                            <i class="fa-solid fa-circle-check text-[10px] text-accent" title="Ver perfil público"></i>
+                        </h4>
+                        <span class="text-[10px] text-accent font-semibold">${post.rank} &bull; ${post.timestamp}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    ${authorActionHtml}
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-200 leading-relaxed whitespace-pre-line">${escapeHtml(post.content)}</p>
+
+            ${mediaHtml}
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-800">
+                <!-- 2. CAMBIO: reactToPost usa post._id -->
+                <div class="flex items-center gap-1.5">
+                    <button onclick="reactToPost('${post._id}', 'love')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                        ❤️ <span class="text-[11px]">${post.reactions?.love || 0}</span>
+                    </button>
+                    <button onclick="reactToPost('${post._id}', 'god')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                        🍜 God <span class="text-[11px]">${post.reactions?.god || 0}</span>
+                    </button>
+                    <button onclick="reactToPost('${post._id}', 'cry')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                        😭 <span class="text-[11px]">${post.reactions?.cry || 0}</span>
+                    </button>
+                    <button onclick="reactToPost('${post._id}', 'filler')" class="bg-darkbg hover:bg-gray-800 border border-gray-800 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-300 transition flex items-center gap-1 cursor-pointer">
+                        😡 Relleno <span class="text-[11px]">${post.reactions?.filler || 0}</span>
+                    </button>
+                </div>
+
+                <span class="text-xs text-gray-400 font-medium">
+                    <i class="fa-solid fa-comment mr-1 text-accent"></i> ${(post.comments || []).length} Comentarios
+                </span>
+            </div>
+
+            <div class="space-y-2 pt-2">
+                <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                    ${commentsHtml}
+                </div>
+
+                <!-- 3. CAMBIO: comment-input- y addPostComment usan post._id -->
+                <div class="flex gap-2 pt-2">
+                    <input type="text" id="comment-input-${post._id}" placeholder="Escribe un comentario..." class="w-full bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                    <button onclick="addPostComment('${post._id}')" class="bg-accent hover:bg-accenthover text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
+                        Responder
+                    </button>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
 
         function openImageLightbox(imgUrl) {
             const modal = document.getElementById('imageLightboxModal');
@@ -3223,40 +3225,39 @@ if (activeForumCategory) {
             modal.classList.add('hidden');
         }
 
-        function reactToPost(postId, reactionType) {
-            const post = forumPosts.find(p => p.id === postId);
-            if (!post) return;
-            post.reactions[reactionType] = (post.reactions[reactionType] || 0) + 1;
-            localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
-            renderForumFeed();
-        }
 
-        function addPostComment(postId) {
-            const input = document.getElementById(`comment-input-${postId}`);
-            if (!input) return;
-            const text = input.value.trim();
-            if (!text) return;
+async function addPostComment(postId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
 
-            const post = forumPosts.find(p => p.id === postId);
-            if (!post) return;
+    let author = "OtakuAnónimo";
+    const savedUser = localStorage.getItem('anibase_user');
+    if (savedUser) {
+        try { 
+            const u = JSON.parse(savedUser);
+            author = u.username || u.nombre || author; 
+        } catch(e){}
+    }
 
-            let author = "OtakuAnónimo";
-            const savedUser = localStorage.getItem('anibase_user');
-            if (savedUser) {
-                try { author = JSON.parse(savedUser).username || author; } catch(e){}
-            }
-
-            post.comments.push({
-                user: author,
-                text: text,
-                time: 'Ahora mismo'
-            });
-
-            localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
+    try {
+        const res = await fetch(`${BASE_URL}/api/foro/${postId}/comment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user: author, text: text })
+        });
+        if (res.ok) {
             input.value = '';
-            renderForumFeed();
-            updateForumSidebarDynamics();
+            showToast("Comentario publicado", "success");
+            await fetchForumPosts();
+        } else {
+            showToast("Error al publicar comentario", "error");
         }
+    } catch (e) {
+        showToast("Error de conexión con el servidor", "error");
+    }
+}
 
         function reportPost(postId) {
             const postIndex = forumPosts.findIndex(p => p.id === postId);
