@@ -2339,20 +2339,20 @@ async function fetchAnimeReviews(animeId) {
 document.getElementById('reviewsModalContent').innerHTML = `
         <div class="space-y-6 relative pt-6 sm:pt-0">
 
-            <div class="flex items-center justify-between gap-4 border-b border-gray-800 pb-4 pr-10">
+            <!-- CABECERA ADAPTABLE PARA MÓVIL Y PC -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-800 pb-4 pr-10">
                 <div>
                     <span class="text-xs font-bold text-accent uppercase tracking-wider">Foro de Comunidad</span>
-                    <h3 class="text-2xl font-extrabold text-white mt-0.5">Debates y Reseñas: ${anime.titulo}</h3>
+                    <h3 class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Debates y Reseñas: ${anime.titulo}</h3>
                 </div>
-                <div class="flex items-center gap-2">
-                    <label class="text-xs text-gray-400 font-semibold">Ordenar:</label>
-                    <select id="reviewSortOrderSelect" onchange="renderReviewsModalContent('${animeId}')" class="bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start bg-darkbg/50 sm:bg-transparent p-2 sm:p-0 rounded-xl border sm:border-0 border-gray-800">
+                    <label class="text-xs text-gray-400 font-semibold whitespace-nowrap">Ordenar:</label>
+                    <select id="reviewSortOrderSelect" onchange="renderReviewsModalContent('${animeId}')" class="bg-darkbg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent w-full sm:w-auto">
                         <option value="recent" ${sortOrder === 'recent' ? 'selected' : ''}>⏰ Más Recientes</option>
                         <option value="popular" ${sortOrder === 'popular' ? 'selected' : ''}>❤️ Más Populares (Likes)</option>
                     </select>
                 </div>
             </div>
-
             <div class="bg-darkbg/80 border border-gray-800 rounded-2xl p-4 space-y-3 shadow-inner">
                 <h4 class="text-xs font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-pen-nib text-accent"></i> Escribe tu opinión o reseña
