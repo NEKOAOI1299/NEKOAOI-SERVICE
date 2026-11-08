@@ -2965,17 +2965,27 @@ function deleteForumPost(postId) {
 
 // 4. Reaccionar a una publicación en MongoDB
 async function reactToPost(postId, reactionType) {
+    // 1. ACTUALIZACIÓN INSTANTÁNEA (OPTIMISTA) EN LA PANTALLA
+    // Buscamos el post en tu arreglo local 'forumPosts' y le sumamos 1 de inmediato
+    const post = forumPosts.find(p => p._id === postId);
+    if (post) {
+        if (!post.reactions) post.reactions = { love: 0, god: 0, cry: 0, filler: 0 };
+        post.reactions[reactionType] = (post.reactions[reactionType] || 0) + 1;
+        renderForumFeed(); // Pinta el cambio al instante sin esperar al servidor
+    }
+
+    // 2. PETICIÓN EN SEGUNDO PLANO A MONGODB
     try {
-        const res = await fetch(`${BASE_URL}/api/foro/${postId}/react`, {
+        await fetch(`${BASE_URL}/api/foro/${postId}/react`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ reaction: reactionType })
         });
-        if (res.ok) {
-            await fetchForumPosts();
-        }
+        // Opcional: puedes llamar a fetchForumPosts() silenciosamente después si quieres sincronizar datos exactos
     } catch (e) {
-        console.error("Error al reaccionar:", e);
+        console.error("Error al sincronizar reacción:", e);
+        // Si hay error de red, recargamos para volver al estado real
+        await fetchForumPosts();
     }
 }
 
