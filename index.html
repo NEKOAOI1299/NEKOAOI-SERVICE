@@ -3215,25 +3215,6 @@ if (activeForumCategory) {
 
         let pendingDeletePostId = null;
 
-        function deleteForumPost(postId) {
-            pendingDeletePostId = postId;
-            const modal = document.getElementById('forumDeleteConfirmModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            const confirmBtn = document.getElementById('confirmForumDeleteBtn');
-            confirmBtn.onclick = function() {
-                if (pendingDeletePostId) {
-                    forumPosts = forumPosts.filter(p => p._id !== pendingDeletePostId);
-                    localStorage.setItem('nekoaoi_forum_posts', JSON.stringify(forumPosts));
-                    showToast("Publicación eliminada correctamente", "success");
-                    renderForumFeed();
-                    updateForumSidebarDynamics();
-                    updateUserForumPostsCount();
-                }
-                closeForumDeleteModal();
-            };
-        }
 
         function closeForumDeleteModal() {
             pendingDeletePostId = null;
