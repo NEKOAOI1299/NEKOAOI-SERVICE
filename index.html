@@ -2869,6 +2869,7 @@ async function fetchForumPosts() {
 }
 
 // 2. Crear una nueva publicación en MongoDB
+
 async function createForumPost() {
     const text = document.getElementById('forumPostText').value.trim();
 
@@ -2890,7 +2891,8 @@ async function createForumPost() {
         } catch(e){}
     }
 
-    const newPost = {
+    const newPostLocal = {
+        _id: 'temp-' + Date.now(), // ID temporal local
         user: userName,
         avatar: userAvatar,
         rank: userRank,
@@ -2899,24 +2901,31 @@ async function createForumPost() {
         media: currentForumMedia || '',
         reactions: { love: 0, god: 0, cry: 0, filler: 0 },
         comments: [],
-        timestamp: new Date()
+        timestamp: 'Hace un momento'
     };
 
+    // 1. Mostrar de inmediato arriba del feed
+    forumPosts.unshift(newPostLocal);
+    renderForumFeed();
+
+    // Limpiar formulario al instante
+    document.getElementById('forumPostText').value = '';
+    removeForumMedia();
+    showToast("¡Publicación realizada!", "success");
+
+    // 2. Enviar a MongoDB en segundo plano
     try {
         const res = await fetch(`${BASE_URL}/api/foro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newPost)
+            body: JSON.stringify(newPostLocal)
         });
-
         if (res.ok) {
-            document.getElementById('forumPostText').value = '';
-            removeForumMedia();
-            showToast("¡Publicación realizada en el foro!", "success");
-            await fetchForumPosts();
+            fetchForumPosts(); // Sincronizar ID real de la base de datos
         }
     } catch (error) {
-        showToast("Error al conectar con el servidor", "error");
+        showToast("Error al guardar en el servidor", "error");
+        fetchForumPosts();
     }
 }
 
@@ -3235,7 +3244,6 @@ async function reactToPost(postId, reactionType) {
             modal.classList.add('hidden');
         }
 
-
 async function addPostComment(postId) {
     const input = document.getElementById(`comment-input-${postId}`);
     if (!input) return;
@@ -3251,21 +3259,35 @@ async function addPostComment(postId) {
         } catch(e){}
     }
 
+    // 1. CREAR OBJETO LOCAL TEMPORAL
+    const nuevoComentarioLocal = {
+        user: author,
+        text: text,
+        time: 'Hace un momento'
+    };
+
+    // 2. INSERTAR EN LA VISTA AL INSTANTE (Optimistic UI)
+    const post = forumPosts.find(p => p._id === postId);
+    if (post) {
+        if (!post.comments) post.comments = [];
+        post.comments.push(nuevoComentarioLocal);
+        renderForumFeed(); // Se actualiza la pantalla de inmediato
+    }
+
+    input.value = ''; // Limpiar input al instante
+
+    // 3. ENVIAR A MONGODB EN SEGUNDO PLANO
     try {
-        const res = await fetch(`${BASE_URL}/api/foro/${postId}/comment`, {
+        await fetch(`${BASE_URL}/api/foro/${postId}/comment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user: author, text: text })
         });
-        if (res.ok) {
-            input.value = '';
-            showToast("Comentario publicado", "success");
-            await fetchForumPosts();
-        } else {
-            showToast("Error al publicar comentario", "error");
-        }
+        // Sincronizar silenciosamente después
+        fetchForumPosts();
     } catch (e) {
         showToast("Error de conexión con el servidor", "error");
+        fetchForumPosts(); // Revertir si falla
     }
 }
 
