@@ -469,15 +469,22 @@ app.post('/api/reviews/:reviewId/reply', async (req, res) => {
     }
 });
 
-// ELIMINAR RESEÑA
+// ELIMINAR RESEÑA EN INDEX_2.JS
 app.delete('/api/reviews/:reviewId', async (req, res) => {
     try {
-        await Review.findByIdAndDelete(req.params.reviewId);
-        res.status(200).json({ mensaje: 'Reseña eliminada' });
+        const { reviewId } = req.params;
+
+        // Si es un ObjectId válido de Mongo, se elimina directamente
+        if (mongoose.Types.ObjectId.isValid(reviewId)) {
+            await Review.findByIdAndDelete(reviewId);
+            return res.status(200).json({ mensaje: 'Reseña eliminada de MongoDB' });
+        }
+
+        // Si no es un ObjectId válido (ID local/temporal), responde 200 sin romper el servidor
+        return res.status(200).json({ mensaje: 'Reseña local eliminada correctamente' });
     } catch (error) {
-        res.status(500).json({ error: 'Error al eliminar reseña' });
+        res.status(500).json({ error: 'Error al eliminar reseña', detalle: error.message });
     }
 });
-
 
 module.exports = app;

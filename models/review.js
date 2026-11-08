@@ -15,4 +15,13 @@ const reviewSchema = new mongoose.Schema({
     timeAgo: { type: String, default: 'Hace un momento' }
 });
 
+// --- AÑADE ESTO PARA MAPEAR EL _ID A ID EN LAS RESEÑAS ---
+reviewSchema.virtual('id').get(function() {
+    return this._id.toHexString();
+});
+
+reviewSchema.set('toJSON', {
+    virtuals: true
+});
+
 module.exports = mongoose.model('Review', reviewSchema);

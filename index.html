@@ -2262,7 +2262,7 @@ async function fetchAnimeReviews(animeId) {
     }
 
     let reviewsHtml = reviews.length > 0 ? reviews.map((r, index) => {
-        const reviewId = r.id || `${animeId}-rev-${index}`;
+        const reviewId = r._id || r.id || `${animeId}-rev-${index}`;
         const likesCount = (r.likes || []).length;
         
         const hasLiked = currentUserName && (r.likes || []).includes(currentUserName);
@@ -3522,19 +3522,22 @@ function openFranchiseModal(animeId) {
 async function deleteAnimeReview(animeId, reviewId) {
     if (!confirm("¿Estás seguro de eliminar esta reseña?")) return;
 
+    const idClean = (typeof reviewId === 'object' && reviewId !== null) ? (reviewId._id || reviewId.id) : reviewId;
+
     try {
-        const res = await fetch(`${BASE_URL}/api/reviews/${reviewId}`, {
+        const res = await fetch(`${BASE_URL}/api/reviews/${idClean}`, {
             method: 'DELETE'
         });
         if (res.ok) {
             showToast("Reseña eliminada", "success");
             await fetchAnimeReviews(animeId);
+        } else {
+            showToast("Error al eliminar reseña en el servidor", "error");
         }
     } catch (e) {
-        showToast("Error al eliminar reseña", "error");
+        showToast("Error de conexión", "error");
     }
 }
-
 
 function reportAnimeReview(animeId, reviewId) {
     if (!animeReviews[animeId]) return;
