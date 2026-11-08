@@ -387,4 +387,23 @@ app.delete('/api/foro/:id', async (req, res) => {
     }
 });
 
+app.post('/api/foro/:id/comment', async (req, res) => {
+    try {
+        const { user, text } = req.body;
+        const post = await ForoPost.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Publicación no encontrada' });
+
+        post.comments.push({
+            user: user || 'Anónimo',
+            text,
+            time: 'Hace un momento'
+        });
+
+        await post.save();
+        res.json(post);
+    } catch (err) {
+        res.status(500).json({ error: 'Error al guardar el comentario' });
+    }
+});
+
 module.exports = app;
