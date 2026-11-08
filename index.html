@@ -2892,19 +2892,19 @@ async function createForumPost() {
     }
 
     const newPostLocal = {
-        _id: 'temp-' + Date.now(), // ID temporal local
+        _id: 'temp-' + Date.now(),
         user: userName,
         avatar: userAvatar,
         rank: userRank,
-        category: 'general',
+        category: activeForumCategory || 'general',
         content: text,
         media: currentForumMedia || '',
         reactions: { love: 0, god: 0, cry: 0, filler: 0 },
         comments: [],
-        timestamp: 'Hace un momento'
+        timestamp: new Date().toISOString()
     };
 
-    // 1. Mostrar de inmediato arriba del feed
+    // 1. Mostrar de inmediato en pantalla
     forumPosts.unshift(newPostLocal);
     renderForumFeed();
 
@@ -2913,20 +2913,12 @@ async function createForumPost() {
     removeForumMedia();
     showToast("¡Publicación realizada!", "success");
 
-    // 2. Enviar a MongoDB en segundo plano
-    try {
-        const res = await fetch(`${BASE_URL}/api/foro`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newPostLocal)
-        });
-        if (res.ok) {
-            fetchForumPosts(); // Sincronizar ID real de la base de datos
-        }
-    } catch (error) {
-        showToast("Error al guardar en el servidor", "error");
-        fetchForumPosts();
-    }
+    // 2. Enviar al servidor en segundo plano sin bloquear la interfaz
+    fetch(`${BASE_URL}/api/foro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPostLocal)
+    }).catch(err => console.error("Error de red en segundo plano:", err));
 }
 
  activeForumCategory = 'general';
@@ -3244,7 +3236,7 @@ async function reactToPost(postId, reactionType) {
             modal.classList.add('hidden');
         }
 
-async function addPostComment(postId) {
+        async function addPostComment(postId) {
     const input = document.getElementById(`comment-input-${postId}`);
     if (!input) return;
     const text = input.value.trim();
@@ -3259,36 +3251,28 @@ async function addPostComment(postId) {
         } catch(e){}
     }
 
-    // 1. CREAR OBJETO LOCAL TEMPORAL
     const nuevoComentarioLocal = {
         user: author,
         text: text,
         time: 'Hace un momento'
     };
 
-    // 2. INSERTAR EN LA VISTA AL INSTANTE (Optimistic UI)
+    // 1. Insertar en la vista al instante
     const post = forumPosts.find(p => p._id === postId);
     if (post) {
         if (!post.comments) post.comments = [];
         post.comments.push(nuevoComentarioLocal);
-        renderForumFeed(); // Se actualiza la pantalla de inmediato
+        renderForumFeed();
     }
 
-    input.value = ''; // Limpiar input al instante
+    input.value = '';
 
-    // 3. ENVIAR A MONGODB EN SEGUNDO PLANO
-    try {
-        await fetch(`${BASE_URL}/api/foro/${postId}/comment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user: author, text: text })
-        });
-        // Sincronizar silenciosamente después
-        fetchForumPosts();
-    } catch (e) {
-        showToast("Error de conexión con el servidor", "error");
-        fetchForumPosts(); // Revertir si falla
-    }
+    // 2. Enviar a MongoDB en segundo plano sin esperar respuesta pesada
+    fetch(`${BASE_URL}/api/foro/${postId}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: author, text: text })
+    }).catch(err => console.error("Error al guardar comentario:", err));
 }
 
         function reportPost(postId) {
