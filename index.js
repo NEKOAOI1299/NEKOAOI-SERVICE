@@ -113,7 +113,7 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     }
 });
 
-// API DE ANIMES
+// API DE ANIMES (CREAR)
 app.post('/api/animes', async (req, res) => {
     try {
         const nuevoAnime = new Anime(req.body);
@@ -127,14 +127,46 @@ app.post('/api/animes', async (req, res) => {
     }
 });
 
+// API DE ANIMES (OBTENER CON PAGINACIÓN Y FILTROS)
 app.get('/api/animes', async (req, res) => {
     try {
-        const listaAnimes = await Anime.find();
-        res.status(200).json(listaAnimes);
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const skip = (page - 1) * limit;
+
+        const { titulo, genero, estado, tipo, temporada, anio, ordenar } = req.query;
+        let filtro = {};
+
+        if (titulo) filtro.titulo = { $regex: titulo, $options: 'i' };
+        if (tipo && tipo !== 'Todos') filtro.tipo = tipo;
+        if (estado && estado !== 'Todos') filtro.estado = estado;
+        if (genero && genero !== 'Todos') filtro.generos = genero;
+        if (temporada) filtro.temporada = { $regex: temporada, $options: 'i' };
+        if (anio && anio !== 'Todos') filtro.anio = Number(anio);
+
+        let orden = { puntuacion: -1 };
+        if (ordenar === 'recientes') orden = { creadoEn: -1 };
+        if (ordenar === 'alfabetico') orden = { titulo: 1 };
+
+        const totalAnimes = await Anime.countDocuments(filtro);
+
+        const animes = await Anime.find(filtro)
+            .sort(orden)
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        res.status(200).json({
+            animes,
+            currentPage: page,
+            totalPages: Math.ceil(totalAnimes / limit),
+            totalAnimes
+        });
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener los animes', detalle: error.message });
     }
 });
+
 // RUTA PARA ELIMINAR UN ANIME POR SU ID
 app.delete('/api/animes/:id', async (req, res) => {
     try {
@@ -155,13 +187,11 @@ app.post('/api/mi-lista', async (req, res) => {
     try {
         const { usuarioId, animeId, estadoLista } = req.body;
 
-        // Si la acción es eliminar, borramos el documento de la base de datos
         if (estadoLista === 'eliminar') {
             await UserAnime.deleteMany({ usuario: usuarioId, anime: animeId });
             return res.status(200).json({ message: 'Anime eliminado de la lista exitosamente' });
         }
 
-        // Si no es eliminar, lo crea o actualiza normalmente como lo tenías
         const actualizado = await UserAnime.findOneAndUpdate(
             { usuario: usuarioId, anime: animeId },
             { estadoLista: estadoLista },
@@ -189,7 +219,6 @@ app.get('/api/mi-lista/:usuarioId', async (req, res) => {
         }
 
         const listaUsuario = await UserAnime.find({ usuario: usuarioId }).populate('anime');
-        // Filtra de forma segura aquellos animes que ya no existan en la colección principal
         const listaValida = listaUsuario.filter(item => item.anime !== null);
         res.status(200).json(listaValida);
     } catch (error) {
@@ -365,7 +394,7 @@ app.post('/api/foro', async (req, res) => {
 // ACTUALIZAR REACCIONES DE UN POST
 app.post('/api/foro/:id/react', async (req, res) => {
     try {
-        const { reaction } = req.body; // 'love', 'god', 'cry', 'filler'
+        const { reaction } = req.body;
         const post = await ForoPost.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Post no encontrado' });
 
@@ -410,7 +439,6 @@ app.post('/api/foro/:id/comment', async (req, res) => {
 
 const Review = require('./models/review');
 
-// OBTENER RESEÑAS DE UN ANIME
 app.get('/api/animes/:animeId/reviews', async (req, res) => {
     try {
         const reviews = await Review.find({ animeId: req.params.animeId }).sort({ timestamp: -1 });
@@ -420,7 +448,6 @@ app.get('/api/animes/:animeId/reviews', async (req, res) => {
     }
 });
 
-// PUBLICAR UNA RESEÑA
 app.post('/api/animes/:animeId/reviews', async (req, res) => {
     try {
         const nuevaReseña = new Review({
@@ -434,7 +461,6 @@ app.post('/api/animes/:animeId/reviews', async (req, res) => {
     }
 });
 
-// DAR LIKE A UNA RESEÑA
 app.post('/api/reviews/:reviewId/like', async (req, res) => {
     try {
         const { username } = req.body;
@@ -443,9 +469,9 @@ app.post('/api/reviews/:reviewId/like', async (req, res) => {
 
         const index = review.likes.indexOf(username);
         if (index > -1) {
-            review.likes.splice(index, 1); // Quitar like
+            review.likes.splice(index, 1);
         } else {
-            review.likes.push(username); // Dar like
+            review.likes.push(username);
         }
         await review.save();
         res.status(200).json(review);
@@ -454,7 +480,6 @@ app.post('/api/reviews/:reviewId/like', async (req, res) => {
     }
 });
 
-// RESPONDER A UNA RESEÑA
 app.post('/api/reviews/:reviewId/reply', async (req, res) => {
     try {
         const { user, text } = req.body;
@@ -469,117 +494,17 @@ app.post('/api/reviews/:reviewId/reply', async (req, res) => {
     }
 });
 
-// ELIMINAR RESEÑA EN INDEX_2.JS
 app.delete('/api/reviews/:reviewId', async (req, res) => {
     try {
         const { reviewId } = req.params;
-
-        // Si es un ObjectId válido de Mongo, se elimina directamente
         if (mongoose.Types.ObjectId.isValid(reviewId)) {
             await Review.findByIdAndDelete(reviewId);
             return res.status(200).json({ mensaje: 'Reseña eliminada de MongoDB' });
         }
-
-        // Si no es un ObjectId válido (ID local/temporal), responde 200 sin romper el servidor
         return res.status(200).json({ mensaje: 'Reseña local eliminada correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar reseña', detalle: error.message });
     }
-});
-// ==========================================
-// 🤖 BOT AUTOMÁTICO DE ANILIST Y ACTUALIZACIÓN DIARIA
-// ==========================================
-const cron = require('node-cron');
-const axios = require('axios');
-
-async function sincronizarAnimesConAniList() {
-    console.log('🤖 [BOT] Iniciando sincronización automática con AniList...');
-    
-    const query = `
-    query {
-      Page(perPage: 50) {
-        media(type: ANIME, sort: [POPULARITY_DESC]) {
-          id
-          title {
-            romaji
-            english
-            native
-          }
-          status
-          seasonYear
-          episodes
-          coverImage {
-            large
-          }
-          description
-          genres
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-          startDate {
-            year
-            month
-            day
-          }
-          endDate {
-            year
-            month
-            day
-          }
-        }
-      }
-    }`;
-
-    try {
-        const response = await axios.post('https://graphql.anilist.co', { query });
-        const animesApi = response.data.data.Page.media;
-
-        for (let item of animesApi) {
-            let estadoMapeado = 'En emisión';
-            if (item.status === 'NOT_YET_RELEASED') estadoMapeado = 'Próximamente';
-            if (item.status === 'FINISHED') estadoMapeado = 'Finalizado';
-
-            const tituloAnime = item.title.romaji || item.title.english || 'Sin título';
-            const estudioNombre = item.studios && item.studios.nodes[0] ? item.studios.nodes[0].name : '';
-            
-            let fechaEstrenoStr = '';
-            if (item.startDate && item.startDate.year) {
-                fechaEstrenoStr = `${item.startDate.year}-${String(item.startDate.month || 1).padStart(2, '0')}-${String(item.startDate.day || 1).padStart(2, '0')}`;
-            }
-
-            await Anime.findOneAndUpdate(
-                { titulo: tituloAnime },
-                {
-                    titulo: tituloAnime,
-                    titulosAlternativos: {
-                        ingles: item.title.english || '',
-                        romaji: item.title.romaji || '',
-                        japones: item.title.native || ''
-                    },
-                    sinopsis: item.description ? item.description.replace(/<[^>]*>?/gm, '') : 'Sin descripción',
-                    imagenUrl: item.coverImage ? item.coverImage.large : '',
-                    estado: estadoMapeado,
-                    episodios: item.episodes || 0,
-                    generos: item.genres || [],
-                    anio: item.seasonYear || new Date().getFullYear(),
-                    estudio: estudioNombre,
-                    fechaEstreno: fechaEstrenoStr
-                },
-                { upsert: true, new: true }
-            );
-        }
-
-        console.log('🤖 [BOT] Sincronización diaria completada con éxito.');
-    } catch (error) {
-        console.error('❌ Error en el bot de sincronización:', error.message);
-    }
-}
-
-// Se ejecutará automáticamente todos los días a las 3:00 AM
-cron.schedule('0 3 * * *', () => {
-    sincronizarAnimesConAniList();
 });
 
 module.exports = app;

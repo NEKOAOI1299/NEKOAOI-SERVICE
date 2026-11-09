@@ -1476,20 +1476,78 @@ setInterval(fetchForumPosts, 30000);
             if (tabId === 'ajustes') updateUserForumPostsCount();
         }
 
-        async function fetchAnimes() {
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("Error en el servidor");
-                const data = await response.json();
-                allAnimes = Array.isArray(data) ? data : (data.animes || []);
-                
-                document.getElementById('animeCount').textContent = `${allAnimes.length} animes registrados`;
-                renderHomeSections();
-                cargarMiListaPersonal();
-            } catch (error) {
-                document.getElementById('animeCount').textContent = "Modo local Activo";
-            }
+let currentPage = 1;
+let totalPages = 1;
+
+async function fetchAnimes(page = 1) {
+    try {
+        const query = document.getElementById('dirSearchInput') ? document.getElementById('dirSearchInput').value : '';
+        const genero = document.getElementById('dirGeneroFilter') ? document.getElementById('dirGeneroFilter').value : '';
+        const estado = document.getElementById('dirEstadoFilter') ? document.getElementById('dirEstadoFilter').value : '';
+        const tipo = document.getElementById('dirTipoFilter') ? document.getElementById('dirTipoFilter').value : '';
+        const anio = document.getElementById('dirAnioFilter') ? document.getElementById('dirAnioFilter').value : '';
+        const ordenar = document.getElementById('dirSortOrder') ? document.getElementById('dirSortOrder').value : 'popular_desc';
+
+        const params = new URLSearchParams({
+            page: page,
+            titulo: query,
+            genero: genero,
+            estado: estado,
+            tipo: tipo,
+            anio: anio,
+            ordenar: ordenar
+        });
+
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+        if (!response.ok) throw new Error("Error en el servidor");
+        
+        const data = await response.json();
+        allAnimes = data.animes || [];
+        currentPage = data.currentPage || 1;
+        totalPages = data.totalPages || 1;
+        
+        document.getElementById('animeCount').textContent = `${data.totalAnimes || allAnimes.length} animes registrados (Página ${currentPage} de ${totalPages})`;
+        
+        renderHomeSections();
+        renderDirectoryPagination();
+        cargarMiListaPersonal();
+    } catch (error) {
+        console.error("Error al cargar animes:", error);
+    }
+}
+
+function renderDirectoryPagination() {
+    let pagContainer = document.getElementById('directoryPaginationContainer');
+    if (!pagContainer) {
+        pagContainer = document.createElement('div');
+        pagContainer.id = 'directoryPaginationContainer';
+        pagContainer.className = "flex items-center justify-center gap-3 py-6 col-span-full";
+        const grid = document.getElementById('directoryGrid');
+        if (grid && grid.parentNode) {
+            grid.parentNode.insertBefore(pagContainer, grid.nextSibling);
         }
+    }
+
+    pagContainer.innerHTML = `
+        <button onclick="cambiarPagina(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-cardbg border border-gray-800 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition cursor-pointer">
+            <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+        </button>
+        <span class="text-xs text-gray-300 font-semibold">Página ${currentPage} de ${totalPages || 1}</span>
+        <button onclick="cambiarPagina(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-cardbg border border-gray-800 text-xs font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition cursor-pointer">
+            Siguiente <i class="fa-solid fa-chevron-right ml-1"></i>
+        </button>
+    `;
+}
+
+function cambiarPagina(nuevaPagina) {
+    if (nuevaPagina < 1 || nuevaPagina > totalPages) return;
+    fetchAnimes(nuevaPagina);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function applyDirectoryFilters() {
+    fetchAnimes(1);
+}
 
         function renderHomeSections() {
             const populares = [...allAnimes].sort((a,b) => (b.puntuacion || 8) - (a.puntuacion || 8)).slice(0, 4);

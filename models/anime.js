@@ -74,4 +74,10 @@ const animeSchema = new mongoose.Schema({
     }
 });
 
+// 🚀 Índices para acelerar drásticamente los filtros y la navegación en la web local
+animeSchema.index({ tipo: 1 });
+animeSchema.index({ estado: 1 });
+animeSchema.index({ generos: 1 });
+animeSchema.index({ anio: 1 });
+
 module.exports = mongoose.model('Anime', animeSchema);
