@@ -1508,9 +1508,12 @@ async function fetchAnimes(page = 1) {
         
         document.getElementById('animeCount').textContent = `${data.totalAnimes || allAnimes.length} animes registrados (Página ${currentPage} de ${totalPages})`;
         
-        renderHomeSections();
+        // Renderizamos las tarjetas del directorio actual
+        renderAnimes(allAnimes, 'directoryGrid');
         renderDirectoryPagination();
-        cargarMiListaPersonal();
+        
+        // Actualizamos también las secciones del inicio
+        renderHomeSections();
     } catch (error) {
         console.error("Error al cargar animes:", error);
     }
@@ -1545,7 +1548,10 @@ function cambiarPagina(nuevaPagina) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+
 function applyDirectoryFilters() {
+    // Al cambiar cualquier filtro (año, género, tag, estado, tipo, orden o texto), 
+    // volvemos a la página 1 y le pedimos al servidor que filtre en TODO el catálogo de la BD.
     fetchAnimes(1);
 }
 
@@ -1566,51 +1572,6 @@ function applyDirectoryFilters() {
         }
 
 
-        function applyDirectoryFilters() {
-            const query = (document.getElementById('dirSearchInput').value || '').toLowerCase();
-            const anio = document.getElementById('dirAnioFilter').value;
-            const genero = document.getElementById('dirGeneroFilter').value.toLowerCase();
-            const tagSeleccionado = document.getElementById('dirTagFilter') ? document.getElementById('dirTagFilter').value.toLowerCase() : '';
-            const estado = document.getElementById('dirEstadoFilter').value;
-            const tipo = document.getElementById('dirTipoFilter').value;
-            const sortOrder = document.getElementById('dirSortOrder') ? document.getElementById('dirSortOrder').value : 'popular_desc';
-
-            const filtered = allAnimes.filter(a => {
-                const matchName = !query || (a.titulo && a.titulo.toLowerCase().includes(query));
-                const matchAnio = !anio || String(a.anio) === String(anio);
-                
-                const matchGenero = !genero || (a.generos && a.generos.some(g => g.toLowerCase().includes(genero)));
-                
-                // Filtro específico para las etiquetas (tags)
-                const matchTag = !tagSeleccionado || (a.tags && a.tags.some(t => t.toLowerCase().includes(tagSeleccionado)));
-
-                const matchEstado = !estado || a.estado === estado;
-                const matchTipo = !tipo || a.tipo === tipo;
-                return matchName && matchAnio && matchGenero && matchTag && matchEstado && matchTipo;
-            });
-
-            filtered.sort((a, b) => {
-                if (sortOrder === 'popular_desc') {
-                    return (b.puntuacion || 8) - (a.puntuacion || 8);
-                } else if (sortOrder === 'popular_asc') {
-                    return (a.puntuacion || 8) - (b.puntuacion || 8);
-                } else if (sortOrder === 'recent') {
-                    const timeA = a._id && a._id.startsWith('local-') ? parseInt(a._id.replace('local-', '')) : 0;
-                    const timeB = b._id && b._id.startsWith('local-') ? parseInt(b._id.replace('local-', '')) : 0;
-                    return timeB - timeA;
-                } else if (sortOrder === 'az') {
-                    return (a.titulo || '').localeCompare(b.titulo || '');
-                }
-                return 0;
-            });
-
-            const animeCountEl = document.getElementById('animeCount');
-            if (animeCountEl) {
-                animeCountEl.textContent = `${filtered.length} animes encontrados`;
-            }
-
-            renderAnimes(filtered, 'directoryGrid');
-        }
 
         function resetDirectoryFilters() {
             document.getElementById('dirSearchInput').value = '';

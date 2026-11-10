@@ -137,18 +137,44 @@ app.get('/api/animes', async (req, res) => {
         const { titulo, genero, estado, tipo, temporada, anio, ordenar } = req.query;
         let filtro = {};
 
-        if (titulo) filtro.titulo = { $regex: titulo, $options: 'i' };
-        if (tipo && tipo !== 'Todos') filtro.tipo = tipo;
-        if (estado && estado !== 'Todos') filtro.estado = estado;
-        if (genero && genero !== 'Todos') filtro.generos = genero;
-        if (temporada) filtro.temporada = { $regex: temporada, $options: 'i' };
-        if (anio && anio !== 'Todos') filtro.anio = Number(anio);
+        if (titulo) {
+            filtro.$or = [
+                { titulo: { $regex: titulo, $options: 'i' } },
+                { 'titulosAlternativos.ingles': { $regex: titulo, $options: 'i' } },
+                { 'titulosAlternativos.romaji': { $regex: titulo, $options: 'i' } }
+            ];
+        }
 
-        let orden = { puntuacion: -1 };
-        if (ordenar === 'recientes') orden = { creadoEn: -1 };
-        if (ordenar === 'alfabetico') orden = { titulo: 1 };
+        if (tipo && tipo !== '' && tipo !== 'Todos') {
+            filtro.tipo = tipo;
+        }
 
-        const totalAnimes = await Anime.countDocuments(filtro);
+        if (estado && estado !== '' && estado !== 'Todos') {
+            filtro.estado = estado;
+        }
+
+        if (genero && genero !== '' && genero !== 'Todos') {
+            filtro.generos = { $regex: new RegExp('^' + genero + '$', 'i') };
+        }
+
+        if (temporada && temporada !== '') {
+            filtro.temporada = { $regex: temporada, $options: 'i' };
+        }
+
+        if (anio && anio !== '' && anio !== 'Todos') {
+            filtro.anio = Number(anio);
+        }
+
+let orden = { puntuacion: -1 }; // Por defecto más popular
+        if (ordenar === 'popular_asc' || ordenar === 'menos populares') {
+            orden = { puntuacion: 1 };
+        } else if (ordenar === 'popular_desc' || ordenar === 'más populares') {
+            orden = { puntuacion: -1 };
+        } else if (ordenar === 'recent' || ordenar === 'recién agregados') {
+            orden = { creadoEn: -1, _id: -1 };
+        } else if (ordenar === 'az' || ordenar === 'alfabético (a-z)') {
+            orden = { titulo: 1 };
+        }        const totalAnimes = await Anime.countDocuments(filtro);
 
         const animes = await Anime.find(filtro)
             .sort(orden)
@@ -159,7 +185,7 @@ app.get('/api/animes', async (req, res) => {
         res.status(200).json({
             animes,
             currentPage: page,
-            totalPages: Math.ceil(totalAnimes / limit),
+            totalPages: Math.ceil(totalAnimes / limit) || 1,
             totalAnimes
         });
     } catch (error) {
@@ -506,5 +532,116 @@ app.delete('/api/reviews/:reviewId', async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar reseña', detalle: error.message });
     }
 });
+
+async function sincronizarAnimesConAniList() {
+    console.log('🤖 [BOT] Sincronización limpia y estructurada iniciada...');
+    
+    const query = `
+    query {
+      Page(perPage: 50) {
+        media(type: ANIME, sort: [POPULARITY_DESC]) {
+          id
+          title {
+            romaji
+            english
+            native
+          }
+          status
+          seasonYear
+          episodes
+          averageScore
+          isAdult
+          coverImage {
+            large
+          }
+          description
+          genres
+          format
+          studios(isMain: true) {
+            nodes {
+              name
+            }
+          }
+          startDate {
+            year
+            month
+            day
+          }
+        }
+      }
+    }`;
+
+    try {
+        const response = await axios.post('https://graphql.anilist.co', { query });
+        const animesApi = response.data.data.Page.media;
+
+        for (let item of animesApi) {
+            // DETECCIÓN Y FILTRO HENTAI / ADULTO
+            const esHentai = item.isAdult || (item.genres && item.genres.some(g => g.toLowerCase().includes('hentai')));
+            
+            let generosFinales = item.genres || [];
+            if (esHentai && !generosFinales.includes('Hentai')) {
+                generosFinales.push('Hentai'); // Aseguramos que la etiqueta Hentai quede registrada si decides filtrarla
+            }
+
+            // MAPEO EXACTO DE LOS FORMATOS (Las 10 etiquetas)
+            let formatoMapeado = 'Serie'; // Por defecto
+            switch (item.format) {
+                case 'TV': formatoMapeado = 'Serie TV'; break;
+                case 'TV_SHORT': formatoMapeado = 'Corto TV'; break;
+                case 'MOVIE': formatoMapeado = 'Película'; break;
+                case 'OVA': formatoMapeado = 'OVA'; break;
+                case 'ONA': formatoMapeado = 'ONA'; break;
+                case 'SPECIAL': formatoMapeado = 'Especial'; break;
+                case 'MUSIC': formatoMapeado = 'Música'; break;
+                case 'MANGA': formatoMapeado = 'Manga'; break;
+                case 'NOVEL': formatoMapeado = 'Novela Ligera'; break;
+                case 'ONE_SHOT': formatoMapeado = 'One-Shot'; break;
+                default: formatoMapeado = 'Serie TV';
+            }
+
+            let estadoMapeado = 'En emisión';
+            if (item.status === 'NOT_YET_RELEASED') estadoMapeado = 'Próximamente';
+            if (item.status === 'FINISHED') estadoMapeado = 'Finalizado';
+
+            const tituloAnime = item.title.romaji || item.title.english || 'Sin título';
+            const estudioNombre = item.studios && item.studios.nodes[0] ? item.studios.nodes[0].name : 'Desconocido';
+            const puntuacionReal = item.averageScore ? (item.averageScore / 10).toFixed(1) : 0.0;
+
+            let fechaEstrenoStr = '';
+            if (item.startDate && item.startDate.year) {
+                fechaEstrenoStr = `${item.startDate.year}-${String(item.startDate.month || 1).padStart(2, '0')}-${String(item.startDate.day || 1).padStart(2, '0')}`;
+            }
+
+            await Anime.findOneAndUpdate(
+                { titulo: tituloAnime },
+                {
+                    titulo: tituloAnime,
+                    titulosAlternativos: {
+                        ingles: item.title.english || '',
+                        romaji: item.title.romaji || '',
+                        japones: item.title.native || ''
+                    },
+                    sinopsis: item.description ? item.description.replace(/<[^>]*>?/gm, '') : 'Sin descripción',
+                    imagenUrl: item.coverImage ? item.coverImage.large : '',
+                    estado: estadoMapeado,
+                    tipo: formatoMapeado, // AQUÍ SE GUARDA EL FORMATO REAL (OVA, ONA, Película, etc.)
+                    puntuacion: puntuacionReal,
+                    episodios: item.episodios || item.episodes || 0,
+                    generos: generosFinales,
+                    anio: item.seasonYear || new Date().getFullYear(),
+                    estudio: estudioNombre,
+                    fechaEstreno: fechaEstrenoStr,
+                    esAdulto: esHentai
+                },
+                { upsert: true, new: true }
+            );
+        }
+
+        console.log('🤖 [BOT] Sincronización masiva finalizada con éxito y formatos organizados.');
+    } catch (error) {
+        console.error('❌ Error en la sincronización del bot:', error.message);
+    }
+}
 
 module.exports = app;
