@@ -5,42 +5,6 @@ require('dotenv').config();
 const Anime = require('../models/anime');
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
-// Función utilizando una API pública libre de bloqueos anti-bot
-async function traducirTexto(texto) {
-    if (!texto) return 'Sin descripción disponible.';
-    try {
-        const urlObj = new URL(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto.substring(0, 450))}&langpair=en|es`);
-        
-        const options = {
-            hostname: urlObj.hostname,
-            path: urlObj.pathname + urlObj.search,
-            method: 'GET',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-            }
-        };
-
-        const data = await new Promise((resolve, reject) => {
-            const req = https.request(options, (res) => {
-                let body = '';
-                res.on('data', (chunk) => body += chunk);
-                res.on('end', () => resolve(body));
-            });
-            req.on('error', (err) => reject(err));
-            req.end();
-        });
-        
-        const parsed = JSON.parse(data);
-        if (parsed && parsed.responseData && parsed.responseData.translatedText) {
-            return parsed.responseData.translatedText;
-        }
-        return texto;
-    } catch (e) {
-        console.error("⚠️ Error en la traducción:", e.message);
-        return texto;
-    }
-}
-
 async function importAnime(animeName) {
     if (!animeName) {
         console.error('❌ Por favor proporciona el nombre de un anime.');
@@ -54,6 +18,7 @@ async function importAnime(animeName) {
 
         console.log(`🔍 Buscando "${animeName}" en AniList API...`);
 
+        // CONSULTA GRAPHQL OPTIMIZADA (Punto 5: Incluye tags y endDate)
         const query = `
         query ($search: String) {
           Media (search: $search, type: ANIME) {
@@ -154,38 +119,55 @@ async function importAnime(animeName) {
             return;
         }
 
-        console.log("🔍 Datos crudos de tags desde AniList:", JSON.stringify(animeData.tags, null, 2));
+        // --- PUNTO 3: SINOPSIS EN INGLÉS LIMPIA DE HTML ---
+        const sinopsisIngles = animeData.description ? animeData.description.replace(/<[^>]*>?/gm, '') : 'No synopsis available.';
 
-        console.log(`🌐 Traduciendo sinopsis al español...`);
-        const sinopsisIngles = animeData.description ? animeData.description.replace(/<[^>]*>?/gm, '') : 'Sin descripción disponible.';
-        const sinopsisEspanol = await traducirTexto(sinopsisIngles);
+        // --- PUNTO 4: GÉNEROS ORIGINALES EN INGLÉS ---
+        const generosOriginales = animeData.genres || [];
 
-        // --- TRADUCCIÓN AUTOMÁTICA DE GÉNEROS ---
-        console.log(`🌐 Traduciendo géneros al español...`);
-        let generosTraducidos = [];
-        if (animeData.genres && Array.isArray(animeData.genres)) {
-            for (const genero of animeData.genres) {
-                const trad = await traducirTexto(genero);
-                // Limpiamos y capitalizamos la primera letra
-                const limpio = trad.trim().charAt(0).toUpperCase() + trad.trim().slice(1);
-                generosTraducidos.push(limpio);
-            }
-        }
-
-        // --- TRADUCCIÓN AUTOMÁTICA DE ETIQUETAS (TAGS) ---
-        console.log(`🌐 Traduciendo etiquetas (tags) al español...`);
-        let tagsTraducidos = [];
-        if (animeData.tags && Array.isArray(animeData.tags)) {
-            // Ordenamos por rank y tomamos los principales para no saturar
-            const topTags = animeData.tags.sort((a, b) => b.rank - a.rank).slice(0, 15);
-            for (const tagObj of topTags) {
-                const tradTag = await traducirTexto(tagObj.name);
-                const limpioTag = tradTag.trim().charAt(0).toUpperCase() + tradTag.trim().slice(1);
-                tagsTraducidos.push(limpioTag);
-            }
-        }
+        // --- PUNTO 5: EXTRACCIÓN DE TAGS (ORDENADOS POR RANK) ---
+        const tagsExtraidos = animeData.tags ? animeData.tags.sort((a, b) => b.rank - a.rank).map(t => t.name) : [];
 
         const urlImagen = animeData.coverImage?.extraLarge || animeData.coverImage?.large || animeData.coverImage?.medium || '';
+
+        // --- PUNTO 6: MAPEO EXACTO DE FORMATO (Adiós al error de que todo era Serie) ---
+        let formatoMapeado = 'Serie';
+        switch (animeData.format) {
+            case 'TV': formatoMapeado = 'Serie'; break;
+            case 'MOVIE': formatoMapeado = 'Película'; break;
+            case 'OVA': formatoMapeado = 'OVA'; break;
+            case 'ONA': formatoMapeado = 'ONA'; break;
+            case 'SPECIAL': formatoMapeado = 'Especial'; break;
+            case 'MUSIC': formatoMapeado = 'Música'; break;
+            default: formatoMapeado = animeData.format || 'Serie';
+        }
+
+        const estudioPrincipal = animeData.studios?.nodes?.[0]?.name || 'Unknown';
+
+        // --- PUNTO 2: PERIODO DE EMISIÓN Y FECHAS REALES ---
+        const formatAniDate = (d) => {
+            if (!d || !d.year) return '';
+            return `${d.year}-${String(d.month || 1).padStart(2, '0')}-${String(d.day || 1).padStart(2, '0')}`;
+        };
+
+        const fechaInicioStr = formatAniDate(animeData.startDate);
+        let fechaFinStr = '';
+
+        if (animeData.status === 'FINISHED') {
+            fechaFinStr = formatAniDate(animeData.endDate) || (animeData.startDate?.year ? String(animeData.startDate.year) : 'Finished');
+        } else if (animeData.status === 'NOT_YET_RELEASED') {
+            fechaFinStr = 'Upcoming';
+        } else {
+            fechaFinStr = 'Releasing';
+        }
+
+        let periodoEmision = fechaInicioStr ? `${fechaInicioStr} → ${fechaFinStr}` : 'N/A';
+        if (formatoMapeado === 'Película' && animeData.startDate?.year) {
+            periodoEmision = `${animeData.startDate.year}`; // Las películas muestran únicamente su año
+        }
+
+        // --- PUNTO 1: CALIFICACIÓN REAL DE ANILIST (Adiós al 8.5 fijo) ---
+        const puntuacionReal = animeData.averageScore ? (animeData.averageScore / 10).toFixed(1) : 0.0;
 
         const estaciones = {
             'WINTER': 'Invierno',
@@ -193,23 +175,10 @@ async function importAnime(animeName) {
             'SUMMER': 'Verano',
             'FALL': 'Otoño'
         };
-        const temporadaEspanol = estaciones[animeData.season] || 'Otoño';
-        const anioReal = animeData.startDate?.year || animeData.seasonYear || 2024;
+        const temporadaEspanol = estaciones[animeData.season] || 'Invierno';
+        const anioReal = animeData.startDate?.year || animeData.seasonYear || new Date().getFullYear();
 
-        const estudioPrincipal = animeData.studios?.nodes?.[0]?.name || 'Desconocido';
-
-        const formatAniDate = (d) => {
-            if (!d || !d.year) return 'Desconocida';
-            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-            const mesStr = d.month ? ` ${meses[d.month - 1]}` : '';
-            const diaStr = d.day ? ` ${d.day},` : '';
-            return `${diaStr}${mesStr} ${d.year}`.trim();
-        };
-
-        const fechaEstrenoTexto = formatAniDate(animeData.startDate);
-        const fechaFinalizacionTexto = formatAniDate(animeData.endDate);
-
-        // Mapeo de relaciones de AniList
+        // Mapeo de relaciones de la franquicia
         const relacionesMapeadas = animeData.relations?.edges ? animeData.relations.edges.map(edge => ({
             titulo: edge.node.title.romaji || edge.node.title.english,
             tipoRelacion: edge.relationType,
@@ -223,37 +192,38 @@ async function importAnime(animeName) {
                 ingles: animeData.title.english || '',
                 romaji: animeData.title.romaji || '',
                 japones: animeData.title.native || '',
-                espanol: animeData.title.english || ''
+                espanol: ''
             },
-            tipo: animeData.format === 'MOVIE' ? 'Película' : 'Serie',
+            tipo: formatoMapeado,
             anio: Number(anioReal),
             temporada: temporadaEspanol,
-            generos: generosTraducidos, // <--- Géneros ya traducidos al español
-            tags: tagsTraducidos,         // <--- Tags ya traducidos al español
+            generos: generosOriginales, // <--- En inglés, listo para traducir después
+            tags: tagsExtraidos,         // <--- Tags extraídos correctamente de AniList
             relaciones: relacionesMapeadas,
-            estado: animeData.status === 'RELEASING' ? 'En emisión' : 'Finalizado',
+            estado: animeData.status === 'FINISHED' ? 'Finalizado' : (animeData.status === 'NOT_YET_RELEASED' ? 'Próximamente' : 'En emisión'),
             episodiosTotales: animeData.episodes || 0,
-            puntuacion: animeData.averageScore ? (animeData.averageScore / 10) : 8.5,
-            sinopsis: sinopsisEspanol,
+            puntuacion: puntuacionReal,  // <--- Puntuación real de la API
+            sinopsis: sinopsisIngles,    // <--- Sinopsis en inglés limpia
             imagenPortada: urlImagen,
             imagenUrl: urlImagen,
             episodios: animeData.episodes || null,
             estudio: estudioPrincipal,
             estudioAnimacion: estudioPrincipal,
-            fechaEstreno: fechaEstrenoTexto,
-            fechaFinalizacion: fechaFinalizacionTexto
+            fechaEstreno: periodoEmision,   // <--- Periodo de emisión exacto[cite: 8]
+            fechaFinalizacion: fechaFinStr
         };   
 
+        // Guardar o actualizar en MongoDB usando el título o ID único
         await Anime.deleteOne({ titulo: animePayload.titulo });
-
         const nuevoAnime = new Anime(animePayload);
-        const animeGuardado = await nuevoAnime.save();
+        await nuevoAnime.save();
 
-        console.log(`\n🎉 ¡Anime procesado, traducido y sincronizado con éxito!`);
-        console.log(`📌 Título: ${animeGuardado.titulo}`);
-        console.log(`🌐 Géneros traducidos:`, animeGuardado.generos);
-        console.log(`🌐 Tags traducidos:`, animeGuardado.tags);
-        console.log(`📝 Sinopsis (Español): ${animeGuardado.sinopsis.substring(0, 100)}...\n`);
+        console.log(`\n🎉 ¡Anime importado con éxito en crudo!`);
+        console.log(`📌 Título: ${animePayload.titulo}`);
+        console.log(`⭐ Puntuación: ${animePayload.puntuacion}`);
+        console.log(`🎬 Formato: ${animePayload.tipo}`);
+        console.log(`📅 Periodo: ${animePayload.fechaEstreno}`);
+        console.log(`🏷️ Tags encontrados: ${animePayload.tags.length}\n`);
 
     } catch (error) {
         console.error('❌ Error durante la importación:', error);

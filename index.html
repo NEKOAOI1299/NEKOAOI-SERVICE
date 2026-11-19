@@ -1222,22 +1222,22 @@ setInterval(fetchForumPosts, 30000);
             showToast(isPublic ? "Perfil cambiado a Público 🌐" : "Perfil cambiado a Privado 🔒", "success");
         }
 
-        function populateYearSelectors() {
-            const currentYear = new Date().getFullYear();
-            const yearSelects = ['dirAnioFilter', 'listAnioFilter', 'seasonYearFilter', 'anio'];
-            
-            yearSelects.forEach(selectId => {
-                const el = document.getElementById(selectId);
-                if (!el) return;
-                el.innerHTML = selectId.includes('Filter') ? '<option value="">Todos los años</option>' : '';
-                for (let y = currentYear; y >= 1980; y--) {
-                    const opt = document.createElement('option');
-                    opt.value = y;
-                    opt.textContent = y;
-                    el.appendChild(opt);
-                }
-            });
+function populateYearSelectors() {
+    const currentYear = new Date().getFullYear();
+    const yearSelects = ['dirAnioFilter', 'listAnioFilter', 'seasonYearFilter', 'anio'];
+    
+    yearSelects.forEach(selectId => {
+        const el = document.getElementById(selectId);
+        if (!el) return;
+        el.innerHTML = '';
+        for (let y = currentYear; y >= 1980; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            el.appendChild(opt);
         }
+    });
+}
 
         const animeFLVGenres = [
             "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", 
@@ -1480,26 +1480,28 @@ let currentPage = 1;
 let totalPages = 1;
 
 async function fetchAnimes(page = 1) {
-    try {
-        const query = document.getElementById('dirSearchInput') ? document.getElementById('dirSearchInput').value : '';
-        const genero = document.getElementById('dirGeneroFilter') ? document.getElementById('dirGeneroFilter').value : '';
-        const estado = document.getElementById('dirEstadoFilter') ? document.getElementById('dirEstadoFilter').value : '';
-        const tipo = document.getElementById('dirTipoFilter') ? document.getElementById('dirTipoFilter').value : '';
-        const anio = document.getElementById('dirAnioFilter') ? document.getElementById('dirAnioFilter').value : '';
-        const ordenar = document.getElementById('dirSortOrder') ? document.getElementById('dirSortOrder').value : 'popular_desc';
+            try {
+                const query = document.getElementById('dirSearchInput') ? document.getElementById('dirSearchInput').value : '';
+                const genero = document.getElementById('dirGeneroFilter') ? document.getElementById('dirGeneroFilter').value : '';
+                const tag = document.getElementById('dirTagFilter') ? document.getElementById('dirTagFilter').value : ''; // <--- Añadir esto
+                const estado = document.getElementById('dirEstadoFilter') ? document.getElementById('dirEstadoFilter').value : '';
+                const tipo = document.getElementById('dirTipoFilter') ? document.getElementById('dirTipoFilter').value : '';
+                const anio = document.getElementById('dirAnioFilter') ? document.getElementById('dirAnioFilter').value : '';
+                const ordenar = document.getElementById('dirSortOrder') ? document.getElementById('dirSortOrder').value : 'popular_desc';
 
-        const params = new URLSearchParams({
-            page: page,
-            titulo: query,
-            genero: genero,
-            estado: estado,
-            tipo: tipo,
-            anio: anio,
-            ordenar: ordenar
-        });
+                const params = new URLSearchParams({
+                    page: page,
+                    titulo: query,
+                    genero: genero,
+                    tag: tag, // <--- Incluirlo en los parámetros
+                    estado: estado,
+                    tipo: tipo,
+                    anio: anio,
+                    ordenar: ordenar
+                });
 
-        const response = await fetch(`${API_URL}?${params.toString()}`);
-        if (!response.ok) throw new Error("Error en el servidor");
+                const response = await fetch(`${API_URL}?${params.toString()}`);
+                // ... resto del código        if (!response.ok) throw new Error("Error en el servidor");
         
         const data = await response.json();
         allAnimes = data.animes || [];
@@ -1572,61 +1574,55 @@ function applyDirectoryFilters() {
         }
 
 
+function resetDirectoryFilters() {
+    document.getElementById('dirSearchInput').value = '';
+    document.getElementById('dirAnioFilter').value = new Date().getFullYear();
+    document.getElementById('dirGeneroFilter').value = '';
+    document.getElementById('dirEstadoFilter').value = '';
+    document.getElementById('dirTipoFilter').value = '';
+    const sortEl = document.getElementById('dirSortOrder');
+    if (sortEl) sortEl.value = 'popular_desc';
+    applyDirectoryFilters();
+}
 
-        function resetDirectoryFilters() {
-            document.getElementById('dirSearchInput').value = '';
-            document.getElementById('dirAnioFilter').value = '';
-            document.getElementById('dirGeneroFilter').value = '';
-            document.getElementById('dirEstadoFilter').value = '';
-            document.getElementById('dirTipoFilter').value = '';
-            const sortEl = document.getElementById('dirSortOrder');
-            if (sortEl) sortEl.value = 'popular_desc';
-            applyDirectoryFilters();
-        }
+function filterSeasonTab(season, evt) {
+    document.querySelectorAll('.season-btn').forEach(btn => {
+        btn.classList.remove('bg-accent', 'text-white', 'shadow-md');
+        btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+    });
+    const targetBtn = evt?.currentTarget || Array.from(document.querySelectorAll('.season-btn')).find(b => b.textContent.includes(season));
+    if (targetBtn) {
+        targetBtn.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
+        targetBtn.classList.add('bg-accent', 'text-white', 'shadow-md');
+    }
+    activeSeason = season;
+    renderTemporadas();
+}
 
-        function filterSeasonTab(season) {
-            document.querySelectorAll('.season-btn').forEach(btn => {
-                btn.classList.remove('bg-accent', 'text-white', 'shadow-md');
-                btn.classList.add('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
-            });
-            event.target.classList.remove('bg-darkbg', 'border', 'border-gray-800', 'text-gray-300');
-            event.target.classList.add('bg-accent', 'text-white', 'shadow-md');
-            activeSeason = season;
-            renderTemporadas();
-        }
+async function renderTemporadas() {
+    const yearEl = document.getElementById('seasonYearFilter');
+    const year = yearEl ? yearEl.value : new Date().getFullYear();
+    const sortOrder = document.getElementById('seasonSortOrder') ? document.getElementById('seasonSortOrder').value : 'popular_desc';
 
-function renderTemporadas() {
-            const year = document.getElementById('seasonYearFilter').value;
-            const sortOrder = document.getElementById('seasonSortOrder') ? document.getElementById('seasonSortOrder').value : 'popular_desc';
+    try {
+        const params = new URLSearchParams({
+            temporada: activeSeason || '',
+            anio: year || '',
+            ordenar: sortOrder,
+            all: 'true'
+        });
 
-            const filtered = allAnimes.filter(a => {
-                // Comparamos la temporada ignorando mayúsculas/minúsculas para evitar fallos
-                const animeTemporada = (a.temporada || '').trim().toLowerCase();
-                const seleccionada = (activeSeason || '').trim().toLowerCase();
-                
-                const matchSeason = !seleccionada || animeTemporada === seleccionada;
-                const matchYear = !year || String(a.anio) === String(year);
-                
-                return matchSeason && matchYear;
-            });
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+        if (!response.ok) throw new Error("Error al cargar temporada");
 
-            filtered.sort((a, b) => {
-                if (sortOrder === 'popular_desc') {
-                    return (b.puntuacion || 8) - (a.puntuacion || 8);
-                } else if (sortOrder === 'popular_asc') {
-                    return (a.puntuacion || 8) - (b.puntuacion || 8);
-                } else if (sortOrder === 'recent') {
-                    const timeA = a._id && a._id.startsWith('local-') ? parseInt(a._id.replace('local-', '')) : 0;
-                    const timeB = b._id && b._id.startsWith('local-') ? parseInt(b._id.replace('local-', '')) : 0;
-                    return timeB - timeA;
-                } else if (sortOrder === 'az') {
-                    return (a.titulo || '').localeCompare(b.titulo || '');
-                }
-                return 0;
-            });
-
-            renderAnimes(filtered, 'temporadasGrid');
-        }
+        const data = await response.json();
+        const filtered = data.animes || [];
+        renderAnimes(filtered, 'temporadasGrid');
+    } catch (error) {
+        console.error("Error en renderTemporadas:", error);
+        renderAnimes([], 'temporadasGrid');
+    }
+}
 
         async function cargarMiListaPersonal() {
             try {
@@ -1897,59 +1893,61 @@ async function toggleListStatus(id, category) {
             }
 
             animes.forEach(anime => {
-                const card = document.createElement('div');
-                card.className = "bg-cardbg border border-gray-800/80 rounded-2xl overflow-hidden shadow-lg hover:border-accent/50 transition-all duration-300 flex flex-col group cursor-pointer";
-                
-                let imageUrl = anime.imagenUrl || anime.imagenPortada; // <--- Lee ambos campos para que nunca falle
-                if (!imageUrl || imageUrl.startsWith('http') === false || imageUrl.length < 10) {
-                    imageUrl = `https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60`;
-                }
-                
-                let generosHtml = '';
-                if (anime.generos && Array.isArray(anime.generos)) {
-                    generosHtml = anime.generos.slice(0, 2).map(g => `<span class="bg-darkbg text-gray-400 text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-gray-800">${g}</span>`).join('');
-                }
+        const card = document.createElement('div');
+        // Tarjeta principal con onclick para abrir la ficha
+        card.className = "bg-cardbg border border-gray-800/80 rounded-2xl overflow-hidden shadow-lg hover:border-accent/50 transition-all duration-300 flex flex-col group cursor-pointer";
+        card.onclick = () => openAnimeDetail(anime._id);
+        
+        let imageUrl = anime.imagenUrl || anime.imagenPortada;
+        if (!imageUrl || imageUrl.startsWith('http') === false || imageUrl.length < 10) {
+            imageUrl = `https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60`;
+        }
+        
+        let generosHtml = '';
+        if (anime.generos && Array.isArray(anime.generos)) {
+            generosHtml = anime.generos.slice(0, 2).map(g => `<span class="bg-darkbg text-gray-400 text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-gray-800">${g}</span>`).join('');
+        }
 
-                const itemGuardado = miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id));
-                const estadoActual = itemGuardado ? itemGuardado.estadoLista : null;
+        const itemGuardado = miListaUsuario.find(m => m.anime && (m.anime._id === anime._id || m.anime === anime._id));
+        const estadoActual = itemGuardado ? itemGuardado.estadoLista : null;
 
-                const inPlaneo = estadoActual === 'planeo_ver';
-                const inSigo = estadoActual === 'sigo_viendo';
-                const inVi = estadoActual === 'ya_vi';
+        const inPlaneo = estadoActual === 'planeo_ver';
+        const inSigo = estadoActual === 'sigo_viendo';
+        const inVi = estadoActual === 'ya_vi';
 
-                card.innerHTML = `
-                    <div class="relative aspect-[3/4] overflow-hidden bg-gray-900 flex items-center justify-center" onclick="openAnimeDetail('${anime._id}')">
-                        <img src="${imageUrl}" alt="${anime.titulo}" onerror="this.src='https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=60'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-cardbg via-transparent to-transparent opacity-80 pointer-events-none"></div>
-                        <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-lg border border-white/10">
-                            ${anime.tipo || 'Serie'}
-                        </span>
+        card.innerHTML = `
+            <div class="relative aspect-[3/4] overflow-hidden bg-gray-900 flex items-center justify-center">
+                <img src="${imageUrl}" alt="${anime.titulo}" onerror="this.src='https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=60'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-cardbg via-transparent to-transparent opacity-80 pointer-events-none"></div>
+                <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-lg border border-white/10">
+                    ${anime.tipo || 'Serie'}
+                </span>
+            </div>
+            <div class="p-3 sm:p-4 flex flex-col flex-grow justify-between gap-2.5">
+                <div>
+                    <h3 class="font-bold text-xs sm:text-sm text-white line-clamp-1 group-hover:text-accent transition mb-0.5">${anime.titulo}</h3>
+                    <div class="flex flex-wrap gap-1 mb-1">
+                        ${generosHtml}
                     </div>
-                    <div class="p-3 sm:p-4 flex flex-col flex-grow justify-between gap-2.5">
-                        <div onclick="openAnimeDetail('${anime._id}')">
-                            <h3 class="font-bold text-xs sm:text-sm text-white line-clamp-1 group-hover:text-accent transition mb-0.5">${anime.titulo}</h3>
-                            <div class="flex flex-wrap gap-1 mb-1">
-                                ${generosHtml}
-                            </div>
-                        </div>
-                        <div class="space-y-2 pt-2 border-t border-gray-800/80">
-                            <div class="flex items-center justify-between text-[11px] text-gray-400">
-                                <span class="text-amber-400 font-bold"><i class="fa-solid fa-star mr-1"></i> ${anime.puntuacion || '8.5'}</span>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="shareAnime('${anime._id}')" class="text-gray-400 hover:text-emerald-400 transition cursor-pointer" title="Compartir"><i class="fa-solid fa-share-nodes"></i></button>
-                                    ${canDelete ? `<button onclick="deleteAnime('${anime._id}')" class="text-gray-500 hover:text-danger transition cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>` : ''}
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-3 gap-1 pt-0.5">
-                                <button onclick="toggleListStatus('${anime._id}', 'planeo')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inPlaneo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Planeo</button>
-                                <button onclick="toggleListStatus('${anime._id}', 'sigo')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inSigo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Sigo</button>
-                                <button onclick="toggleListStatus('${anime._id}', 'vi')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inVi ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Ya vi</button>
-                            </div>
+                </div>
+                <div class="space-y-2 pt-2 border-t border-gray-800/80">
+                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                        <span class="text-amber-400 font-bold"><i class="fa-solid fa-star mr-1"></i> ${anime.puntuacion !== undefined && anime.puntuacion !== null ? anime.puntuacion : '0.0'}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="event.stopPropagation(); shareAnime('${anime._id}')" class="text-gray-400 hover:text-emerald-400 transition cursor-pointer" title="Compartir"><i class="fa-solid fa-share-nodes"></i></button>
+                            ${canDelete ? `<button onclick="event.stopPropagation(); deleteAnime('${anime._id}')" class="text-gray-500 hover:text-danger transition cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                         </div>
                     </div>
-                `;
-                container.appendChild(card);
-            });
+                    <div class="grid grid-cols-3 gap-1 pt-0.5">
+                        <button onclick="event.stopPropagation(); toggleListStatus('${anime._id}', 'planeo')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inPlaneo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Planeo</button>
+                        <button onclick="event.stopPropagation(); toggleListStatus('${anime._id}', 'sigo')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inSigo ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Sigo</button>
+                        <button onclick="event.stopPropagation(); toggleListStatus('${anime._id}', 'vi')" class="text-[9px] sm:text-[10px] py-1 px-0.5 rounded border ${inVi ? 'bg-accent border-accent text-white font-bold' : 'bg-darkbg border-gray-800 text-gray-400 hover:text-white'} transition cursor-pointer">Ya vi</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
         }
 
 
@@ -1958,7 +1956,7 @@ async function toggleListStatus(id, category) {
             const anime = allAnimes.find(a => a._id === id);
             if (!anime) return;
 
-            const text = `🍿 Te recomiendo ver este anime en NEKOAOI: *${anime.titulo}* (${anime.puntuacion || '8.5'}★).\n${anime.sinopsis || ''}`;
+            const text = `🍿 Te recomiendo ver este anime en NEKOAOI: *${anime.titulo}* (${anime.puntuacion !== undefined && anime.puntuacion !== null ? anime.puntuacion : '0.0'}★).\n${anime.sinopsis || ''}`;
             const url = window.location.href.split('?')[0] + `?anime=${encodeURIComponent(anime.titulo)}`;
             
             openShareModal(`Compartir "${anime.titulo}"`, "¡Recomienda este anime a tus amigos!", text, url);
@@ -2032,7 +2030,7 @@ function openAnimeDetail(id) {
 
                         <div class="bg-darkbg p-2.5 rounded-xl border border-gray-800 text-center">
                             <span class="block text-[10px] text-gray-400 uppercase font-bold">Puntuación</span>
-                            <span class="font-extrabold text-amber-400 text-sm"><i class="fa-solid fa-star"></i> ${anime.puntuacion || '8.5'} / 10</span>
+                            <span class="font-extrabold text-amber-400 text-sm"><i class="fa-solid fa-star"></i> ${anime.puntuacion !== undefined && anime.puntuacion !== null ? anime.puntuacion : '0.0'} / 10</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-center text-xs">
@@ -2604,7 +2602,7 @@ async function submitAnimeReview(animeId) {
                 temporada: document.getElementById('temporada').value,
                 puntuacion: Number(document.getElementById('puntuacion').value) || 8.5,
                 generos: generosArray,
-                rellenoGuia: document.getElementById('rellenoGuia').value.trim(),
+                rellenoGuia: document.getElementById('rellenoGuia')?.value.trim() || '',
                 sinopsis: document.getElementById('sinopsis').value.trim(),
                 imagenUrl: document.getElementById('imagenUrl').value.trim()
             };
