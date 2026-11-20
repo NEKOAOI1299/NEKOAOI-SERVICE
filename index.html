@@ -1160,6 +1160,7 @@
 
         let API_URL = `${BASE_URL}/api/animes`;
         let allAnimes = [];
+        let animeLookup = {};
         let currentUser = localStorage.getItem('anibase_user') || null;
         let miListaUsuario = [];
         let animeReviews = JSON.parse(localStorage.getItem('anibase_reviews') || '{}');
@@ -1230,6 +1231,15 @@ function populateYearSelectors() {
         const el = document.getElementById(selectId);
         if (!el) return;
         el.innerHTML = '';
+
+        // Agregar "Todos los años" solo en Directorio y Mi Lista
+        if (selectId === 'dirAnioFilter' || selectId === 'listAnioFilter') {
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = 'Todos los años';
+            el.appendChild(defaultOpt);
+        }
+
         for (let y = currentYear; y >= 1980; y--) {
             const opt = document.createElement('option');
             opt.value = y;
@@ -1238,6 +1248,7 @@ function populateYearSelectors() {
         }
     });
 }
+
 
         const animeFLVGenres = [
             "Acción", "Aventura", "Comedia", "Drama", "Fantasía", "Sci-Fi", "Romance", 
@@ -1574,10 +1585,12 @@ function applyDirectoryFilters() {
         }
 
 
-function resetDirectoryFilters() {
+        function resetDirectoryFilters() {
     document.getElementById('dirSearchInput').value = '';
-    document.getElementById('dirAnioFilter').value = new Date().getFullYear();
+    document.getElementById('dirAnioFilter').value = '';
     document.getElementById('dirGeneroFilter').value = '';
+    const tagEl = document.getElementById('dirTagFilter');
+    if (tagEl) tagEl.value = '';
     document.getElementById('dirEstadoFilter').value = '';
     document.getElementById('dirTipoFilter').value = '';
     const sortEl = document.getElementById('dirSortOrder');
@@ -1893,10 +1906,14 @@ async function toggleListStatus(id, category) {
             }
 
             animes.forEach(anime => {
+    if (anime && anime._id) {
+        animeLookup[anime._id] = anime;
+    }
         const card = document.createElement('div');
         // Tarjeta principal con onclick para abrir la ficha
         card.className = "bg-cardbg border border-gray-800/80 rounded-2xl overflow-hidden shadow-lg hover:border-accent/50 transition-all duration-300 flex flex-col group cursor-pointer";
         card.onclick = () => openAnimeDetail(anime._id);
+        
         
         let imageUrl = anime.imagenUrl || anime.imagenPortada;
         if (!imageUrl || imageUrl.startsWith('http') === false || imageUrl.length < 10) {
@@ -2011,11 +2028,28 @@ async function toggleListStatus(id, category) {
             showToast("¡Enlace copiado al portapapeles!", "success");
         }
 
-function openAnimeDetail(id) {
-            const anime = allAnimes.find(a => a._id === id);
-            if (!anime) return;
 
-            const imageUrl = anime.imagenUrl || anime.imagenPortada || `https://placehold.co/400x550/181a20/13C8D6?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
+function openAnimeDetail(id) {
+            let anime = allAnimes.find(a => a._id === id);
+
+            if (!anime && Array.isArray(miListaUsuario)) {
+                const foundInList = miListaUsuario.find(m => m && m.anime && typeof m.anime === 'object' && m.anime._id === id);
+                if (foundInList) anime = foundInList.anime;
+            }
+
+            if (!anime && animeLookup[id]) {
+                anime = animeLookup[id];
+            }
+
+            if (!anime) {
+                showToast("No se pudo cargar la información de este anime", "error");
+                return;
+            }
+
+            let imageUrl = anime.imagenUrl || anime.imagenPortada;
+            if (!imageUrl || imageUrl.startsWith('http') === false || imageUrl.length < 10) {
+                imageUrl = `https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60`;
+            }
 
             // 1. Inyectamos todo el HTML del modal
             document.getElementById('detailModalContent').innerHTML = `
